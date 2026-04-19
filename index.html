@@ -4630,16 +4630,6 @@ body.light-mode .marks-input-back {
             <select class="compact-input form-select" id="inp-university" onchange="clearFieldErr('inp-university'); (function(){ const gw=document.getElementById('group-selector-wrap'); if(gw) gw.style.display=(this.value==='AKTU'?'block':'none'); }).call(this)">
               <option value="">— Select —</option>
               <option value="AKTU">AKTU (Dr. APJ Abdul Kalam Technical University)</option>
-              <option value="DU">Delhi University (DU)</option>
-              <option value="IP University">Indraprastha University (IPU)</option>
-              <option value="UPTU">UPTU</option>
-              <option value="VTU">VTU</option>
-              <option value="RGPV">RGPV</option>
-              <option value="GTU">GTU</option>
-              <option value="SPPU">SPPU (Pune University)</option>
-              <option value="MDU">MDU Rohtak</option>
-              <option value="KUK">Kurukshetra University</option>
-              <option value="Other">Other University</option>
             </select>
             <div class="field-err" id="err-university"></div>
           </div>
@@ -4648,13 +4638,6 @@ body.light-mode .marks-input-back {
             <select class="compact-input form-select" id="inp-course" onchange="clearFieldErr('inp-course');updateBranches()">
               <option value="">— Select —</option>
               <option value="B.Tech">B.Tech</option>
-              <option value="B.Tech Lateral Entry">B.Tech Lateral Entry</option>
-              <option value="M.Tech">M.Tech</option>
-              <option value="MCA">MCA</option>
-              <option value="MBA">MBA</option>
-              <option value="BCA">BCA</option>
-              <option value="B.Arch">B.Arch</option>
-              <option value="B.Pharm">B.Pharm</option>
             </select>
             <div class="field-err" id="err-course"></div>
           </div>
@@ -4729,8 +4712,143 @@ body.light-mode .marks-input-back {
 
         <div class="compact-group">
           <label class="compact-label">College Name <span class="req">*</span></label>
-          <input class="compact-input" type="text" id="inp-college" placeholder="e.g. ABES Engineering College, Ghaziabad"
-            oninput="clearFieldErr('inp-college')" />
+          <select class="compact-input form-select" id="inp-college" onchange="clearFieldErr('inp-college')">
+            <option value="">— Select College —</option>
+            <optgroup label="AGRA">
+              <option value="Anand Engineering College, Agra">Anand Engineering College, Agra</option>
+              <option value="Faculty of Engineering & Technology, Agra College, Agra">Faculty of Engineering &amp; Technology, Agra College, Agra</option>
+              <option value="Hindustan Institute of Technology & Management, Agra">Hindustan Institute of Technology &amp; Management, Agra</option>
+              <option value="Raja Balwant Singh Engineering Technical Campus, Bichpuri, Agra">Raja Balwant Singh Engineering Technical Campus, Bichpuri, Agra</option>
+              <option value="Raja Balwant Singh Management Technical Campus, Agra">Raja Balwant Singh Management Technical Campus, Agra</option>
+              <option value="Agra Public Pharmacy College, Agra">Agra Public Pharmacy College, Agra</option>
+            </optgroup>
+            <optgroup label="ALIGARH">
+              <option value="Shivdan Singh Institute of Technology & Management, Aligarh">Shivdan Singh Institute of Technology &amp; Management, Aligarh</option>
+              <option value="Aligarh College of Engineering and Technology, Aligarh">Aligarh College of Engineering and Technology, Aligarh</option>
+            </optgroup>
+            <optgroup label="ALLAHABAD">
+              <option value="United College of Engineering & Research, Allahabad">United College of Engineering &amp; Research, Allahabad</option>
+              <option value="United Institute of Management, Allahabad">United Institute of Management, Allahabad</option>
+              <option value="Institute of Engineering and Rural Technology, Allahabad">Institute of Engineering and Rural Technology, Allahabad</option>
+            </optgroup>
+            <optgroup label="AZAMGARH">
+              <option value="Pharmacy College, Azamgarh">Pharmacy College, Azamgarh</option>
+            </optgroup>
+            <optgroup label="BAGHPAT">
+              <option value="Shri Gopichand College of Pharmacy, Baghpat">Shri Gopichand College of Pharmacy, Baghpat</option>
+            </optgroup>
+            <optgroup label="BAREILLY">
+              <option value="Shri Ram Murti Smarak College of Engineering & Technology, Bareilly">Shri Ram Murti Smarak College of Engineering &amp; Technology, Bareilly</option>
+              <option value="Invertis Institute of Management Studies, Bareilly">Invertis Institute of Management Studies, Bareilly</option>
+              <option value="Rakshpal Bahadur Management Institute, Bareilly">Rakshpal Bahadur Management Institute, Bareilly</option>
+            </optgroup>
+            <optgroup label="BIJNOR">
+              <option value="Kunwar Satya Vira College of Engineering & Management, Bijnor">Kunwar Satya Vira College of Engineering &amp; Management, Bijnor</option>
+            </optgroup>
+            <optgroup label="BULANDSHAHR">
+              <option value="Babu Banarsi Das Institute of Engineering Technology & Research Centre, Bulandshahr">Babu Banarsi Das Institute of Engineering Technology &amp; Research Centre, Bulandshahr</option>
+              <option value="Marathwada Institute of Technology, Bulandshahr">Marathwada Institute of Technology, Bulandshahr</option>
+            </optgroup>
+            <optgroup label="DEHRADUN">
+              <option value="Dehradun Institute of Technology, Dehradun">Dehradun Institute of Technology, Dehradun</option>
+            </optgroup>
+            <optgroup label="FAIZABAD">
+              <option value="Faculty of Management, Jhunjhunwala Degree College, Faizabad">Faculty of Management, Jhunjhunwala Degree College, Faizabad</option>
+            </optgroup>
+            <optgroup label="GHAZIABAD">
+              <option value="Ajay Kumar Garg Engineering College, Ghaziabad">Ajay Kumar Garg Engineering College, Ghaziabad</option>
+              <option value="Ideal Institute of Technology, Ghaziabad">Ideal Institute of Technology, Ghaziabad</option>
+              <option value="KIET Group of Institutions, Ghaziabad">KIET Group of Institutions, Ghaziabad</option>
+              <option value="Inderprastha Engineering College, Ghaziabad">Inderprastha Engineering College, Ghaziabad</option>
+              <option value="ABES Engineering College, Ghaziabad">ABES Engineering College, Ghaziabad</option>
+              <option value="Raj Kumar Goel Institute of Technology, Ghaziabad">Raj Kumar Goel Institute of Technology, Ghaziabad</option>
+              <option value="Babu Banarsi Das Institute of Technology, Ghaziabad">Babu Banarsi Das Institute of Technology, Ghaziabad</option>
+              <option value="Institute of Management Studies, Ghaziabad">Institute of Management Studies, Ghaziabad</option>
+              <option value="Institute of Management Education, Ghaziabad">Institute of Management Education, Ghaziabad</option>
+              <option value="Institute of Technology & Science, Ghaziabad">Institute of Technology &amp; Science, Ghaziabad</option>
+              <option value="Institute of Management & Research, Ghaziabad">Institute of Management &amp; Research, Ghaziabad</option>
+              <option value="Dr. K.N. Modi Institute of Engineering and Technology, Ghaziabad">Dr. K.N. Modi Institute of Engineering and Technology, Ghaziabad</option>
+              <option value="Dr. K.N. Modi Institute of Pharmaceutical Education and Research, Ghaziabad">Dr. K.N. Modi Institute of Pharmaceutical Education and Research, Ghaziabad</option>
+              <option value="Unique Institute of Management & Technology, Ghaziabad">Unique Institute of Management &amp; Technology, Ghaziabad</option>
+            </optgroup>
+            <optgroup label="GHAZIPUR">
+              <option value="Technical Education & Research Institute, Ghazipur">Technical Education &amp; Research Institute, Ghazipur</option>
+            </optgroup>
+            <optgroup label="GONDA">
+              <option value="Acharya Narendra Deo College of Pharmacy, Gonda">Acharya Narendra Deo College of Pharmacy, Gonda</option>
+            </optgroup>
+            <optgroup label="GAUTAM BUDDHA NAGAR">
+              <option value="Apeejay Institute of Technology - School of Architecture & Planning, Gautam Buddha Nagar">Apeejay Institute of Technology - School of Architecture &amp; Planning, Gautam Buddha Nagar</option>
+              <option value="IEC College of Engineering & Technology, Gautam Budh Nagar">IEC College of Engineering &amp; Technology, Gautam Budh Nagar</option>
+              <option value="JSS Academy of Technical Education, Gautam Budh Nagar">JSS Academy of Technical Education, Gautam Budh Nagar</option>
+              <option value="Priyadarshini College of Computer Sciences, Gautam Budh Nagar">Priyadarshini College of Computer Sciences, Gautam Budh Nagar</option>
+              <option value="Ram-Eesh Institute of Vocational and Technical Education, Gautam Buddh Nagar">Ram-Eesh Institute of Vocational and Technical Education, Gautam Buddh Nagar</option>
+              <option value="Galgotias Institute of Management & Technology, Gautam Buddha Nagar">Galgotias Institute of Management &amp; Technology, Gautam Buddha Nagar</option>
+              <option value="Mahatma Gandhi Mission's College of Engineering & Technology, G.B. Nagar">Mahatma Gandhi Mission's College of Engineering &amp; Technology, G.B. Nagar</option>
+              <option value="Vishveshwarya Group of Institutions, Gautam Buddha Nagar">Vishveshwarya Group of Institutions, Gautam Buddha Nagar</option>
+              <option value="Galgotias College of Engineering & Technology, Gautam Buddha Nagar">Galgotias College of Engineering &amp; Technology, Gautam Buddha Nagar</option>
+              <option value="Institute of Management Studies, Gautam Budha Nagar">Institute of Management Studies, Gautam Budha Nagar</option>
+              <option value="Harlal Institute of Management & Technology, Gautambudh Nagar">Harlal Institute of Management &amp; Technology, Gautambudh Nagar</option>
+            </optgroup>
+            <optgroup label="JHANSI">
+              <option value="Bundelkhand Institute of Engineering & Technology, Jhansi">Bundelkhand Institute of Engineering &amp; Technology, Jhansi</option>
+            </optgroup>
+            <optgroup label="KANPUR">
+              <option value="Uttar Pradesh Textile Technology Institute, Kanpur">Uttar Pradesh Textile Technology Institute, Kanpur</option>
+              <option value="Harcourt Butler Technological Institute, Kanpur">Harcourt Butler Technological Institute, Kanpur</option>
+              <option value="Maharana Pratap Engineering College, Kanpur">Maharana Pratap Engineering College, Kanpur</option>
+              <option value="Dr. Virendra Swarup Institute of Computer Studies, Kanpur">Dr. Virendra Swarup Institute of Computer Studies, Kanpur</option>
+              <option value="Dayanand Academy of Management Studies, Kanpur">Dayanand Academy of Management Studies, Kanpur</option>
+              <option value="College of Management Studies, Kanpur">College of Management Studies, Kanpur</option>
+            </optgroup>
+            <optgroup label="LUCKNOW">
+              <option value="Faculty of Architecture, UP Technical University, Lucknow">Faculty of Architecture, UP Technical University, Lucknow</option>
+              <option value="Institute of Engineering & Technology, Lucknow">Institute of Engineering &amp; Technology, Lucknow</option>
+              <option value="Azad Institute of Engineering & Technology, Lucknow">Azad Institute of Engineering &amp; Technology, Lucknow</option>
+              <option value="Babu Banarasi Das National Institute of Technology and Management, Lucknow">Babu Banarasi Das National Institute of Technology and Management, Lucknow</option>
+              <option value="Babu Banarasi Das Northern India Institute of Technology, Lucknow">Babu Banarasi Das Northern India Institute of Technology, Lucknow</option>
+              <option value="International Institute for Special Education, Lucknow">International Institute for Special Education, Lucknow</option>
+              <option value="Institute of Environment and Management, Lucknow">Institute of Environment and Management, Lucknow</option>
+              <option value="Lal Bahadur Shastri Institute of Management and Development Studies, Lucknow">Lal Bahadur Shastri Institute of Management and Development Studies, Lucknow</option>
+              <option value="Gyan Institute of Management and Technology, Lucknow">Gyan Institute of Management and Technology, Lucknow</option>
+              <option value="Sherwood College of Management, Lucknow">Sherwood College of Management, Lucknow</option>
+              <option value="Moti Lal Rastogi School of Management, Lucknow">Moti Lal Rastogi School of Management, Lucknow</option>
+            </optgroup>
+            <optgroup label="MATHURA">
+              <option value="G.L.A. Institute of Technology & Management, Mathura">G.L.A. Institute of Technology &amp; Management, Mathura</option>
+              <option value="Hindustan College of Science and Technology, Mathura">Hindustan College of Science and Technology, Mathura</option>
+              <option value="BSA College of Engineering & Technology, Mathura">BSA College of Engineering &amp; Technology, Mathura</option>
+              <option value="Rajiv Academy for Pharmacy, Mathura">Rajiv Academy for Pharmacy, Mathura</option>
+              <option value="Hindustan Institute of Management and Computer Studies, Mathura">Hindustan Institute of Management and Computer Studies, Mathura</option>
+            </optgroup>
+            <optgroup label="MEERUT">
+              <option value="Meerut Institute of Engineering & Technology, Meerut">Meerut Institute of Engineering &amp; Technology, Meerut</option>
+              <option value="Radha Govind Group of Institutions, Meerut">Radha Govind Group of Institutions, Meerut</option>
+              <option value="College of Engineering and Rural Technology, Meerut">College of Engineering and Rural Technology, Meerut</option>
+              <option value="IIMT Management College, Meerut">IIMT Management College, Meerut</option>
+              <option value="Dewan Institute of Management Studies, Meerut">Dewan Institute of Management Studies, Meerut</option>
+            </optgroup>
+            <optgroup label="MIRZAPUR">
+              <option value="Ghanshyam Binani Academy of Management Sciences, Mirzapur">Ghanshyam Binani Academy of Management Sciences, Mirzapur</option>
+            </optgroup>
+            <optgroup label="MORADABAD">
+              <option value="Institute of Foreign Trade and Management, Moradabad">Institute of Foreign Trade and Management, Moradabad</option>
+              <option value="Moradabad Institute of Technology, Moradabad">Moradabad Institute of Technology, Moradabad</option>
+            </optgroup>
+            <optgroup label="MUZAFFARNAGAR">
+              <option value="S.D. College of Engineering & Technology, Muzaffarnagar">S.D. College of Engineering &amp; Technology, Muzaffarnagar</option>
+              <option value="Bhagwant Institute of Technology, Muzaffarnagar">Bhagwant Institute of Technology, Muzaffarnagar</option>
+              <option value="S.D. College of Management Studies, Muzaffarnagar">S.D. College of Management Studies, Muzaffarnagar</option>
+            </optgroup>
+            <optgroup label="SULTANPUR">
+              <option value="Kamla Nehru Institute of Technology, Sultanpur">Kamla Nehru Institute of Technology, Sultanpur</option>
+            </optgroup>
+            <optgroup label="VARANASI">
+              <option value="School of Management Sciences, Varanasi">School of Management Sciences, Varanasi</option>
+              <option value="Institute of Computer Science & Technology, Varanasi">Institute of Computer Science &amp; Technology, Varanasi</option>
+              <option value="Rajarshi School of Management & Technology, Varanasi">Rajarshi School of Management &amp; Technology, Varanasi</option>
+            </optgroup>
+          </select>
           <div class="field-err" id="err-college"></div>
         </div>
 
@@ -16681,7 +16799,7 @@ async function doLogin() {
 
   let hasErr = false;
 
-  if (!college || college.length < 3) { setFieldErr('inp-college','Enter your college name.'); hasErr=true; }
+  if (!college) { setFieldErr('inp-college','Please select your college.'); hasErr=true; }
   if (!roll) { setFieldErr('inp-roll','Roll number is required.'); hasErr=true; }
   else if (!/^[a-zA-Z0-9]{6,20}$/.test(roll)) { setFieldErr('inp-roll','6–20 alphanumeric chars only.'); hasErr=true; }
   if (!branch) { setFieldErr('inp-branch','Please select your branch.'); hasErr=true; }
