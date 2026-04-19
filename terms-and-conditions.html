@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms & Conditions — GradeWise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #030712;
+    --bg-card: #0d1117;
+    --bg-card2: #111827;
+    --border: rgba(6,182,212,0.18);
+    --cyan: #06b6d4;
+    --cyan-bright: #22d3ee;
+    --cyan-glow: rgba(6,182,212,0.25);
+    --purple: #8b5cf6;
+    --purple-glow: rgba(139,92,246,0.2);
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-muted: #94a3b8;
+    --font-display: 'Sora', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.7;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(3,7,18,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top-bar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: white;
+  }
+
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--cyan-bright), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .top-bar-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.2s;
+    cursor: pointer;
+    background: transparent;
+    font-family: var(--font-body);
+    line-height: 1;
+  }
+  .top-bar-back:hover {
+    color: var(--cyan);
+    border-color: rgba(6,182,212,0.4);
+    background: rgba(6,182,212,0.06);
+  }
+
+  /* ── PAGE WRAPPER ── */
+  .page-wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+  }
+
+  /* ── DOCUMENT HEADER ── */
+  .doc-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .doc-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--purple));
+    border-radius: 2px;
+  }
+
+  .doc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(6,182,212,0.08);
+    border: 1px solid rgba(6,182,212,0.25);
+    border-radius: 100px;
+    padding: 5px 16px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+
+  .doc-title {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #e2e8f0 0%, var(--cyan-bright) 60%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
+  }
+
+  .doc-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .doc-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  .doc-meta-item span {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ── NOTICE BOX ── */
+  .notice-box {
+    background: rgba(6,182,212,0.06);
+    border: 1px solid rgba(6,182,212,0.2);
+    border-left: 3px solid var(--cyan);
+    border-radius: 12px;
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 2.5rem;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .notice-box strong {
+    color: var(--cyan);
+    font-weight: 600;
+  }
+
+  /* ── TABLE OF CONTENTS ── */
+  .toc-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 1.8rem;
+    margin-bottom: 2.8rem;
+  }
+
+  .toc-title {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toc-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.4rem;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.15s;
+    font-size: 0.83rem;
+    color: var(--text-muted);
+  }
+
+  .toc-item:hover {
+    background: rgba(6,182,212,0.07);
+    color: var(--cyan);
+  }
+
+  .toc-num {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--cyan);
+    background: rgba(6,182,212,0.1);
+    border-radius: 5px;
+    padding: 1px 7px;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 2.6rem;
+    scroll-margin-top: 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 1.1rem;
+  }
+
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--cyan);
+    background: rgba(6,182,212,0.1);
+    border: 1px solid rgba(6,182,212,0.2);
+    border-radius: 8px;
+    padding: 4px 10px;
+    flex-shrink: 0;
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .section-body {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+  }
+
+  .section-body p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.75;
+    margin-bottom: 0.85rem;
+  }
+
+  .section-body p:last-child { margin-bottom: 0; }
+
+  .section-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.6rem 0;
+  }
+
+  .section-body ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    padding: 0.45rem 0;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .section-body ul li:last-child { border-bottom: none; }
+
+  .section-body ul li::before {
+    content: '›';
+    color: var(--cyan);
+    font-size: 1.1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .section-body ul li strong {
+    color: var(--text);
+  }
+
+  /* ── HIGHLIGHT BOX (inside section) ── */
+  .highlight-box {
+    background: rgba(139,92,246,0.06);
+    border: 1px solid rgba(139,92,246,0.2);
+    border-left: 3px solid var(--purple);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0 0;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+  }
+
+  .highlight-box strong { color: #c4b5fd; }
+
+  /* ── WARNING BOX ── */
+  .warning-box {
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-left: 3px solid var(--yellow);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0 0;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+  }
+
+  .warning-box strong { color: var(--yellow); }
+
+  /* ── CONTACT CARD ── */
+  .contact-card {
+    background: linear-gradient(135deg, rgba(6,182,212,0.06), rgba(139,92,246,0.06));
+    border: 1px solid rgba(6,182,212,0.22);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .contact-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .contact-detail {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .contact-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .contact-value {
+    font-size: 0.92rem;
+    color: var(--cyan);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .contact-value:hover { color: var(--cyan-bright); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 2.5rem 0;
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem 2rem;
+    text-align: center;
+    margin-top: 3rem;
+  }
+
+  .doc-footer-seal {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .doc-footer-seal strong { color: var(--text-muted); }
+
+  .doc-footer-seal a {
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .doc-footer-seal a:hover { text-decoration: underline; }
+
+  .footer-acceptance {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* ── PROGRESS INDICATOR ── */
+  .reading-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--purple));
+    z-index: 200;
+    transition: width 0.1s linear;
+    width: 0%;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .page-wrapper { padding: 2rem 1.2rem 4rem; }
+    .doc-title { font-size: 1.6rem; }
+    .top-bar { padding: 0 1.2rem; }
+    .toc-grid { grid-template-columns: 1fr; }
+    .section-body { padding: 1.1rem 1.2rem; }
+    .contact-card { flex-direction: column; gap: 0.8rem; }
+    .top-bar-back span { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="reading-bar" id="readingBar"></div>
+
+<!-- TOP BAR -->
+<nav class="top-bar">
+  <a href="GradeWise_supabase.html" class="top-bar-brand">
+    <div class="brand-logo">GW</div>
+    <span class="brand-name">GradeWise</span>
+  </a>
+  <button onclick="history.back()" class="top-bar-back">
+    ← <span>Back to App</span>
+  </button>
+</nav>
+
+<!-- MAIN DOCUMENT -->
+<div class="page-wrapper">
+
+  <!-- DOCUMENT HEADER -->
+  <div class="doc-header">
+    <div class="doc-badge">📄 Legal Document</div>
+    <h1 class="doc-title">Terms &amp; Conditions</h1>
+    <div class="doc-meta">
+      <div class="doc-meta-item">🗓 Last Updated: <span>24 April 2026</span></div>
+      <div class="doc-meta-item">🌐 Platform: <span>GradeWise</span></div>
+      <div class="doc-meta-item">⚖️ Jurisdiction: <span>India</span></div>
+    </div>
+  </div>
+
+  <!-- NOTICE -->
+  <div class="notice-box">
+    <strong>Important Notice:</strong> Welcome to GradeWise. By accessing or using our platform, you agree to comply with and be bound by the following Terms and Conditions. Please read this document carefully before proceeding. <strong>If you do not agree to these terms, please refrain from using our services.</strong>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc-box">
+    <div class="toc-title">Contents</div>
+    <div class="toc-grid">
+      <a href="#s1" class="toc-item"><span class="toc-num">01</span> Nature of Service</a>
+      <a href="#s2" class="toc-item"><span class="toc-num">02</span> No Affiliation</a>
+      <a href="#s3" class="toc-item"><span class="toc-num">03</span> Data Usage &amp; Attribution</a>
+      <a href="#s4" class="toc-item"><span class="toc-num">04</span> Accuracy of Information</a>
+      <a href="#s5" class="toc-item"><span class="toc-num">05</span> Third-Party Links</a>
+      <a href="#s6" class="toc-item"><span class="toc-num">06</span> User Responsibility</a>
+      <a href="#s7" class="toc-item"><span class="toc-num">07</span> Intellectual Property</a>
+      <a href="#s8" class="toc-item"><span class="toc-num">08</span> Limitation of Liability</a>
+      <a href="#s9" class="toc-item"><span class="toc-num">09</span> Content Removal Requests</a>
+      <a href="#s10" class="toc-item"><span class="toc-num">10</span> Changes to Terms</a>
+      <a href="#s11" class="toc-item"><span class="toc-num">11</span> Governing Law</a>
+      <a href="#s12" class="toc-item"><span class="toc-num">12</span> Contact Information</a>
+      <a href="#s13" class="toc-item"><span class="toc-num">13</span> Educational Purpose Disclaimer</a>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">§ 01</div>
+      <div class="section-title">Nature of Service</div>
+    </div>
+    <div class="section-body">
+      <p>GradeWise is an informational platform that aggregates internship opportunities sourced from various publicly available channels, including but not limited to third-party websites such as Internshala, LinkedIn, and Unstop.</p>
+      <p>We do not host, process, or directly provide internship applications through our platform. When users initiate an "Apply Now" action, they are redirected to the respective originating third-party website to complete their application.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">§ 02</div>
+      <div class="section-title">No Affiliation</div>
+    </div>
+    <div class="section-body">
+      <p>GradeWise is an independent platform and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Internshala, LinkedIn, Unstop, or any other third-party platform referenced herein.</p>
+      <div class="highlight-box">
+        <strong>Disclaimer:</strong> All trademarks, logos, brand names, and proprietary content visible on this platform belong exclusively to their respective owners. Their appearance on GradeWise does not constitute or imply any endorsement or partnership.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">§ 03</div>
+      <div class="section-title">Data Usage &amp; Source Attribution</div>
+    </div>
+    <div class="section-body">
+      <p>All internship listings displayed on this platform are collected from publicly accessible online sources. In our presentation of this information, we adhere to the following principles:</p>
+      <ul>
+        <li>We display only limited and contextually relevant information, such as job title, company name, and key highlights.</li>
+        <li>Users are strongly encouraged to visit the original source platform for complete, current, and authoritative details.</li>
+        <li>We make reasonable efforts to attribute all content to its respective originating source.</li>
+      </ul>
+      <div class="warning-box">
+        <strong>Content Owners:</strong> If you believe your content or data is being used improperly or without sufficient attribution, please contact us immediately for prompt review and removal consideration.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">§ 04</div>
+      <div class="section-title">Accuracy of Information</div>
+    </div>
+    <div class="section-body">
+      <p>GradeWise makes no representations or warranties regarding the following aspects of any internship listing displayed on this platform:</p>
+      <ul>
+        <li><strong>Accuracy</strong> — Information may have changed since it was aggregated.</li>
+        <li><strong>Completeness</strong> — Listings may not reflect the full scope of the opportunity.</li>
+        <li><strong>Reliability</strong> — Data is sourced externally and may contain errors.</li>
+      </ul>
+      <p>All users are advised to independently verify details directly from the original platform before submitting any application or making any career-related decisions.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">§ 05</div>
+      <div class="section-title">Third-Party Links</div>
+    </div>
+    <div class="section-body">
+      <p>Our platform contains hyperlinks directing users to external websites. GradeWise expressly disclaims responsibility for the following aspects of any third-party sites:</p>
+      <ul>
+        <li><strong>Content</strong> — We do not control or moderate third-party site content.</li>
+        <li><strong>Privacy Policies</strong> — Each external site maintains its own data and privacy practices.</li>
+        <li><strong>Business Practices</strong> — We are not liable for actions taken by third-party operators.</li>
+      </ul>
+      <p>Accessing external websites via links on this platform is entirely at your own risk. We recommend reviewing the privacy policy and terms of service of any external site you visit.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">§ 06</div>
+      <div class="section-title">User Responsibility</div>
+    </div>
+    <div class="section-body">
+      <p>By accessing and using this platform, you expressly agree to the following obligations:</p>
+      <ul>
+        <li>You will not misuse, redistribute, or commercially exploit the data and listings provided on this platform.</li>
+        <li>You will not attempt unauthorized access, reverse-engineering, or automated scraping of this platform's content or systems.</li>
+        <li>You will comply with all applicable local, national, and international laws and regulations in connection with your use of this platform.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">§ 07</div>
+      <div class="section-title">Intellectual Property</div>
+    </div>
+    <div class="section-body">
+      <p>All original content developed and published on this platform — including but not limited to the interface design, original written content, code, graphics, and branding elements — is the exclusive intellectual property of GradeWise.</p>
+      <p>Third-party content, including internship listings, company names, logos, and trademarks, remains the intellectual property of the respective originating owners and is used in accordance with applicable fair use principles for informational purposes only.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">§ 08</div>
+      <div class="section-title">Limitation of Liability</div>
+    </div>
+    <div class="section-body">
+      <p>To the fullest extent permitted by applicable law, GradeWise and its developers shall not be held liable for:</p>
+      <ul>
+        <li>Any direct, indirect, incidental, or consequential loss or damage arising from the use of, or inability to use, this platform.</li>
+        <li>Decisions made in reliance upon internship listings or information presented on this platform.</li>
+        <li>Technical issues, disputes, or adverse outcomes arising from interactions with third-party websites.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION 9 -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-num">§ 09</div>
+      <div class="section-title">Content Removal Requests</div>
+    </div>
+    <div class="section-body">
+      <p>GradeWise respects the intellectual property rights of all content creators and platform operators. If you are a content owner and wish to request the removal or modification of any listing or content attributed to your platform, please contact us via the details below.</p>
+      <div class="contact-card">
+        <div class="contact-icon">📧</div>
+        <div class="contact-detail">
+          <div class="contact-label">Email — Removal Requests</div>
+          <a href="mailto:gradewise69@gmail.com" class="contact-value">gradewise69@gmail.com</a>
+        </div>
+      </div>
+      <p style="margin-top:1rem;">All removal and modification requests will be reviewed promptly and acted upon in good faith.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <div class="section-num">§ 10</div>
+      <div class="section-title">Changes to Terms</div>
+    </div>
+    <div class="section-body">
+      <p>GradeWise reserves the right to update, modify, or revise these Terms and Conditions at any time without prior notice. Such modifications will be effective immediately upon publication on this page.</p>
+      <div class="warning-box">
+        <strong>Notice:</strong> Your continued use of the platform following any changes to these Terms constitutes your acceptance of the revised Terms and Conditions. We recommend reviewing this page periodically.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <div class="section-num">§ 11</div>
+      <div class="section-title">Governing Law</div>
+    </div>
+    <div class="section-body">
+      <p>These Terms and Conditions shall be governed by and construed in accordance with the laws of the Republic of India. Any disputes arising out of or in connection with these Terms shall be subject to the exclusive jurisdiction of the competent courts located in India.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <div class="section-num">§ 12</div>
+      <div class="section-title">Contact Information</div>
+    </div>
+    <div class="section-body">
+      <p>For any questions, concerns, or clarifications regarding these Terms and Conditions, please reach out to us through the following channels:</p>
+      <div class="contact-card" style="margin-top:0.8rem;">
+        <div class="contact-icon">📧</div>
+        <div class="contact-detail">
+          <div class="contact-label">General Enquiries</div>
+          <a href="mailto:gradewise69@gmail.com" class="contact-value">gradewise69@gmail.com</a>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-label">Platform Website</div>
+          <a href="javascript:history.back()" class="contact-value">🌐 GradeWise App</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 13 — Educational Disclaimer (highlighted) -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <div class="section-num">§ 13</div>
+      <div class="section-title">Educational Purpose Disclaimer</div>
+    </div>
+    <div class="section-body">
+      <p>This platform is developed and operated primarily for <strong style="color:var(--cyan)">educational, informational, and demonstration purposes</strong>. The aggregation and display of internship listings are intended to showcase technological capabilities, including data aggregation, user interface design, and information accessibility.</p>
+      <ul>
+        <li>We do not claim ownership of any third-party content displayed on this platform. All internship listings, trademarks, and related materials belong to their respective owners.</li>
+        <li>Users are advised to refer to the original platforms for complete and official information. This platform does not guarantee the accuracy, legality, or authenticity of any listings.</li>
+        <li>Nothing on this platform should be construed as professional, legal, or employment advice of any kind.</li>
+      </ul>
+      <div class="highlight-box" style="margin-top:1.2rem;">
+        <strong>Academic &amp; Demonstration Notice:</strong> GradeWise is a student-led technology project. Its purpose is to demonstrate the integration of modern web technologies, data aggregation, and user experience design in an academically enriching context.
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER ACCEPTANCE BLOCK -->
+  <div class="doc-footer">
+    <div class="doc-footer-seal">
+      <strong>Acceptance of Terms</strong><br>
+      By accessing or using the GradeWise platform, you acknowledge that you have carefully read, fully understood, and unequivocally agreed to be bound by these Terms and Conditions in their entirety.
+    </div>
+    <div class="footer-acceptance">
+      This document was last revised on <strong>24 April 2026</strong> and supersedes all prior versions.
+      &nbsp;·&nbsp; GradeWise &nbsp;·&nbsp; <a href="javascript:history.back()">Return to Application</a>
+    </div>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<script>
+  // Reading progress bar
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    document.getElementById('readingBar').style.width = progress + '%';
+  });
+</script>
+
+</body>
+</html>
