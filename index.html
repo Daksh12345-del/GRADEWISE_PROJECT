@@ -458,6 +458,8 @@
     content: '';
     position: fixed;
     inset: 0;
+    z-index: 0;
+    pointer-events: none;
     background-image:
       radial-gradient(1px 1px at 12% 18%, rgba(180,220,255,0.55) 0%, transparent 100%),
       radial-gradient(1px 1px at 28% 72%, rgba(180,220,255,0.40) 0%, transparent 100%),
@@ -471,8 +473,6 @@
       radial-gradient(1px 1px at 76% 62%, rgba(0,220,160,0.25) 0%, transparent 100%),
       radial-gradient(1px 1px at 50% 95%, rgba(180,220,255,0.28) 0%, transparent 100%),
       radial-gradient(1px 1px at 88% 10%, rgba(180,220,255,0.40) 0%, transparent 100%);
-    pointer-events: none;
-    z-index: 0;
   }
 
 
@@ -4629,7 +4629,6 @@ body.light-mode .marks-input-back {
 .sidebar {
   background: linear-gradient(180deg, #060d1e 0%, #080f1e 100%) !important;
   border-right: 1px solid rgba(0,200,140,0.09) !important;
-  position: relative;
 }
 .app-sidebar::after,
 .sidebar::after {
@@ -4637,6 +4636,7 @@ body.light-mode .marks-input-back {
   position: absolute;
   top: 20%; bottom: 20%; right: 0;
   width: 1px;
+  z-index: 0;
   background: linear-gradient(180deg, transparent, rgba(0,200,140,0.16), transparent);
   pointer-events: none;
 }
