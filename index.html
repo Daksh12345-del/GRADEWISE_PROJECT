@@ -4518,9 +4518,10 @@ body.light-mode .marks-input-back {
 /* ── Recent activity / AI section ── */
 .dash-bottom-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem; margin-bottom: 2rem;
 }
+@media (max-width: 1100px) { .dash-bottom-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 900px) { .dash-bottom-row { grid-template-columns: 1fr; } }
 .dash-panel {
   background: var(--bg-card);
@@ -4630,16 +4631,6 @@ body.light-mode .marks-input-back {
             <select class="compact-input form-select" id="inp-university" onchange="clearFieldErr('inp-university'); (function(){ const gw=document.getElementById('group-selector-wrap'); if(gw) gw.style.display=(this.value==='AKTU'?'block':'none'); }).call(this)">
               <option value="">— Select —</option>
               <option value="AKTU">AKTU (Dr. APJ Abdul Kalam Technical University)</option>
-              <option value="DU">Delhi University (DU)</option>
-              <option value="IP University">Indraprastha University (IPU)</option>
-              <option value="UPTU">UPTU</option>
-              <option value="VTU">VTU</option>
-              <option value="RGPV">RGPV</option>
-              <option value="GTU">GTU</option>
-              <option value="SPPU">SPPU (Pune University)</option>
-              <option value="MDU">MDU Rohtak</option>
-              <option value="KUK">Kurukshetra University</option>
-              <option value="Other">Other University</option>
             </select>
             <div class="field-err" id="err-university"></div>
           </div>
@@ -4648,13 +4639,6 @@ body.light-mode .marks-input-back {
             <select class="compact-input form-select" id="inp-course" onchange="clearFieldErr('inp-course');updateBranches()">
               <option value="">— Select —</option>
               <option value="B.Tech">B.Tech</option>
-              <option value="B.Tech Lateral Entry">B.Tech Lateral Entry</option>
-              <option value="M.Tech">M.Tech</option>
-              <option value="MCA">MCA</option>
-              <option value="MBA">MBA</option>
-              <option value="BCA">BCA</option>
-              <option value="B.Arch">B.Arch</option>
-              <option value="B.Pharm">B.Pharm</option>
             </select>
             <div class="field-err" id="err-course"></div>
           </div>
@@ -4707,6 +4691,15 @@ body.light-mode .marks-input-back {
         </div>
 
         <div class="privacy-note">🔒 Your data is securely stored. <span>Powered by Supabase Auth.</span></div>
+        <div style="text-align:center;margin-top:0.85rem;">
+          <a href="terms-and-conditions.html"
+             style="font-family:'Fira Code',monospace;font-size:0.7rem;color:rgba(100,116,139,0.7);text-decoration:none;letter-spacing:0.3px;transition:color 0.2s;display:inline-flex;align-items:center;gap:5px;"
+             onmouseover="this.style.color='#06b6d4'"
+             onmouseout="this.style.color='rgba(100,116,139,0.7)'">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Terms &amp; Conditions
+          </a>
+        </div>
       </div>
 
       <!-- ── STEP 2: College Details (Premium Analyser) ── -->
@@ -4720,8 +4713,143 @@ body.light-mode .marks-input-back {
 
         <div class="compact-group">
           <label class="compact-label">College Name <span class="req">*</span></label>
-          <input class="compact-input" type="text" id="inp-college" placeholder="e.g. ABES Engineering College, Ghaziabad"
-            oninput="clearFieldErr('inp-college')" />
+          <select class="compact-input form-select" id="inp-college" onchange="clearFieldErr('inp-college')">
+            <option value="">— Select College —</option>
+            <optgroup label="AGRA">
+              <option value="Anand Engineering College, Agra">Anand Engineering College, Agra</option>
+              <option value="Faculty of Engineering & Technology, Agra College, Agra">Faculty of Engineering &amp; Technology, Agra College, Agra</option>
+              <option value="Hindustan Institute of Technology & Management, Agra">Hindustan Institute of Technology &amp; Management, Agra</option>
+              <option value="Raja Balwant Singh Engineering Technical Campus, Bichpuri, Agra">Raja Balwant Singh Engineering Technical Campus, Bichpuri, Agra</option>
+              <option value="Raja Balwant Singh Management Technical Campus, Agra">Raja Balwant Singh Management Technical Campus, Agra</option>
+              <option value="Agra Public Pharmacy College, Agra">Agra Public Pharmacy College, Agra</option>
+            </optgroup>
+            <optgroup label="ALIGARH">
+              <option value="Shivdan Singh Institute of Technology & Management, Aligarh">Shivdan Singh Institute of Technology &amp; Management, Aligarh</option>
+              <option value="Aligarh College of Engineering and Technology, Aligarh">Aligarh College of Engineering and Technology, Aligarh</option>
+            </optgroup>
+            <optgroup label="ALLAHABAD">
+              <option value="United College of Engineering & Research, Allahabad">United College of Engineering &amp; Research, Allahabad</option>
+              <option value="United Institute of Management, Allahabad">United Institute of Management, Allahabad</option>
+              <option value="Institute of Engineering and Rural Technology, Allahabad">Institute of Engineering and Rural Technology, Allahabad</option>
+            </optgroup>
+            <optgroup label="AZAMGARH">
+              <option value="Pharmacy College, Azamgarh">Pharmacy College, Azamgarh</option>
+            </optgroup>
+            <optgroup label="BAGHPAT">
+              <option value="Shri Gopichand College of Pharmacy, Baghpat">Shri Gopichand College of Pharmacy, Baghpat</option>
+            </optgroup>
+            <optgroup label="BAREILLY">
+              <option value="Shri Ram Murti Smarak College of Engineering & Technology, Bareilly">Shri Ram Murti Smarak College of Engineering &amp; Technology, Bareilly</option>
+              <option value="Invertis Institute of Management Studies, Bareilly">Invertis Institute of Management Studies, Bareilly</option>
+              <option value="Rakshpal Bahadur Management Institute, Bareilly">Rakshpal Bahadur Management Institute, Bareilly</option>
+            </optgroup>
+            <optgroup label="BIJNOR">
+              <option value="Kunwar Satya Vira College of Engineering & Management, Bijnor">Kunwar Satya Vira College of Engineering &amp; Management, Bijnor</option>
+            </optgroup>
+            <optgroup label="BULANDSHAHR">
+              <option value="Babu Banarsi Das Institute of Engineering Technology & Research Centre, Bulandshahr">Babu Banarsi Das Institute of Engineering Technology &amp; Research Centre, Bulandshahr</option>
+              <option value="Marathwada Institute of Technology, Bulandshahr">Marathwada Institute of Technology, Bulandshahr</option>
+            </optgroup>
+            <optgroup label="DEHRADUN">
+              <option value="Dehradun Institute of Technology, Dehradun">Dehradun Institute of Technology, Dehradun</option>
+            </optgroup>
+            <optgroup label="FAIZABAD">
+              <option value="Faculty of Management, Jhunjhunwala Degree College, Faizabad">Faculty of Management, Jhunjhunwala Degree College, Faizabad</option>
+            </optgroup>
+            <optgroup label="GHAZIABAD">
+              <option value="Ajay Kumar Garg Engineering College, Ghaziabad">Ajay Kumar Garg Engineering College, Ghaziabad</option>
+              <option value="Ideal Institute of Technology, Ghaziabad">Ideal Institute of Technology, Ghaziabad</option>
+              <option value="KIET Group of Institutions, Ghaziabad">KIET Group of Institutions, Ghaziabad</option>
+              <option value="Inderprastha Engineering College, Ghaziabad">Inderprastha Engineering College, Ghaziabad</option>
+              <option value="ABES Engineering College, Ghaziabad">ABES Engineering College, Ghaziabad</option>
+              <option value="Raj Kumar Goel Institute of Technology, Ghaziabad">Raj Kumar Goel Institute of Technology, Ghaziabad</option>
+              <option value="Babu Banarsi Das Institute of Technology, Ghaziabad">Babu Banarsi Das Institute of Technology, Ghaziabad</option>
+              <option value="Institute of Management Studies, Ghaziabad">Institute of Management Studies, Ghaziabad</option>
+              <option value="Institute of Management Education, Ghaziabad">Institute of Management Education, Ghaziabad</option>
+              <option value="Institute of Technology & Science, Ghaziabad">Institute of Technology &amp; Science, Ghaziabad</option>
+              <option value="Institute of Management & Research, Ghaziabad">Institute of Management &amp; Research, Ghaziabad</option>
+              <option value="Dr. K.N. Modi Institute of Engineering and Technology, Ghaziabad">Dr. K.N. Modi Institute of Engineering and Technology, Ghaziabad</option>
+              <option value="Dr. K.N. Modi Institute of Pharmaceutical Education and Research, Ghaziabad">Dr. K.N. Modi Institute of Pharmaceutical Education and Research, Ghaziabad</option>
+              <option value="Unique Institute of Management & Technology, Ghaziabad">Unique Institute of Management &amp; Technology, Ghaziabad</option>
+            </optgroup>
+            <optgroup label="GHAZIPUR">
+              <option value="Technical Education & Research Institute, Ghazipur">Technical Education &amp; Research Institute, Ghazipur</option>
+            </optgroup>
+            <optgroup label="GONDA">
+              <option value="Acharya Narendra Deo College of Pharmacy, Gonda">Acharya Narendra Deo College of Pharmacy, Gonda</option>
+            </optgroup>
+            <optgroup label="GAUTAM BUDDHA NAGAR">
+              <option value="Apeejay Institute of Technology - School of Architecture & Planning, Gautam Buddha Nagar">Apeejay Institute of Technology - School of Architecture &amp; Planning, Gautam Buddha Nagar</option>
+              <option value="IEC College of Engineering & Technology, Gautam Budh Nagar">IEC College of Engineering &amp; Technology, Gautam Budh Nagar</option>
+              <option value="JSS Academy of Technical Education, Gautam Budh Nagar">JSS Academy of Technical Education, Gautam Budh Nagar</option>
+              <option value="Priyadarshini College of Computer Sciences, Gautam Budh Nagar">Priyadarshini College of Computer Sciences, Gautam Budh Nagar</option>
+              <option value="Ram-Eesh Institute of Vocational and Technical Education, Gautam Buddh Nagar">Ram-Eesh Institute of Vocational and Technical Education, Gautam Buddh Nagar</option>
+              <option value="Galgotias Institute of Management & Technology, Gautam Buddha Nagar">Galgotias Institute of Management &amp; Technology, Gautam Buddha Nagar</option>
+              <option value="Mahatma Gandhi Mission's College of Engineering & Technology, G.B. Nagar">Mahatma Gandhi Mission's College of Engineering &amp; Technology, G.B. Nagar</option>
+              <option value="Vishveshwarya Group of Institutions, Gautam Buddha Nagar">Vishveshwarya Group of Institutions, Gautam Buddha Nagar</option>
+              <option value="Galgotias College of Engineering & Technology, Gautam Buddha Nagar">Galgotias College of Engineering &amp; Technology, Gautam Buddha Nagar</option>
+              <option value="Institute of Management Studies, Gautam Budha Nagar">Institute of Management Studies, Gautam Budha Nagar</option>
+              <option value="Harlal Institute of Management & Technology, Gautambudh Nagar">Harlal Institute of Management &amp; Technology, Gautambudh Nagar</option>
+            </optgroup>
+            <optgroup label="JHANSI">
+              <option value="Bundelkhand Institute of Engineering & Technology, Jhansi">Bundelkhand Institute of Engineering &amp; Technology, Jhansi</option>
+            </optgroup>
+            <optgroup label="KANPUR">
+              <option value="Uttar Pradesh Textile Technology Institute, Kanpur">Uttar Pradesh Textile Technology Institute, Kanpur</option>
+              <option value="Harcourt Butler Technological Institute, Kanpur">Harcourt Butler Technological Institute, Kanpur</option>
+              <option value="Maharana Pratap Engineering College, Kanpur">Maharana Pratap Engineering College, Kanpur</option>
+              <option value="Dr. Virendra Swarup Institute of Computer Studies, Kanpur">Dr. Virendra Swarup Institute of Computer Studies, Kanpur</option>
+              <option value="Dayanand Academy of Management Studies, Kanpur">Dayanand Academy of Management Studies, Kanpur</option>
+              <option value="College of Management Studies, Kanpur">College of Management Studies, Kanpur</option>
+            </optgroup>
+            <optgroup label="LUCKNOW">
+              <option value="Faculty of Architecture, UP Technical University, Lucknow">Faculty of Architecture, UP Technical University, Lucknow</option>
+              <option value="Institute of Engineering & Technology, Lucknow">Institute of Engineering &amp; Technology, Lucknow</option>
+              <option value="Azad Institute of Engineering & Technology, Lucknow">Azad Institute of Engineering &amp; Technology, Lucknow</option>
+              <option value="Babu Banarasi Das National Institute of Technology and Management, Lucknow">Babu Banarasi Das National Institute of Technology and Management, Lucknow</option>
+              <option value="Babu Banarasi Das Northern India Institute of Technology, Lucknow">Babu Banarasi Das Northern India Institute of Technology, Lucknow</option>
+              <option value="International Institute for Special Education, Lucknow">International Institute for Special Education, Lucknow</option>
+              <option value="Institute of Environment and Management, Lucknow">Institute of Environment and Management, Lucknow</option>
+              <option value="Lal Bahadur Shastri Institute of Management and Development Studies, Lucknow">Lal Bahadur Shastri Institute of Management and Development Studies, Lucknow</option>
+              <option value="Gyan Institute of Management and Technology, Lucknow">Gyan Institute of Management and Technology, Lucknow</option>
+              <option value="Sherwood College of Management, Lucknow">Sherwood College of Management, Lucknow</option>
+              <option value="Moti Lal Rastogi School of Management, Lucknow">Moti Lal Rastogi School of Management, Lucknow</option>
+            </optgroup>
+            <optgroup label="MATHURA">
+              <option value="G.L.A. Institute of Technology & Management, Mathura">G.L.A. Institute of Technology &amp; Management, Mathura</option>
+              <option value="Hindustan College of Science and Technology, Mathura">Hindustan College of Science and Technology, Mathura</option>
+              <option value="BSA College of Engineering & Technology, Mathura">BSA College of Engineering &amp; Technology, Mathura</option>
+              <option value="Rajiv Academy for Pharmacy, Mathura">Rajiv Academy for Pharmacy, Mathura</option>
+              <option value="Hindustan Institute of Management and Computer Studies, Mathura">Hindustan Institute of Management and Computer Studies, Mathura</option>
+            </optgroup>
+            <optgroup label="MEERUT">
+              <option value="Meerut Institute of Engineering & Technology, Meerut">Meerut Institute of Engineering &amp; Technology, Meerut</option>
+              <option value="Radha Govind Group of Institutions, Meerut">Radha Govind Group of Institutions, Meerut</option>
+              <option value="College of Engineering and Rural Technology, Meerut">College of Engineering and Rural Technology, Meerut</option>
+              <option value="IIMT Management College, Meerut">IIMT Management College, Meerut</option>
+              <option value="Dewan Institute of Management Studies, Meerut">Dewan Institute of Management Studies, Meerut</option>
+            </optgroup>
+            <optgroup label="MIRZAPUR">
+              <option value="Ghanshyam Binani Academy of Management Sciences, Mirzapur">Ghanshyam Binani Academy of Management Sciences, Mirzapur</option>
+            </optgroup>
+            <optgroup label="MORADABAD">
+              <option value="Institute of Foreign Trade and Management, Moradabad">Institute of Foreign Trade and Management, Moradabad</option>
+              <option value="Moradabad Institute of Technology, Moradabad">Moradabad Institute of Technology, Moradabad</option>
+            </optgroup>
+            <optgroup label="MUZAFFARNAGAR">
+              <option value="S.D. College of Engineering & Technology, Muzaffarnagar">S.D. College of Engineering &amp; Technology, Muzaffarnagar</option>
+              <option value="Bhagwant Institute of Technology, Muzaffarnagar">Bhagwant Institute of Technology, Muzaffarnagar</option>
+              <option value="S.D. College of Management Studies, Muzaffarnagar">S.D. College of Management Studies, Muzaffarnagar</option>
+            </optgroup>
+            <optgroup label="SULTANPUR">
+              <option value="Kamla Nehru Institute of Technology, Sultanpur">Kamla Nehru Institute of Technology, Sultanpur</option>
+            </optgroup>
+            <optgroup label="VARANASI">
+              <option value="School of Management Sciences, Varanasi">School of Management Sciences, Varanasi</option>
+              <option value="Institute of Computer Science & Technology, Varanasi">Institute of Computer Science &amp; Technology, Varanasi</option>
+              <option value="Rajarshi School of Management & Technology, Varanasi">Rajarshi School of Management &amp; Technology, Varanasi</option>
+            </optgroup>
+          </select>
           <div class="field-err" id="err-college"></div>
         </div>
 
@@ -4837,6 +4965,7 @@ body.light-mode .marks-input-back {
       </button>
       <button class="hdr-res-btn" onclick="openResources()" title="Study Resources">📚 Resources</button>
       <button class="hdr-res-btn" onclick="openInternships()" title="Internships" style="border-color:rgba(139,92,246,0.4);color:#a78bfa;background:rgba(139,92,246,0.1);">💼 Internships</button>
+      <button class="hdr-res-btn" onclick="openPlacements()" title="Placements" style="border-color:rgba(16,185,129,0.4);color:#34d399;background:rgba(16,185,129,0.1);">🏢 Placements</button>
       <button class="hdr-analyse-btn" onclick="openAnalyser()" title="Analyse Result">🔍 Analyse</button>
       <button class="hdr-scan-btn" onclick="openScanModal()" title="Scan Result Sheet">📷 <span>Scan Result</span></button>
       <div class="user-badge">
@@ -4861,7 +4990,7 @@ body.light-mode .marks-input-back {
       <button class="app-nav-btn" onclick="showDashboard()">
         <span>📊</span> Dashboard
       </button>
-      <button class="app-nav-btn active" id="grades-nav-btn" onclick="openGrades()">
+      <button class="app-nav-btn" id="grades-nav-btn" onclick="openGrades()">
         <span>📚</span> Grades
       </button>
       <button class="app-nav-btn" onclick="openResources()">
@@ -4869,6 +4998,9 @@ body.light-mode .marks-input-back {
       </button>
       <button class="app-nav-btn" onclick="openInternships()">
         <span>💼</span> Internships
+      </button>
+      <button class="app-nav-btn" onclick="openPlacements()">
+        <span>🏢</span> Placements
       </button>
       <hr class="app-nav-divider">
       <button class="app-nav-btn" onclick="openAnalyser()">
@@ -5119,6 +5251,9 @@ body.light-mode .marks-input-back {
       <button class="app-nav-btn" onclick="openInternships()">
         <span>💼</span> Internships
       </button>
+      <button class="app-nav-btn" id="dash-nav-placements" onclick="openPlacements()">
+        <span>🏢</span> Placements
+      </button>
       <hr class="app-nav-divider">
       <button class="app-nav-btn" onclick="openAnalyser()">
         <span>🔍</span> Analyse
@@ -5186,6 +5321,12 @@ body.light-mode .marks-input-back {
           <div class="dash-action-desc">AI-matched internships from Internshala, LinkedIn & Unstop.</div>
           <span class="dash-action-arrow">→</span>
         </button>
+        <button class="dash-action-card" onclick="openPlacements()" style="--card-accent: linear-gradient(90deg, var(--green), #06b6d4);">
+          <div class="dash-action-icon">🏢</div>
+          <div class="dash-action-name">Placements</div>
+          <div class="dash-action-desc">Campus & off-campus placement drives posted by GradeWise team.</div>
+          <span class="dash-action-arrow">→</span>
+        </button>
         <button class="dash-action-card" onclick="openAnalyser()" style="--card-accent: linear-gradient(90deg, var(--yellow), #f97316);">
           <div class="dash-action-icon">🔍</div>
           <div class="dash-action-name">Analyse</div>
@@ -5207,6 +5348,15 @@ body.light-mode .marks-input-back {
             <div class="dash-tip-row"><div class="dash-tip-dot" style="background:var(--purple)"></div>Use the Analyser to find subjects where you're close to the threshold.</div>
             <div class="dash-tip-row"><div class="dash-tip-dot" style="background:var(--green)"></div>Browse Resources to find unit-wise notes & PYQs before exams.</div>
             <div class="dash-tip-row"><div class="dash-tip-dot" style="background:var(--yellow)"></div>Check Internships for AI-matched opportunities relevant to your skills.</div>
+          </div>
+        </div>
+        <div class="dash-panel">
+          <div class="dash-panel-title">🏢 Latest Placement Drives</div>
+          <div class="dash-intern-peek" id="dash-place-peek">
+            <div style="text-align:center;padding:1.5rem 0;color:var(--text-dim);font-size:0.82rem;">
+              <div style="font-size:1.5rem;margin-bottom:6px;">🏢</div>
+              Loading drives…
+            </div>
           </div>
         </div>
         <div class="dash-panel">
@@ -16672,7 +16822,7 @@ async function doLogin() {
 
   let hasErr = false;
 
-  if (!college || college.length < 3) { setFieldErr('inp-college','Enter your college name.'); hasErr=true; }
+  if (!college) { setFieldErr('inp-college','Please select your college.'); hasErr=true; }
   if (!roll) { setFieldErr('inp-roll','Roll number is required.'); hasErr=true; }
   else if (!/^[a-zA-Z0-9]{6,20}$/.test(roll)) { setFieldErr('inp-roll','6–20 alphanumeric chars only.'); hasErr=true; }
   if (!branch) { setFieldErr('inp-branch','Please select your branch.'); hasErr=true; }
@@ -19144,22 +19294,77 @@ function exportReport() {
   const cgpaColor = cgpa >= 9 ? '#06b6d4' : cgpa >= 8 ? '#8b5cf6' : cgpa >= 7 ? '#10b981' : cgpa >= 6 ? '#f59e0b' : '#ef4444';
 
   // Build semester rows
+  // Check if this semester has any back paper data to show
   const semesterSections = SEMESTERS.map((sem, si) => {
     const sgpa = allSGPAs[si];
     if (sgpa === 0) return ''; // skip empty semesters
 
+    // Detect if this semester has any active back paper entries
+    const semHasBack = sem.subjects.some((subj, ji) => {
+      if (subj.audit || (subj.type !== 'Theory' && subj.type !== 'Elective')) return false;
+      const backExt = backData[si] && backData[si][ji];
+      if (!backExt || backExt === '') return false;
+      const origGrade = getGrade(marksData[si][ji], subj);
+      return origGrade && (origGrade.grade === 'F' || origGrade.grade === 'E#');
+    });
+
     const rows = sem.subjects.map((subj, ji) => {
       const entry = marksData[si][ji];
       const total = getTotal(entry);
-      const grade = getGrade(entry, subj);
+      const origGrade = getGrade(entry, subj);
       const effTotal = getEffectiveTotal(entry, subj);
-      const gradeLabel = subj.audit ? (total !== null ? total : '–') : (grade ? grade.grade : '–');
       const intVal = (typeof entry === 'object' && entry.internal !== '') ? entry.internal : null;
       const extVal = (typeof entry === 'object' && entry.external !== '') ? entry.external : null;
+
+      // ── Back paper logic ──
+      const backExt = backData[si] && backData[si][ji];
+      const backNum = parseFloat(backExt);
+      const origIsFailOrGrace = origGrade && (origGrade.grade === 'F' || origGrade.grade === 'E#');
+      const hasValidBack = !isNaN(backNum) && backExt !== '' && origIsFailOrGrace &&
+                           (subj.type === 'Theory' || subj.type === 'Elective');
+
+      // Effective grade to show (back paper result if valid)
+      let effectiveGrade = origGrade;
+      let backTotal = null;
+      if (hasValidBack) {
+        const internal = typeof entry === 'object' ? parseFloat(entry.internal) : NaN;
+        const backEntry = { internal: isNaN(internal) ? '' : String(internal), external: String(backNum) };
+        effectiveGrade = getGradeNoGrace(backEntry);
+        backTotal = isNaN(internal) ? backNum : (internal + backNum);
+      }
+
+      const gradeLabel = subj.audit
+        ? (total !== null ? total : '–')
+        : (effectiveGrade ? effectiveGrade.grade : '–');
+
       // Show grace-adjusted total for E# subjects
-      const marksVal = (grade && grade.grade === 'E#' && effTotal !== null) ? `${effTotal}*` : (total !== null ? total : '–');
-      const gradeColor = grade ? (gradeColors[grade.grade] || '#374151') : '#6b7280';
-      const rowBg = grade && grade.grade === 'F' ? 'rgba(220,38,38,0.07)' : (grade && grade.grade === 'E#' ? 'rgba(234,88,12,0.06)' : '#ffffff');
+      const marksVal = (origGrade && origGrade.grade === 'E#' && effTotal !== null && !hasValidBack)
+        ? `${effTotal}*`
+        : (hasValidBack ? (backTotal !== null ? backTotal : total !== null ? total : '–') : (total !== null ? total : '–'));
+
+      const gradeColor = effectiveGrade ? (gradeColors[effectiveGrade.grade] || '#374151') : '#6b7280';
+
+      // Row background: if originally failed and back paper clears it → green tint; still fail → red tint
+      let rowBg = '#ffffff';
+      if (hasValidBack) {
+        rowBg = effectiveGrade && effectiveGrade.grade !== 'F'
+          ? 'rgba(16,185,129,0.06)'   // cleared via back paper → green tint
+          : 'rgba(220,38,38,0.07)';   // still failing → red tint
+      } else if (origGrade && origGrade.grade === 'F') {
+        rowBg = 'rgba(220,38,38,0.07)';
+      } else if (origGrade && origGrade.grade === 'E#') {
+        rowBg = 'rgba(234,88,12,0.06)';
+      }
+
+      // Back paper cell
+      const backCell = semHasBack
+        ? (hasValidBack
+            ? `<td style="padding:8px 10px; text-align:center; font-family:'Courier New',monospace; font-size:14px; color:#059669; font-weight:800; background:rgba(16,185,129,0.06);">
+                ${backNum}
+                <div style="font-size:9px; color:#059669; letter-spacing:1px; font-weight:700; margin-top:1px;">BACK</div>
+               </td>`
+            : `<td style="padding:8px 10px; text-align:center; color:#d1d5db; font-size:13px;">–</td>`)
+        : '';
 
       return `
         <tr style="border-bottom:1px solid #e5e7eb; background:${rowBg};">
@@ -19169,6 +19374,7 @@ function exportReport() {
           <td style="padding:8px 10px; text-align:center; font-size:14px; color:#111827; font-weight:800;">${subj.credits === 0 ? 'Audit' : subj.credits}</td>
           <td style="padding:8px 10px; text-align:center; font-family:'Courier New',monospace; font-size:14px; color:#1f2937; font-weight:700;">${intVal !== null ? intVal : '–'}</td>
           <td style="padding:8px 10px; text-align:center; font-family:'Courier New',monospace; font-size:14px; color:#1f2937; font-weight:700;">${extVal !== null ? extVal : '–'}</td>
+          ${backCell}
           <td style="padding:8px 10px; text-align:center; font-family:'Courier New',monospace; font-size:15px; font-weight:900; color:#111827;">${marksVal}</td>
           <td style="padding:8px 10px; text-align:center;">
             <span style="background:${gradeColor}18; color:${gradeColor}; border:2px solid ${gradeColor}66; border-radius:6px; padding:4px 12px; font-size:14px; font-weight:900; font-family:'Courier New',monospace;">${gradeLabel}</span>
@@ -19178,12 +19384,17 @@ function exportReport() {
 
     const sgpaColor = sgpa >= 9 ? '#0284c7' : sgpa >= 8 ? '#7c3aed' : sgpa >= 7 ? '#059669' : sgpa >= 6 ? '#d97706' : '#dc2626';
 
+    // Back paper column header (only if this semester has back paper data)
+    const backColHeader = semHasBack
+      ? `<th style="padding:10px 10px; text-align:center; font-size:12px; color:#059669; letter-spacing:2px; font-weight:800; text-transform:uppercase; background:rgba(16,185,129,0.06);">Back Ext</th>`
+      : '';
+
     return `
       <div style="margin-bottom:28px; break-inside:avoid;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid rgba(6,182,212,0.4);">
           <div>
             <div style="font-family:'Courier New',monospace; font-size:16px; font-weight:800; color:#0284c7; letter-spacing:2px; text-transform:uppercase;">${sem.label}</div>
-            <div style="font-size:13px; color:#374151; margin-top:2px; font-weight:600;">Total Credits: ${sem.totalCredits}</div>
+            <div style="font-size:13px; color:#374151; margin-top:2px; font-weight:600;">Total Credits: ${sem.totalCredits}${semHasBack ? ' &nbsp;|&nbsp; <span style="color:#059669;">📋 Back Paper Result Included</span>' : ''}</div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:11px; color:#4b5563; letter-spacing:2px; text-transform:uppercase; font-weight:700;">SGPA</div>
@@ -19199,6 +19410,7 @@ function exportReport() {
               <th style="padding:10px 10px; text-align:center; font-size:12px; color:#0284c7; letter-spacing:2px; font-weight:800; text-transform:uppercase;">Cr.</th>
               <th style="padding:10px 10px; text-align:center; font-size:12px; color:#0284c7; letter-spacing:2px; font-weight:800; text-transform:uppercase;">Int</th>
               <th style="padding:10px 10px; text-align:center; font-size:12px; color:#0284c7; letter-spacing:2px; font-weight:800; text-transform:uppercase;">Ext</th>
+              ${backColHeader}
               <th style="padding:10px 10px; text-align:center; font-size:12px; color:#0284c7; letter-spacing:2px; font-weight:800; text-transform:uppercase;">Total</th>
               <th style="padding:10px 10px; text-align:center; font-size:12px; color:#0284c7; letter-spacing:2px; font-weight:800; text-transform:uppercase;">Grade</th>
             </tr>
@@ -20121,7 +20333,7 @@ window.addEventListener('load', function() {
 // ════════════════════════════════════════════════════════════
 // NAVIGATION — Unified page routing
 // ════════════════════════════════════════════════════════════
-const ALL_PAGES = ['loginPage','dashboardPage','appPage','resourcesPage','analyserPage','internshipsPage'];
+const ALL_PAGES = ['loginPage','dashboardPage','appPage','resourcesPage','analyserPage','internshipsPage','placementsPage'];
 
 function hideAllPages(except) {
   ALL_PAGES.forEach(id => {
@@ -20212,7 +20424,52 @@ function refreshDashboard() {
       }).join('');
     }
   }
+  // Load placement preview into dashboard
+  loadDashPlacementPeek();
 }
+
+// ── Dashboard placement peek ──
+async function loadDashPlacementPeek() {
+  const peek = document.getElementById('dash-place-peek');
+  if (!peek) return;
+  try {
+    const now = new Date();
+    const { data, error } = await _sb
+      .from('placements')
+      .select('id,company,role,location,package_lpa,type,deadline,emoji')
+      .order('created_at', { ascending: false })
+      .limit(3);
+    if (error || !data || data.length === 0) {
+      peek.innerHTML = `<div style="text-align:center;padding:1.2rem 0;color:var(--text-dim);font-size:0.82rem;">
+        <div style="font-size:1.4rem;margin-bottom:6px;">🏢</div>
+        No drives posted yet.<br>Check back soon!
+      </div>`;
+      return;
+    }
+    const typeColors = { campus: 'var(--cyan)', offcampus: 'var(--purple)', walkin: 'var(--yellow)' };
+    peek.innerHTML = data.map(p => {
+      const deadline = p.deadline ? new Date(p.deadline) : null;
+      const expired = deadline && deadline < now;
+      const daysLeft = deadline ? Math.ceil((deadline - now) / 86400000) : null;
+      const badge = expired ? '⏰' : daysLeft !== null && daysLeft <= 3 ? '🔴' : '🟢';
+      const color = typeColors[p.type] || 'var(--green)';
+      const emoji = p.emoji || placeDefaultEmoji(p.company);
+      return `<div class="dash-intern-mini" onclick="openPlacements()" style="cursor:pointer;">
+        <div class="dash-intern-logo" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.18);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">${emoji}</div>
+        <div class="dash-intern-info">
+          <div class="dash-intern-title" style="font-size:0.82rem;">${esc2(p.role||'Role TBA')}</div>
+          <div class="dash-intern-co" style="font-size:0.73rem;">${esc2(p.company||'')}${p.location ? ' · ' + esc2(p.location) : ''}</div>
+        </div>
+        <div style="font-size:0.75rem;font-weight:700;color:${color};white-space:nowrap;">${p.package_lpa ? p.package_lpa + ' LPA' : badge}</div>
+      </div>`;
+    }).join('') + `<div style="text-align:center;margin-top:0.4rem;">
+      <button onclick="openPlacements()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:0.4rem 1rem;color:var(--green);font-family:var(--font-body);font-size:0.82rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.08)'" onmouseout="this.style.background='none'">View All Placements →</button>
+    </div>`;
+  } catch(e) {
+    peek.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--text-dim);font-size:0.8rem;">Could not load drives.</div>`;
+  }
+}
+
 
 // Update openInternships to also sync dashboard data
 const _origOpenInternships = typeof openInternships === 'function' ? openInternships : null;
@@ -20269,7 +20526,7 @@ function _legacyInternshipsInit() {
 // The server scrapes Internshala + Unstop + LinkedIn.
 // Start the server first: python server.py
 
-const BACKEND_URL = 'https://gradewise-backend.onrender.com';
+const BACKEND_URL = 'http://localhost:5050';
 
 function getInitialsLogo(company) {
   const words = (company || 'Co').replace(/[^a-zA-Z\s]/g,'').trim().split(/\s+/);
@@ -21511,6 +21768,1362 @@ async function loadAdminMarks() {
 function esc(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PLACEMENTS PAGE
+════════════════════════════════════════════════════════════════ -->
+<style>
+/* ── PLACEMENTS PAGE ── */
+#placementsPage {
+  display: none;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-deep);
+  font-family: var(--font-body);
+}
+#placementsPage.active { display: flex; }
+
+/* Domain tabs */
+.place-domain-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.place-domain-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+.place-domain-tab:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.place-domain-tab.active {
+  background: rgba(6,182,212,0.12);
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 10px rgba(6,182,212,0.15);
+}
+
+/* Header */
+#placementsPage .place-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(3,7,18,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  gap: 1rem;
+}
+body.light-mode #placementsPage .place-header {
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 1px 12px rgba(0,0,0,0.08);
+}
+#placementsPage .place-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+#placementsPage .place-back-btn {
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 10px;
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+#placementsPage .place-back-btn:hover { background: rgba(16,185,129,0.18); }
+#placementsPage .place-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.5px;
+  font-family: var(--font-mono);
+}
+#placementsPage .place-pulse {
+  width: 7px; height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: placePulse 1.6s ease-in-out infinite;
+}
+@keyframes placePulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+#placementsPage .place-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+#placementsPage .place-user-av {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.8rem; color: #fff;
+}
+#placementsPage .place-user-nm {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+#placementsPage .place-signout-btn {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+#placementsPage .place-signout-btn:hover { background: rgba(239,68,68,0.18); }
+
+/* Layout */
+#placementsPage .place-wrap {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Sidebar */
+#placementsPage .place-sidebar {
+  width: 200px;
+  min-width: 200px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  padding: 1.2rem 0.75rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#placementsPage .place-sidebar-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0 0.5rem 0.6rem;
+}
+#placementsPage .place-nav-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: left;
+}
+#placementsPage .place-nav-btn:hover { background: rgba(16,185,129,0.05); color: var(--text); }
+#placementsPage .place-nav-btn.active {
+  background: rgba(16,185,129,0.1);
+  color: var(--green);
+  font-weight: 700;
+}
+#placementsPage .place-nav-count {
+  margin-left: auto;
+  background: rgba(16,185,129,0.12);
+  color: var(--text-dim);
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  font-family: var(--font-mono);
+}
+#placementsPage .place-nav-btn.active .place-nav-count {
+  background: var(--green);
+  color: var(--bg-deep);
+}
+#placementsPage .place-sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 4px;
+}
+
+/* Main content */
+#placementsPage .place-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16,185,129,0.3) transparent;
+}
+#placementsPage .place-content::-webkit-scrollbar { width: 5px; }
+#placementsPage .place-content::-webkit-scrollbar-thumb { background: rgba(16,185,129,0.3); border-radius: 10px; }
+
+/* Page header */
+#placementsPage .place-page-hdr {
+  margin-bottom: 1.5rem;
+}
+#placementsPage .place-title {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+#placementsPage .place-title span { color: var(--green); }
+#placementsPage .place-sub {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* Stats row */
+#placementsPage .place-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 1.4rem;
+}
+#placementsPage .place-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  transition: all 0.2s;
+}
+#placementsPage .place-stat-card:hover { border-color: rgba(16,185,129,0.35); transform: translateY(-2px); }
+#placementsPage .place-stat-lbl { font-size: 0.67rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+#placementsPage .place-stat-val { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--green); margin-top: 2px; }
+#placementsPage .place-stat-val.cyan { color: var(--cyan); }
+#placementsPage .place-stat-val.purple { color: var(--purple); }
+#placementsPage .place-stat-val.yellow { color: var(--yellow); }
+
+/* Controls */
+#placementsPage .place-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+#placementsPage .place-search-wrap { position: relative; flex: 1; min-width: 200px; }
+#placementsPage .place-search-icon {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+#placementsPage .place-search {
+  width: 100%;
+  padding: 9px 12px 9px 34px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+#placementsPage .place-search:focus { border-color: var(--green); background: rgba(16,185,129,0.04); }
+#placementsPage .place-search::placeholder { color: var(--text-dim); }
+#placementsPage .place-filter {
+  padding: 9px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.83rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+#placementsPage .place-filter:focus { border-color: var(--green); }
+#placementsPage .place-filter option { background: #0f172a; color: #e2e8f0; }
+body.light-mode #placementsPage .place-filter option { background: #fff; color: #0f172a; }
+
+/* Saved toggle */
+#placementsPage .place-saved-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#placementsPage .place-saved-btn.active {
+  border-color: var(--yellow);
+  color: var(--yellow);
+  background: rgba(245,158,11,0.08);
+}
+
+/* Type tabs */
+#placementsPage .place-type-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+#placementsPage .place-type-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+#placementsPage .place-type-tab:hover { border-color: rgba(16,185,129,0.4); color: var(--text); }
+#placementsPage .place-type-tab.active { border-color: var(--green); background: rgba(16,185,129,0.08); color: var(--green); }
+#placementsPage .place-type-tab.active.campus { border-color: var(--cyan); background: rgba(6,182,212,0.08); color: var(--cyan); }
+#placementsPage .place-type-tab.active.offcampus { border-color: var(--purple); background: rgba(139,92,246,0.08); color: var(--purple); }
+#placementsPage .place-type-tab.active.walkin { border-color: var(--yellow); background: rgba(245,158,11,0.08); color: var(--yellow); }
+#placementsPage .place-tab-count {
+  background: rgba(100,116,139,0.12);
+  border-radius: 20px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+}
+
+/* Grid */
+#placementsPage .place-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Card */
+#placementsPage .place-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.2rem;
+  transition: all 0.22s;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  --card-accent: var(--green);
+  animation: placeCardIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes placeCardIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+#placementsPage .place-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-accent);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+#placementsPage .place-card:hover {
+  border-color: rgba(16,185,129,0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+#placementsPage .place-card:hover::before { opacity: 1; }
+#placementsPage .place-card[data-type="campus"] { --card-accent: var(--cyan); }
+#placementsPage .place-card[data-type="offcampus"] { --card-accent: var(--purple); }
+#placementsPage .place-card[data-type="walkin"] { --card-accent: var(--yellow); }
+
+#placementsPage .place-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+#placementsPage .place-logo {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+#placementsPage .place-card-info { flex: 1; min-width: 0; }
+#placementsPage .place-role {
+  font-family: var(--font-display);
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#placementsPage .place-company {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+#placementsPage .place-save-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+#placementsPage .place-save-btn:hover { transform: scale(1.2); }
+
+/* Pills */
+#placementsPage .place-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+#placementsPage .place-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-family: var(--font-body);
+}
+#placementsPage .place-pill.type-campus { background: rgba(6,182,212,0.1); color: var(--cyan); border-color: rgba(6,182,212,0.25); }
+#placementsPage .place-pill.type-offcampus { background: rgba(139,92,246,0.1); color: var(--purple); border-color: rgba(139,92,246,0.25); }
+#placementsPage .place-pill.type-walkin { background: rgba(245,158,11,0.1); color: var(--yellow); border-color: rgba(245,158,11,0.25); }
+#placementsPage .place-pill.loc { background: rgba(16,185,129,0.07); color: var(--green); border-color: rgba(16,185,129,0.2); }
+#placementsPage .place-pill.pkg { background: rgba(16,185,129,0.12); color: var(--green); border-color: rgba(16,185,129,0.3); font-weight: 800; }
+#placementsPage .place-pill.dead { background: rgba(239,68,68,0.08); color: #f87171; border-color: rgba(239,68,68,0.2); }
+#placementsPage .place-pill.dead.soon { background: rgba(245,158,11,0.1); color: var(--yellow); border-color: rgba(245,158,11,0.3); }
+#placementsPage .place-pill.elg { background: rgba(100,116,139,0.1); color: var(--text-muted); border-color: rgba(100,116,139,0.2); }
+
+/* Detail rows */
+#placementsPage .place-details {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+#placementsPage .place-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+#placementsPage .place-detail-row .pdi { font-size: 0.82rem; flex-shrink: 0; }
+#placementsPage .place-detail-val { color: var(--text); font-weight: 500; }
+
+/* Apply button */
+#placementsPage .place-apply-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  box-shadow: 0 2px 10px rgba(16,185,129,0.2);
+}
+#placementsPage .place-apply-btn:hover {
+  background: linear-gradient(135deg, #0ea572, #0aa6c0);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16,185,129,0.35);
+  color: #ffffff;
+}
+
+/* Expired card overlay */
+#placementsPage .place-card.expired { opacity: 0.5; }
+#placementsPage .place-card.expired .place-apply-btn {
+  pointer-events: none;
+  opacity: 0.5;
+  background: rgba(100,116,139,0.1);
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
+/* Loading */
+#placementsPage .place-loading {
+  grid-column: 1/-1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 3rem 0;
+}
+#placementsPage .place-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(16,185,129,0.15);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spinPlace 0.9s linear infinite;
+}
+@keyframes spinPlace { to { transform: rotate(360deg); } }
+
+/* Empty state */
+#placementsPage .place-empty {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-dim);
+}
+#placementsPage .place-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+#placementsPage .place-empty-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--text-muted); margin-bottom: 6px; }
+#placementsPage .place-empty-sub { font-size: 0.82rem; }
+
+/* CGPA warning banner */
+#placementsPage .place-cgpa-warn {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  color: var(--yellow);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  #placementsPage .place-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  #placementsPage .place-sidebar { display: none; }
+  #placementsPage .place-content { padding: 1rem; }
+  #placementsPage .place-stats { grid-template-columns: repeat(2, 1fr); }
+  #placementsPage .place-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  #placementsPage .place-stats { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<!-- PLACEMENTS PAGE HTML -->
+<div id="placementsPage">
+
+  <!-- Header -->
+  <div class="place-header">
+    <div class="place-hdr-left">
+      <button class="place-back-btn" onclick="showDashboard()">← Dashboard</button>
+      <div class="place-badge">
+        <div class="place-pulse"></div>
+        PLACEMENTS LIVE
+      </div>
+    </div>
+    <div class="place-hdr-right">
+      <div class="place-user-av" id="place-user-av">U</div>
+      <div class="place-user-nm" id="place-user-nm">User</div>
+      <button class="place-signout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="place-wrap">
+
+    <!-- Sidebar -->
+    <nav class="place-sidebar">
+      <div class="place-sidebar-title">Navigation</div>
+      <button class="place-nav-btn active" id="place-nav-main" onclick="placeFilterType('all')">
+        🏢 All Drives
+        <span class="place-nav-count" id="place-cnt-all">0</span>
+      </button>
+      <button class="place-nav-btn" id="place-nav-offcampus" onclick="placeFilterType('offcampus')">
+        🌐 Off-Campus
+        <span class="place-nav-count" id="place-cnt-offcampus">0</span>
+      </button>
+      <div class="place-sidebar-divider"></div>
+      <button class="place-nav-btn" id="place-nav-saved" onclick="placeToggleSaved()">
+        🔖 Saved
+        <span class="place-nav-count" id="place-cnt-saved">0</span>
+      </button>
+    </nav>
+
+    <!-- Main content -->
+    <main class="place-content">
+
+      <div class="place-page-hdr">
+        <div class="place-title">Campus <span>Placements</span></div>
+        <div class="place-sub">Job drives &amp; placement opportunities · Updated by GradeWise team</div>
+        <div id="place-refresh-badge" style="margin-top:6px;font-size:0.72rem;color:var(--text-dim);font-family:var(--font-mono);letter-spacing:0.3px;"></div>
+      </div>
+
+      <!-- CGPA Eligibility Section -->
+      <!-- CGPA status badge — auto-filled from Grade section -->
+      <div id="place-cgpa-badge" style="margin-bottom:1.2rem;"></div>
+
+      <!-- Stats -->
+      <div class="place-stats">
+        <div class="place-stat-card">
+          <div class="place-stat-lbl">Total Drives</div>
+          <div class="place-stat-val" id="pstat-total">—</div>
+        </div>
+        <div class="place-stat-card">
+          <div class="place-stat-lbl">Open Now</div>
+          <div class="place-stat-val cyan" id="pstat-open">—</div>
+        </div>
+        <div class="place-stat-card">
+          <div class="place-stat-lbl">🟢 Live Jobs</div>
+          <div class="place-stat-val purple" id="pstat-avg">—</div>
+        </div>
+        <div class="place-stat-card">
+          <div class="place-stat-lbl">🌐 Remote Jobs</div>
+          <div class="place-stat-val yellow" id="pstat-high">—</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="place-controls">
+        <div class="place-search-wrap">
+          <span class="place-search-icon">🔍</span>
+          <input class="place-search" id="placeSearch" type="text" placeholder="Search company, role, location…" oninput="placeRender()">
+        </div>
+        <select class="place-filter" id="placeFilterLoc" onchange="placeRender()">
+          <option value="">All Locations</option>
+        </select>
+        <select class="place-filter" id="placeFilterPkg" onchange="placeRender()">
+          <option value="">Any Package</option>
+          <option value="3">3+ LPA</option>
+          <option value="5">5+ LPA</option>
+          <option value="8">8+ LPA</option>
+          <option value="12">12+ LPA</option>
+          <option value="20">20+ LPA</option>
+        </select>
+        <button class="place-saved-btn" id="placeSavedBtn" onclick="placeToggleSaved()">🔖 Saved (<span id="placeSavedCount">0</span>)</button>
+      </div>
+
+      <!-- Domain Filter Tabs (Live Jobs) -->
+      <div style="margin-bottom:0.75rem;">
+        <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:0.5rem;">🌐 Live Job Domain</div>
+        <div class="place-domain-tabs" id="placeDomainTabs">
+          <button class="place-domain-tab active" data-domain="all" onclick="placeSetDomain('all',this)">🏢 All Domains</button>
+          <button class="place-domain-tab" data-domain="software" onclick="placeSetDomain('software',this)">💻 Tech / Software</button>
+          <button class="place-domain-tab" data-domain="data" onclick="placeSetDomain('data',this)">📊 Data / AI-ML</button>
+          <button class="place-domain-tab" data-domain="design" onclick="placeSetDomain('design',this)">🎨 Design / UI-UX</button>
+        </div>
+      </div>
+
+      <!-- Source Tabs -->
+      <div class="place-type-tabs" style="margin-bottom:0.5rem;">
+        <div class="place-type-tab active" id="psrc-all" onclick="placeSetSource('all',this)">
+          📋 All Sources
+        </div>
+        <div class="place-type-tab" id="psrc-manual" onclick="placeSetSource('manual',this)">
+          🏫 Campus Drives <span class="place-tab-count" id="ptab-cnt-manual">0</span>
+        </div>
+        <div class="place-type-tab" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3);" id="psrc-live" onclick="placeSetSource('live',this)">
+          🟢 Live Jobs (Remotive · Arbeitnow · Jobicy) <span class="place-tab-count" id="ptab-cnt-live">0</span>
+        </div>
+      </div>
+
+      <!-- Type tabs (campus only) -->
+      <div class="place-type-tabs" id="placeTypeTabs">
+        <div class="place-type-tab active" id="ptab-all" onclick="placeFilterType('all')">
+          🏢 All <span class="place-tab-count" id="ptab-cnt-all">0</span>
+        </div>
+        <div class="place-type-tab offcampus" id="ptab-offcampus" onclick="placeFilterType('offcampus')">
+          🌐 Off-Campus <span class="place-tab-count" id="ptab-cnt-offcampus">0</span>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="place-grid" id="placeGrid">
+        <div class="place-loading">
+          <div class="place-spinner"></div>
+          <div style="font-size:0.82rem;color:var(--text-dim);">Loading placements…</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  PLACEMENTS ENGINE — with Remotive Live Jobs
+// ═══════════════════════════════════════════════
+
+let _allPlacements   = [];   // from Supabase (manual campus drives)
+let _liveJobs        = [];   // aggregated from 3 free APIs
+let _placeSaved      = new Set(JSON.parse(localStorage.getItem('gw_place_saved') || '[]'));
+let _placeTypeFilter = 'all';
+let _placeShowSavedOnly = false;
+let _placeSource     = 'all';   // 'all' | 'manual' | 'live'
+let _placeDomain     = 'all';   // 'all' | 'software' | 'data' | 'design'
+let _liveJobsFetched = false;
+let _placeCgpa       = 0; // always read fresh from calcCGPA()
+
+// ── Domain keyword filters for each API ──
+const DOMAIN_KEYWORDS = {
+  software: ['software','developer','engineer','backend','frontend','fullstack','devops','cloud','ios','android','mobile','java','python','react','node'],
+  data:     ['data','machine learning','ml','ai','analyst','scientist','analytics','nlp','deep learning','llm'],
+  design:   ['design','ui','ux','figma','product design','graphic','visual','creative'],
+};
+
+// ── Tag each job to a domain ──
+function _classifyJob(role, tags) {
+  const txt = (role + ' ' + tags).toLowerCase();
+  for (const [domain, keywords] of Object.entries(DOMAIN_KEYWORDS)) {
+    if (keywords.some(k => txt.includes(k))) return domain;
+  }
+  return 'software'; // default bucket
+}
+
+// ── Open Placements Page ──
+function openPlacements() {
+  hideAllPages('placementsPage');
+  document.getElementById('placementsPage').classList.add('active');
+  window.scrollTo(0, 0);
+  document.querySelectorAll('.app-nav-btn').forEach(b => b.classList.remove('active'));
+  const nm = document.getElementById('user-nm');
+  const av = document.getElementById('user-av');
+  if (nm) document.getElementById('place-user-nm').textContent = nm.textContent;
+  if (av) document.getElementById('place-user-av').textContent = av.textContent;
+
+  // ── Always read latest CGPA directly from Grade section (with back paper if available) ──
+  if (typeof calcCGPA === 'function') {
+    const base = calcCGPA();
+    let display = base;
+    if (typeof calcCGPAWithBack === 'function') {
+      const { cgpa: withBack, hasAnyBack } = calcCGPAWithBack();
+      if (hasAnyBack && withBack > base) display = withBack;
+    }
+    _placeCgpa = display > 0 ? parseFloat(display.toFixed(2)) : 0;
+  }
+
+  if (_allPlacements.length === 0 && !_liveJobsFetched) fetchPlacements();
+  else placeRender();
+  setTimeout(placeRenderCgpaBadge, 50);
+  gwTrackVisit('placements');
+}
+
+
+
+// ── Fetch everything in parallel ──
+async function fetchPlacements() {
+  const grid = document.getElementById('placeGrid');
+  if (grid) grid.innerHTML = `
+    <div class="place-loading">
+      <div class="place-spinner"></div>
+      <div style="font-size:0.82rem;color:var(--text-dim);">
+        Fetching from 3 job sources… <span id="placeApiStatus" style="color:var(--cyan)"></span>
+      </div>
+    </div>`;
+
+  await Promise.all([fetchSupabasePlacements(), fetchAllLiveJobs()]);
+
+  placePopulateFilters();
+  placeUpdateStats();
+  placeRender();
+  placeCheckCGPA();
+}
+
+// ── Supabase Campus Drives ──
+async function fetchSupabasePlacements() {
+  try {
+    const { data, error } = await _sb
+      .from('placements')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    _allPlacements = (data || []).map(p => ({ ...p, _src: 'manual' }));
+  } catch (err) {
+    console.warn('Supabase placements error:', err.message);
+    _allPlacements = [];
+  }
+}
+
+// ── Master live jobs fetcher — calls all 3 APIs ──
+async function fetchAllLiveJobs() {
+  _liveJobsFetched = true;
+  const setStatus = t => { const el=document.getElementById('placeApiStatus'); if(el) el.textContent=t; };
+
+  const [remotive, arbeitnow, jobicy] = await Promise.all([
+    fetchRemotive().then(r => { setStatus('Remotive ✓'); return r; }),
+    fetchArbeitnow().then(r => { setStatus('Arbeitnow ✓'); return r; }),
+    fetchJobicy().then(r => { setStatus('Jobicy ✓'); return r; }),
+  ]);
+
+  // Deduplicate by title+company
+  const seen = new Set();
+  const all  = [...remotive, ...arbeitnow, ...jobicy].filter(j => {
+    const key = (j.role + j.company).toLowerCase().replace(/\s/g,'');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  // Sort newest first
+  _liveJobs = all.sort((a,b) => new Date(b.posted_at||0) - new Date(a.posted_at||0));
+}
+
+// ── API 1: Remotive (tech-focused remote jobs) ──
+async function fetchRemotive() {
+  const cats = ['software-dev','devops-sysadmin','data','design'];
+  const results = [];
+  await Promise.all(cats.map(async cat => {
+    try {
+      const res  = await fetch(`https://remotive.com/api/remote-jobs?category=${cat}&limit=25`);
+      if (!res.ok) return;
+      const json = await res.json();
+      (json.jobs||[]).forEach(j => {
+        const tags = (j.tags||[]).join(', ');
+        results.push({
+          id:          'rm_' + j.id,
+          _src:        'live',
+          _api:        'Remotive',
+          _remote_cat: _classifyJob(j.title, tags),
+          company:     j.company_name || 'Company',
+          role:        j.title || 'Position',
+          location:    j.candidate_required_location || 'Remote',
+          apply_link:  j.url,
+          logo_url:    j.company_logo || '',
+          mode:        j.job_type || 'Remote',
+          tags,
+          salary_raw:  j.salary || '',
+          posted_at:   j.publication_date || '',
+          description: (j.description||'').replace(/<[^>]*>/g,'').slice(0,180)+'…',
+        });
+      });
+    } catch(e) { console.warn('Remotive error:', cat, e.message); }
+  }));
+  return results;
+}
+
+// ── API 2: Arbeitnow (European & remote, no key needed) ──
+async function fetchArbeitnow() {
+  const results = [];
+  try {
+    // Fetch 3 pages (50 jobs each = up to 150 jobs)
+    await Promise.all([1,2,3].map(async page => {
+      try {
+        const res  = await fetch(`https://www.arbeitnow.com/api/job-board-api?page=${page}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        (json.data||[]).forEach(j => {
+          // Only include tech/data/design jobs
+          const combined = (j.title + ' ' + (j.tags||[]).join(' ')).toLowerCase();
+          const isTech   = ['software','engineer','developer','data','design','ui','ux','devops','cloud','python','react','java','ml','ai'].some(k => combined.includes(k));
+          if (!isTech) return;
+          const tags = (j.tags||[]).join(', ');
+          results.push({
+            id:          'ab_' + j.slug,
+            _src:        'live',
+            _api:        'Arbeitnow',
+            _remote_cat: _classifyJob(j.title, tags),
+            company:     j.company_name || 'Company',
+            role:        j.title || 'Position',
+            location:    j.location || (j.remote ? 'Remote' : 'Europe'),
+            apply_link:  j.url,
+            logo_url:    j.company_logo_url || '',
+            mode:        j.remote ? 'Remote' : 'On-site',
+            tags,
+            salary_raw:  '',
+            posted_at:   j.created_at ? new Date(j.created_at*1000).toISOString() : '',
+            description: (j.description||'').replace(/<[^>]*>/g,'').slice(0,180)+'…',
+          });
+        });
+      } catch(e) { console.warn('Arbeitnow page error:', page, e.message); }
+    }));
+  } catch(e) { console.warn('Arbeitnow error:', e.message); }
+  return results;
+}
+
+// ── API 3: Jobicy (remote jobs, no key needed) ──
+async function fetchJobicy() {
+  const results = [];
+  const tags = ['developer','data-science','design','devops','engineering','machine-learning'];
+  try {
+    await Promise.all(tags.map(async tag => {
+      try {
+        const res  = await fetch(`https://jobicy.com/api/v2/remote-jobs?count=20&tag=${tag}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        (json.jobs||[]).forEach(j => {
+          const jobTags = (j.jobIndustry||[]).concat(j.jobType||[]).join(', ');
+          results.push({
+            id:          'jc_' + j.id,
+            _src:        'live',
+            _api:        'Jobicy',
+            _remote_cat: _classifyJob(j.jobTitle, jobTags),
+            company:     j.companyName || 'Company',
+            role:        j.jobTitle || 'Position',
+            location:    j.jobGeo || 'Remote / Worldwide',
+            apply_link:  j.url,
+            logo_url:    j.companyLogo || '',
+            mode:        'Remote',
+            tags:        jobTags,
+            salary_raw:  j.annualSalaryMin ? `$${j.annualSalaryMin}–${j.annualSalaryMax}` : '',
+            posted_at:   j.pubDate || '',
+            description: (j.jobExcerpt||'').replace(/<[^>]*>/g,'').slice(0,180)+'…',
+          });
+        });
+      } catch(e) { console.warn('Jobicy tag error:', tag, e.message); }
+    }));
+  } catch(e) { console.warn('Jobicy error:', e.message); }
+  return results;
+}
+
+// ── Source switcher ──
+function placeSetSource(src, el) {
+  _placeSource = src;
+  document.querySelectorAll('[id^="psrc-"]').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  // Show/hide type tabs — only relevant for manual campus drives
+  const typeTabs = document.getElementById('placeTypeTabs');
+  if (typeTabs) typeTabs.style.display = (src === 'live') ? 'none' : 'flex';
+  placeRender();
+}
+
+// ── Domain filter ──
+function placeSetDomain(domain, el) {
+  _placeDomain = domain;
+  document.querySelectorAll('.place-domain-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  // When domain selected, switch to live source automatically
+  if (domain !== 'all') placeSetSource('live', document.getElementById('psrc-live'));
+  else placeRender();
+}
+
+// ── Populate location dropdown (manual + live jobs) ──
+function placePopulateFilters() {
+  const allForLoc = [..._allPlacements, ..._liveJobs];
+  const locs = [...new Set(allForLoc.map(p => p.location).filter(Boolean))].sort();
+  const sel = document.getElementById('placeFilterLoc');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Locations</option>' + locs.map(l => `<option value="${l}">${l}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+// ── Update stat cards ──
+function placeUpdateStats() {
+  const manualTotal = _allPlacements.length;
+  const liveTotal   = _liveJobs.length;
+  const total       = manualTotal + liveTotal;
+  const now         = new Date();
+  const open        = _allPlacements.filter(p => !p.deadline || new Date(p.deadline) >= now).length + liveTotal;
+  const pkgs        = _allPlacements.map(p => parseFloat(p.package_lpa) || 0).filter(v => v > 0);
+  const avg  = pkgs.length ? (pkgs.reduce((a,b)=>a+b,0)/pkgs.length).toFixed(1) : '—';
+  const high = pkgs.length ? Math.max(...pkgs).toFixed(1) : '—';
+
+  const s = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  s('pstat-total', total || '—');
+  s('pstat-open',  open  || '—');
+  s('pstat-avg',   liveTotal || '—');      // 🟢 Live Jobs (from Remotive)
+  s('pstat-high',  liveTotal || '—');      // 🌐 Remote Jobs (all Remotive = remote)
+
+  // source counts
+  const mc = document.getElementById('ptab-cnt-manual');
+  const lc = document.getElementById('ptab-cnt-live');
+  if (mc) mc.textContent = manualTotal;
+  if (lc) lc.textContent = liveTotal;
+}
+
+// ── CGPA badge — reads directly from Grade section's calcCGPA() ──
+function placeCheckCGPA() {
+  placeRenderCgpaBadge();
+}
+
+function placeRenderCgpaBadge() {
+  const badge = document.getElementById('place-cgpa-badge');
+  if (!badge) return;
+
+  if (_placeCgpa === 0) {
+    // Marks not entered in Grade section yet
+    badge.innerHTML = `<div style="display:flex;align-items:center;gap:10px;background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.2);border-radius:12px;padding:10px 16px;font-size:0.82rem;color:var(--text-dim);">
+      <span>🎓</span>
+      <span>CGPA not available — please enter your marks in the <strong>Grade section</strong> first.</span>
+    </div>`;
+    return;
+  }
+
+  const isLow   = _placeCgpa < 7.5;
+  const color   = isLow ? 'var(--yellow)' : 'var(--green)';
+  const borderC = isLow ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)';
+  const bgC     = isLow ? 'rgba(245,158,11,0.06)' : 'rgba(16,185,129,0.06)';
+  const icon    = isLow ? '⚠️' : '✅';
+  const msg     = isLow
+    ? `Your Overall CGPA is <strong>${_placeCgpa}</strong> — Showing jobs up to <strong>3 LPA</strong> &nbsp;<span style="opacity:0.7;font-size:0.78rem;">(most companies require 7.5+)</span>`
+    : `Your Overall CGPA is <strong>${_placeCgpa}</strong> — Showing <strong>all jobs</strong> &nbsp;<span style="opacity:0.7;font-size:0.78rem;">✓ You meet the 7.5+ criteria</span>`;
+
+  badge.innerHTML = `<div style="display:flex;align-items:center;gap:8px;background:${bgC};border:1px solid ${borderC};border-radius:12px;padding:10px 16px;font-size:0.82rem;color:${color};flex-wrap:wrap;">
+    <span style="font-size:1rem;">${icon}</span>
+    <span>${msg}</span>
+    <span style="margin-left:auto;font-size:0.7rem;padding:2px 8px;border-radius:6px;background:rgba(6,182,212,0.1);color:var(--cyan);border:1px solid rgba(6,182,212,0.25);white-space:nowrap;">🔄 From Grade section</span>
+  </div>`;
+}
+
+// ── Filter by type ──
+function placeFilterType(type) {
+  _placeTypeFilter = type;
+  _placeShowSavedOnly = false;
+  document.getElementById('placeSavedBtn')?.classList.remove('active');
+  ['all','campus','offcampus','walkin'].forEach(t => {
+    document.getElementById('ptab-' + t)?.classList.toggle('active', t === type);
+    document.getElementById('place-nav-' + t)?.classList.toggle('active', t === type);
+  });
+  document.getElementById('place-nav-saved')?.classList.remove('active');
+  placeRender();
+}
+
+// ── Toggle saved ──
+function placeToggleSaved() {
+  _placeShowSavedOnly = !_placeShowSavedOnly;
+  document.getElementById('placeSavedBtn')?.classList.toggle('active', _placeShowSavedOnly);
+  document.getElementById('place-nav-saved')?.classList.toggle('active', _placeShowSavedOnly);
+  ['all','campus','offcampus','walkin'].forEach(t => {
+    document.getElementById('place-nav-' + t)?.classList.remove('active');
+    document.getElementById('ptab-' + t)?.classList.remove('active');
+  });
+  placeRender();
+}
+
+// ── Save/unsave ──
+function placeSaveToggle(id) {
+  if (_placeSaved.has(id)) _placeSaved.delete(id);
+  else _placeSaved.add(id);
+  localStorage.setItem('gw_place_saved', JSON.stringify([..._placeSaved]));
+  placeUpdateCounts();
+  const btn = document.getElementById('place-save-' + id);
+  if (btn) btn.textContent = _placeSaved.has(id) ? '🔖' : '🤍';
+}
+
+// ── Update counts ──
+function placeUpdateCounts() {
+  const counts = { all: 0, campus: 0, offcampus: 0, walkin: 0 };
+  _allPlacements.forEach(p => {
+    counts.all++;
+    if (p.type) counts[p.type] = (counts[p.type] || 0) + 1;
+  });
+  ['all','campus','offcampus','walkin'].forEach(t => {
+    const el1 = document.getElementById('place-cnt-' + t);
+    const el2 = document.getElementById('ptab-cnt-' + t);
+    if (el1) el1.textContent = counts[t] || 0;
+    if (el2) el2.textContent = counts[t] || 0;
+  });
+  const sc  = document.getElementById('place-cnt-saved');
+  const sc2 = document.getElementById('placeSavedCount');
+  if (sc)  sc.textContent  = _placeSaved.size;
+  if (sc2) sc2.textContent = _placeSaved.size;
+}
+
+// ── MAIN RENDER ──
+function placeRender() {
+  placeUpdateCounts();
+  const grid = document.getElementById('placeGrid');
+  if (!grid) return;
+
+  const q    = (document.getElementById('placeSearch')?.value || '').toLowerCase();
+  const locF = document.getElementById('placeFilterLoc')?.value || '';
+  const pkgF = parseFloat(document.getElementById('placeFilterPkg')?.value) || 0;
+  const now  = new Date();
+
+  // ── Decide which pool to render ──
+  let list = [];
+
+  if (_placeSource === 'live' || _placeSource === 'all') {
+    // Filter live jobs by domain using _remote_cat (set by _classifyJob for all 3 APIs)
+    let liveFiltered = _liveJobs;
+    if (_placeDomain !== 'all') {
+      liveFiltered = _liveJobs.filter(j => j._remote_cat === _placeDomain);
+    }
+    if (q) liveFiltered = liveFiltered.filter(j =>
+      [j.company, j.role, j.location, j.tags, j.mode].join(' ').toLowerCase().includes(q));
+    list.push(...liveFiltered);
+  }
+
+  if (_placeSource === 'manual' || _placeSource === 'all') {
+    let manualFiltered = _allPlacements;
+    if (_placeShowSavedOnly) manualFiltered = manualFiltered.filter(p => _placeSaved.has(p.id));
+    if (_placeTypeFilter !== 'all') manualFiltered = manualFiltered.filter(p => p.type === _placeTypeFilter);
+    if (locF) manualFiltered = manualFiltered.filter(p => p.location === locF);
+    if (pkgF) manualFiltered = manualFiltered.filter(p => (parseFloat(p.package_lpa)||0) >= pkgF);
+    if (q)    manualFiltered = manualFiltered.filter(p =>
+      [p.company, p.role, p.location, p.eligibility, p.type].join(' ').toLowerCase().includes(q));
+    list.push(...manualFiltered);
+  }
+
+  if (_placeShowSavedOnly) list = list.filter(p => _placeSaved.has(p.id));
+
+  // ── CGPA filter: if set and < 7.5, cap to 3 LPA jobs only ──
+  if (_placeCgpa > 0 && _placeCgpa < 7.5) {
+    list = list.filter(p => {
+      // For live jobs: check salary_raw for clues, or just show all (no reliable salary data)
+      if (p._src === 'live') {
+        // Parse salary hint from salary_raw if present
+        if (p.salary_raw) {
+          const nums = p.salary_raw.match(/\d+/g);
+          if (nums && nums.length > 0) {
+            const maxVal = Math.max(...nums.map(Number));
+            // If salary looks like annual LPA (< 200), apply cap
+            if (maxVal < 200) return maxVal <= 3;
+          }
+        }
+        return true; // live jobs without salary info always shown
+      }
+      // Manual campus drives: filter by package_lpa
+      const lpa = parseFloat(p.package_lpa) || 0;
+      return lpa === 0 || lpa <= 3; // 0 = unknown, show those too
+    });
+  }
+
+  if (list.length === 0) {
+    const noLive = _liveJobs.length === 0;
+    grid.innerHTML = `
+      <div class="place-empty">
+        <div class="place-empty-icon">${noLive ? '🌐' : '🔍'}</div>
+        <div class="place-empty-title">${noLive ? 'Live jobs loading…' : 'No results found'}</div>
+        <div class="place-empty-sub">${noLive ? 'Fetching from Remotive, Arbeitnow & Jobicy. Try refreshing.' : 'Change your filters or search term.'}</div>
+        ${noLive ? `<button onclick="fetchAllLiveJobs().then(()=>{placePopulateFilters();placeRender();})" style="margin-top:12px;padding:8px 20px;background:var(--green);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;">↺ Retry Live Jobs</button>` : ''}
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map((p, idx) => {
+    const isLive   = p._src === 'live';
+    const isSaved  = _placeSaved.has(p.id);
+    const deadline = p.deadline ? new Date(p.deadline) : null;
+    const expired  = deadline && deadline < now;
+    const daysLeft = deadline ? Math.ceil((deadline - now) / 86400000) : null;
+    const soon     = daysLeft !== null && daysLeft >= 0 && daysLeft <= 3;
+
+    const domainLabel = { software:'💻 Software', data:'📊 Data/AI', design:'🎨 Design' }[p._remote_cat] || '🌐 Remote';
+    const typeLabel    = isLive ? domainLabel : ({ campus:'🏫 Campus', offcampus:'🌐 Off-Campus', walkin:'🚶 Walk-In' }[p.type] || '🏢 Drive');
+    const typePillCls  = isLive ? 'type-offcampus' : ({ campus:'type-campus', offcampus:'type-offcampus', walkin:'type-walkin' }[p.type] || 'type-campus');
+    const emoji        = isLive ? placeCompanyLogo(p.company, p.logo_url) : (p.emoji || placeDefaultEmoji(p.company));
+
+    const deadlineLabel = expired ? '⏰ Expired' : daysLeft === 0 ? '🔴 Today!' : soon ? `🟡 ${daysLeft}d left` : deadline ? `📅 ${deadline.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}` : '🟢 Open';
+    const deadlineCls   = expired ? 'dead' : soon ? 'dead soon' : '';
+
+    // API source color
+    const apiColors   = { Remotive:'#06b6d4', Arbeitnow:'#8b5cf6', Jobicy:'#f59e0b' };
+    const apiColor    = apiColors[p._api] || '#10b981';
+    const postedBadge = isLive && p.posted_at ? `<span class="place-pill" style="background:rgba(16,185,129,0.1);color:var(--green);border-color:rgba(16,185,129,0.3);">🕐 ${timeAgo(p.posted_at)}</span>` : '';
+    const apiBadge    = isLive ? `<span style="font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:6px;background:${apiColor}18;color:${apiColor};border:1px solid ${apiColor}44;letter-spacing:0.3px;">${p._api||'Live'}</span>` : '';
+    const salaryBadge = isLive && p.salary_raw ? `<span class="place-pill pkg">💰 ${esc2(p.salary_raw.slice(0,30))}</span>` : (p.package_lpa ? `<span class="place-pill pkg">💰 ${p.package_lpa} LPA</span>` : '');
+
+    return `
+    <div class="place-card${expired?' expired':''}" data-type="${p.type||'offcampus'}" style="animation-delay:${Math.min(idx,15)*0.04}s${isLive?' border-color:rgba(16,185,129,0.22);':''}">
+      <div class="place-card-top">
+        <div class="place-logo" style="overflow:hidden;">${emoji}</div>
+        <div class="place-card-info">
+          <div class="place-role">${esc2(p.role||'Role TBA')}</div>
+          <div class="place-company" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">${esc2(p.company||'Company')} ${apiBadge}</div>
+        </div>
+        <button class="place-save-btn" id="place-save-${p.id}" onclick="placeSaveToggle('${p.id}')" title="${isSaved?'Remove':'Save'}">${isSaved?'🔖':'🤍'}</button>
+      </div>
+      <div class="place-pills">
+        <span class="place-pill ${typePillCls}">${typeLabel}</span>
+        ${salaryBadge}
+        ${p.location ? `<span class="place-pill loc">📍 ${esc2(p.location)}</span>` : ''}
+        ${isLive ? postedBadge : (deadline ? `<span class="place-pill ${deadlineCls}">${deadlineLabel}</span>` : '<span class="place-pill loc">🟢 Open</span>')}
+      </div>
+      <div class="place-details">
+        ${isLive
+          ? `<div class="place-detail-row"><span class="pdi">🖥️</span><span>Mode: <span class="place-detail-val">${esc2(p.mode||'Remote')}</span></span></div>
+             ${p.tags ? `<div class="place-detail-row"><span class="pdi">🏷️</span><span>Tags: <span class="place-detail-val" style="font-size:0.75rem;">${esc2(p.tags.slice(0,60))}${p.tags.length>60?'…':''}</span></span></div>` : ''}
+             <div class="place-detail-row"><span class="pdi">📝</span><span style="font-size:0.78rem;color:var(--text-muted);line-height:1.4;">${esc2(p.description)}</span></div>`
+          : `${p.eligibility ? `<div class="place-detail-row"><span class="pdi">🎓</span><span>Eligibility: <span class="place-detail-val">${esc2(p.eligibility)}</span></span></div>` : ''}
+             ${p.batch  ? `<div class="place-detail-row"><span class="pdi">📆</span><span>Batch: <span class="place-detail-val">${esc2(p.batch)}</span></span></div>` : ''}
+             ${p.mode   ? `<div class="place-detail-row"><span class="pdi">🖥️</span><span>Mode: <span class="place-detail-val">${esc2(p.mode)}</span></span></div>` : ''}
+             ${p.rounds ? `<div class="place-detail-row"><span class="pdi">🔄</span><span>Rounds: <span class="place-detail-val">${esc2(p.rounds)}</span></span></div>` : ''}`
+        }
+      </div>
+      ${p.apply_link
+        ? `<a class="place-apply-btn" href="${esc2(p.apply_link)}" target="_blank" rel="noopener noreferrer"
+              style="${isLive?'background:linear-gradient(135deg,#10b981,#06b6d4);':''}">
+              ${expired ? '⏰ Deadline Passed' : '🚀 Apply Now'}
+           </a>`
+        : `<button class="place-apply-btn" style="opacity:0.5;pointer-events:none;">Link coming soon</button>`}
+    </div>`;
+  }).join('');
+}
+
+// ── Company Logo: use img if URL, else emoji ──
+function placeCompanyLogo(company, logoUrl) {
+  if (logoUrl) {
+    return `<img src="${esc2(logoUrl)}" alt="${esc2(company)}" style="width:100%;height:100%;object-fit:contain;border-radius:6px;" onerror="this.parentNode.textContent='${placeDefaultEmoji(company)}'">`;
+  }
+  return placeDefaultEmoji(company);
+}
+
+// ── Time ago helper ──
+function timeAgo(dateStr) {
+  try {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const h = Math.floor(diff / 3600000);
+    if (h < 1) return 'Just now';
+    if (h < 24) return h + 'h ago';
+    const d = Math.floor(h / 24);
+    if (d < 7) return d + 'd ago';
+    return Math.floor(d/7) + 'w ago';
+  } catch(e) { return ''; }
+}
+
+function placeDefaultEmoji(company) {
+  const map = {
+    'google':'🔵','amazon':'🟠','microsoft':'🟦','tcs':'🏢','infosys':'🟣','wipro':'🟤',
+    'accenture':'💜','ibm':'🔷','cognizant':'🔵','hcl':'🟩','capgemini':'🟦','deloitte':'🟢',
+    'oracle':'🔴','salesforce':'☁️','adobe':'🔴','flipkart':'🟡','zomato':'🔴','swiggy':'🟠',
+    'paytm':'💙','phonepe':'💜','meesho':'🟢','razorpay':'🔵','freshworks':'🟢','mphasis':'🔵',
+    'stripe':'💳','shopify':'🟩','netflix':'🔴','meta':'🔷','apple':'⬜','twitter':'🐦',
+    'figma':'🟣','notion':'⬜','github':'⬛','gitlab':'🟠','atlassian':'🔵',
+  };
+  const key = (company||'').toLowerCase();
+  for (const k in map) if (key.includes(k)) return map[k];
+  const colors = ['🟦','🟩','🟥','🟨','🟪','🟧','⬛'];
+  return colors[(company||'X').charCodeAt(0) % colors.length];
+}
+
+function esc2(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── AUTO-REFRESH SYSTEM (every 5 minutes) ──
+let _autoRefreshTimer = null;
+let _lastRefreshTime  = null;
+let _refreshToastEl   = null;
+
+function placeStartAutoRefresh() {
+  if (_autoRefreshTimer) clearInterval(_autoRefreshTimer);
+  _lastRefreshTime = Date.now();
+  _autoRefreshTimer = setInterval(placeAutoRefreshTick, 5 * 60 * 1000);
+  placeUpdateRefreshBadge();
+  setInterval(placeUpdateRefreshBadge, 30000);
+}
+
+async function placeAutoRefreshTick() {
+  const prevCount = _liveJobs.length;
+  await fetchAllLiveJobs();
+  placePopulateFilters();
+  placeUpdateStats();
+  _lastRefreshTime = Date.now();
+  placeUpdateRefreshBadge();
+  const newCount = _liveJobs.length;
+  const diff = newCount - prevCount;
+  if (diff > 0) {
+    placeShowNewJobsToast(diff);
+  } else {
+    placeRender();
+  }
+}
+
+function placeShowNewJobsToast(count) {
+  if (_refreshToastEl) _refreshToastEl.remove();
+  const toast = document.createElement('div');
+  toast.id = 'place-refresh-toast';
+  toast.innerHTML = `
+    <span style="font-size:1.1rem;">&#x1F7E2;</span>
+    <span><strong>${count} new job${count>1?'s':''} found!</strong> Feed updated just now.</span>
+    <button onclick="placeRender();this.closest('#place-refresh-toast').remove();"
+      style="margin-left:auto;padding:4px 14px;border-radius:8px;border:none;
+             background:var(--green);color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer;white-space:nowrap;">
+      Show
+    </button>
+    <button onclick="this.closest('#place-refresh-toast').remove();"
+      style="padding:4px 8px;border-radius:8px;border:none;
+             background:rgba(255,255,255,0.08);color:var(--text-muted);font-size:0.85rem;cursor:pointer;">
+      x
+    </button>`;
+  toast.style.cssText = [
+    'position:fixed','bottom:24px','left:50%','transform:translateX(-50%)',
+    'z-index:9999','display:flex','align-items:center','gap:10px',
+    'background:var(--bg-card2)','border:1px solid rgba(16,185,129,0.4)',
+    'border-radius:14px','padding:12px 18px',
+    'box-shadow:0 8px 32px rgba(0,0,0,0.35),0 0 0 1px rgba(16,185,129,0.15)',
+    'font-family:var(--font-body)','font-size:0.88rem','color:var(--text)',
+    'min-width:300px','max-width:90vw',
+    'animation:toastSlideUp 0.4s cubic-bezier(0.16,1,0.3,1)'
+  ].join(';') + ';';
+  if (!document.getElementById('toast-keyframes')) {
+    const s = document.createElement('style');
+    s.id = 'toast-keyframes';
+    s.textContent = '@keyframes toastSlideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+    document.head.appendChild(s);
+  }
+  document.body.appendChild(toast);
+  _refreshToastEl = toast;
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 12000);
+}
+
+function placeUpdateRefreshBadge() {
+  const badge = document.getElementById('place-refresh-badge');
+  if (!badge) return;
+  if (!_lastRefreshTime) { badge.textContent = ''; return; }
+  const diff = Math.round((Date.now() - _lastRefreshTime) / 1000);
+  const label = diff < 10 ? 'Just now'
+    : diff < 60 ? diff + 's ago'
+    : diff < 3600 ? Math.floor(diff/60) + 'm ago'
+    : Math.floor(diff/3600) + 'h ago';
+  badge.textContent = 'Updated ' + label + ' · auto-refreshes every 5 min';
+}
+
+(function patchFetchPlacements() {
+  const orig = fetchPlacements;
+  fetchPlacements = async function() {
+    await orig();
+    placeStartAutoRefresh();
+  };
+})();
 </script>
 
 </body>
