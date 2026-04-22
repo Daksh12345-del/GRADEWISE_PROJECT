@@ -17,6 +17,7 @@
     --purple: #8b5cf6;
     --purple-glow: rgba(139,92,246,0.2);
     --green: #10b981;
+    --green-glow: rgba(16,185,129,0.2);
     --yellow: #f59e0b;
     --text: #e2e8f0;
     --text-dim: #64748b;
@@ -27,7 +28,6 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { scroll-behavior: smooth; }
 
   body {
@@ -75,23 +75,17 @@
   }
 
   .brand-logo {
-    width: 32px;
-    height: 32px;
+    width: 32px; height: 32px;
     background: linear-gradient(135deg, var(--cyan), var(--purple));
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 0.85rem;
-    color: white;
+    font-weight: 800; font-size: 0.85rem; color: white;
   }
 
   .brand-name {
     font-family: var(--font-display);
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-size: 1.05rem; font-weight: 700;
     background: linear-gradient(135deg, var(--cyan-bright), var(--purple));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -99,154 +93,129 @@
   }
 
   .top-bar-back {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    display: flex; align-items: center; gap: 6px;
     text-decoration: none;
     color: var(--text-dim);
-    font-size: 0.82rem;
-    font-weight: 500;
+    font-size: 0.82rem; font-weight: 500;
     padding: 6px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    transition: all 0.2s;
-    cursor: pointer;
-    background: transparent;
-    font-family: var(--font-body);
-    line-height: 1;
+    border: 1px solid var(--border); border-radius: 10px;
+    transition: all 0.2s; cursor: pointer;
+    background: transparent; font-family: var(--font-body); line-height: 1;
   }
-  .top-bar-back:hover {
-    color: var(--cyan);
-    border-color: rgba(6,182,212,0.4);
-    background: rgba(6,182,212,0.06);
+  .top-bar-back:hover { color: var(--cyan); border-color: rgba(6,182,212,0.4); background: rgba(6,182,212,0.06); }
+
+  /* ── READING BAR ── */
+  .reading-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--purple));
+    z-index: 200; transition: width 0.1s linear; width: 0%;
   }
 
   /* ── PAGE WRAPPER ── */
   .page-wrapper {
-    position: relative;
-    z-index: 1;
-    max-width: 860px;
-    margin: 0 auto;
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto;
     padding: 3rem 2rem 5rem;
   }
 
   /* ── DOCUMENT HEADER ── */
   .doc-header {
-    text-align: center;
-    margin-bottom: 3rem;
+    text-align: center; margin-bottom: 3rem;
     padding-bottom: 2.5rem;
     border-bottom: 1px solid var(--border);
     position: relative;
   }
 
   .doc-header::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 2px;
+    content: ''; position: absolute; bottom: -1px;
+    left: 50%; transform: translateX(-50%);
+    width: 80px; height: 2px;
     background: linear-gradient(90deg, var(--cyan), var(--purple));
     border-radius: 2px;
   }
 
   .doc-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: rgba(6,182,212,0.08);
-    border: 1px solid rgba(6,182,212,0.25);
-    border-radius: 100px;
-    padding: 5px 16px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--cyan);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 1.2rem;
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.25);
+    border-radius: 100px; padding: 5px 16px;
+    font-size: 0.72rem; font-weight: 700; color: var(--cyan);
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.2rem;
   }
 
   .doc-title {
-    font-family: var(--font-display);
-    font-size: 2.2rem;
-    font-weight: 800;
+    font-family: var(--font-display); font-size: 2.2rem; font-weight: 800;
     background: linear-gradient(135deg, #e2e8f0 0%, var(--cyan-bright) 60%, var(--purple) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.2;
-    margin-bottom: 0.8rem;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    line-height: 1.2; margin-bottom: 0.8rem;
   }
 
   .doc-meta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    margin-top: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem;
   }
 
   .doc-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.78rem;
-    color: var(--text-dim);
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.78rem; color: var(--text-dim);
+  }
+  .doc-meta-item span { color: var(--text-muted); font-weight: 500; }
+
+  /* ── SCOPE PILLS ── */
+  .scope-pills {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.8rem; flex-wrap: wrap; margin-top: 1.4rem;
   }
 
-  .doc-meta-item span {
-    color: var(--text-muted);
-    font-weight: 500;
+  .scope-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 18px; border-radius: 100px;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .scope-pill.internship {
+    background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3); color: var(--cyan);
+  }
+
+  .scope-pill.placement {
+    background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: var(--green);
   }
 
   /* ── NOTICE BOX ── */
   .notice-box {
-    background: rgba(6,182,212,0.06);
-    border: 1px solid rgba(6,182,212,0.2);
-    border-left: 3px solid var(--cyan);
-    border-radius: 12px;
-    padding: 1.1rem 1.4rem;
-    margin-bottom: 2.5rem;
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    line-height: 1.6;
+    background: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.2);
+    border-left: 3px solid var(--cyan); border-radius: 12px;
+    padding: 1.1rem 1.4rem; margin-bottom: 2.5rem;
+    font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;
   }
-
-  .notice-box strong {
-    color: var(--cyan);
-    font-weight: 600;
-  }
+  .notice-box strong { color: var(--cyan); font-weight: 600; }
 
   /* ── TABLE OF CONTENTS ── */
   .toc-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.5rem 1.8rem;
-    margin-bottom: 2.8rem;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.5rem 1.8rem; margin-bottom: 2.8rem;
   }
 
   .toc-title {
-    font-family: var(--font-display);
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-family: var(--font-display); font-size: 0.72rem; font-weight: 700;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
   }
+  .toc-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  .toc-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
+  .toc-category {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 0.4rem 0.6rem 0.2rem; color: var(--text-dim);
+    border-bottom: 1px solid var(--border); margin-bottom: 0.3rem; margin-top: 0.8rem;
+    display: flex; align-items: center; gap: 6px;
   }
+  .toc-category:first-child { margin-top: 0; }
+  .toc-category .cat-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .toc-category .cat-dot.cyan { background: var(--cyan); }
+  .toc-category .cat-dot.green { background: var(--green); }
+  .toc-category .cat-dot.purple { background: var(--purple); }
 
   .toc-grid {
     display: grid;
@@ -255,183 +224,139 @@
   }
 
   .toc-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 0.45rem 0.6rem;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.15s;
-    font-size: 0.83rem;
-    color: var(--text-muted);
+    display: flex; align-items: center; gap: 9px;
+    padding: 0.45rem 0.6rem; border-radius: 8px;
+    text-decoration: none; transition: all 0.15s;
+    font-size: 0.83rem; color: var(--text-muted);
   }
-
-  .toc-item:hover {
-    background: rgba(6,182,212,0.07);
-    color: var(--cyan);
-  }
+  .toc-item:hover { background: rgba(6,182,212,0.07); color: var(--cyan); }
+  .toc-item.green:hover { background: rgba(16,185,129,0.07); color: var(--green); }
 
   .toc-num {
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    color: var(--cyan);
-    background: rgba(6,182,212,0.1);
-    border-radius: 5px;
-    padding: 1px 7px;
-    flex-shrink: 0;
-    font-weight: 500;
+    font-family: var(--font-mono); font-size: 0.68rem; color: var(--cyan);
+    background: rgba(6,182,212,0.1); border-radius: 5px;
+    padding: 1px 7px; flex-shrink: 0; font-weight: 500;
+  }
+  .toc-num.green { color: var(--green); background: rgba(16,185,129,0.1); }
+
+  /* ── PART DIVIDER ── */
+  .part-divider {
+    display: flex; align-items: center; gap: 1rem;
+    margin: 3rem 0 2rem;
+  }
+
+  .part-divider-line { flex: 1; height: 1px; }
+  .part-divider-line.cyan { background: linear-gradient(90deg, transparent, rgba(6,182,212,0.4)); }
+  .part-divider-line.cyan.reverse { background: linear-gradient(90deg, rgba(6,182,212,0.4), transparent); }
+  .part-divider-line.green { background: linear-gradient(90deg, transparent, rgba(16,185,129,0.4)); }
+  .part-divider-line.green.reverse { background: linear-gradient(90deg, rgba(16,185,129,0.4), transparent); }
+
+  .part-label {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 18px; border-radius: 100px;
+    font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; white-space: nowrap;
+  }
+  .part-label.internship {
+    background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3); color: var(--cyan);
+  }
+  .part-label.placement {
+    background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: var(--green);
+  }
+  .part-label.shared {
+    background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); color: var(--purple);
   }
 
   /* ── SECTION ── */
-  .section {
-    margin-bottom: 2.6rem;
-    scroll-margin-top: 80px;
-  }
+  .section { margin-bottom: 2.6rem; scroll-margin-top: 80px; }
 
   .section-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 1.1rem;
+    display: flex; align-items: flex-start; gap: 14px; margin-bottom: 1.1rem;
   }
 
   .section-num {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--cyan);
-    background: rgba(6,182,212,0.1);
-    border: 1px solid rgba(6,182,212,0.2);
-    border-radius: 8px;
-    padding: 4px 10px;
-    flex-shrink: 0;
-    margin-top: 3px;
-    letter-spacing: 0.5px;
+    font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+    color: var(--cyan); background: rgba(6,182,212,0.1);
+    border: 1px solid rgba(6,182,212,0.2); border-radius: 8px;
+    padding: 4px 10px; flex-shrink: 0; margin-top: 3px; letter-spacing: 0.5px;
+  }
+  .section-num.green {
+    color: var(--green); background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.2);
   }
 
   .section-title {
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.3;
+    font-family: var(--font-display); font-size: 1.05rem; font-weight: 700;
+    color: var(--text); line-height: 1.3;
   }
 
   .section-body {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.4rem 1.6rem;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.4rem 1.6rem;
   }
+  .section-body.green-border { border-color: rgba(16,185,129,0.15); }
 
   .section-body p {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    line-height: 1.75;
-    margin-bottom: 0.85rem;
+    font-size: 0.9rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 0.85rem;
   }
-
   .section-body p:last-child { margin-bottom: 0; }
 
-  .section-body ul {
-    list-style: none;
-    padding: 0;
-    margin: 0.6rem 0;
-  }
-
+  .section-body ul { list-style: none; padding: 0; margin: 0.6rem 0; }
   .section-body ul li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    padding: 0.45rem 0;
-    line-height: 1.6;
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 0.88rem; color: var(--text-muted);
+    padding: 0.45rem 0; line-height: 1.6;
     border-bottom: 1px solid rgba(255,255,255,0.03);
   }
-
   .section-body ul li:last-child { border-bottom: none; }
-
   .section-body ul li::before {
-    content: '›';
-    color: var(--cyan);
-    font-size: 1.1rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 1px;
+    content: '›'; color: var(--cyan); font-size: 1.1rem; font-weight: 700;
+    flex-shrink: 0; margin-top: 1px;
   }
+  .section-body.green-border ul li::before { color: var(--green); }
+  .section-body ul li strong { color: var(--text); }
 
-  .section-body ul li strong {
-    color: var(--text);
-  }
-
-  /* ── HIGHLIGHT BOX (inside section) ── */
+  /* ── INFO BOX ── */
   .highlight-box {
-    background: rgba(139,92,246,0.06);
-    border: 1px solid rgba(139,92,246,0.2);
-    border-left: 3px solid var(--purple);
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    margin: 1rem 0 0;
-    font-size: 0.86rem;
-    color: var(--text-muted);
+    background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.2);
+    border-left: 3px solid var(--purple); border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0 0;
+    font-size: 0.86rem; color: var(--text-muted);
   }
-
   .highlight-box strong { color: #c4b5fd; }
 
-  /* ── WARNING BOX ── */
   .warning-box {
-    background: rgba(245,158,11,0.06);
-    border: 1px solid rgba(245,158,11,0.2);
-    border-left: 3px solid var(--yellow);
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    margin: 1rem 0 0;
-    font-size: 0.86rem;
-    color: var(--text-muted);
+    background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2);
+    border-left: 3px solid var(--yellow); border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0 0;
+    font-size: 0.86rem; color: var(--text-muted);
   }
-
   .warning-box strong { color: var(--yellow); }
+
+  .info-box-green {
+    background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2);
+    border-left: 3px solid var(--green); border-radius: 10px;
+    padding: 1rem 1.2rem; margin: 1rem 0 0;
+    font-size: 0.86rem; color: var(--text-muted);
+  }
+  .info-box-green strong { color: #34d399; }
 
   /* ── CONTACT CARD ── */
   .contact-card {
     background: linear-gradient(135deg, rgba(6,182,212,0.06), rgba(139,92,246,0.06));
-    border: 1px solid rgba(6,182,212,0.22);
-    border-radius: 14px;
-    padding: 1.4rem 1.6rem;
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-    flex-wrap: wrap;
+    border: 1px solid rgba(6,182,212,0.22); border-radius: 14px;
+    padding: 1.4rem 1.6rem; display: flex; align-items: center;
+    gap: 1.2rem; flex-wrap: wrap;
   }
-
-  .contact-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-  }
-
-  .contact-detail {
-    flex: 1;
-    min-width: 200px;
-  }
-
+  .contact-icon { font-size: 2rem; flex-shrink: 0; }
+  .contact-detail { flex: 1; min-width: 200px; }
   .contact-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
+    font-size: 0.72rem; font-weight: 700; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
   }
-
   .contact-value {
-    font-size: 0.92rem;
-    color: var(--cyan);
-    font-weight: 600;
-    text-decoration: none;
-    transition: color 0.2s;
+    font-size: 0.92rem; color: var(--cyan); font-weight: 600;
+    text-decoration: none; transition: color 0.2s;
   }
-
   .contact-value:hover { color: var(--cyan-bright); }
 
   /* ── DIVIDER ── */
@@ -443,49 +368,18 @@
 
   /* ── FOOTER ── */
   .doc-footer {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.8rem 2rem;
-    text-align: center;
-    margin-top: 3rem;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.8rem 2rem;
+    text-align: center; margin-top: 3rem;
   }
-
-  .doc-footer-seal {
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    line-height: 1.7;
-  }
-
+  .doc-footer-seal { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
   .doc-footer-seal strong { color: var(--text-muted); }
-
-  .doc-footer-seal a {
-    color: var(--cyan);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
+  .doc-footer-seal a { color: var(--cyan); text-decoration: none; font-weight: 500; }
   .doc-footer-seal a:hover { text-decoration: underline; }
-
   .footer-acceptance {
-    margin-top: 1rem;
-    padding-top: 1rem;
+    margin-top: 1rem; padding-top: 1rem;
     border-top: 1px solid var(--border);
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    font-style: italic;
-  }
-
-  /* ── PROGRESS INDICATOR ── */
-  .reading-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--cyan), var(--purple));
-    z-index: 200;
-    transition: width 0.1s linear;
-    width: 0%;
+    font-size: 0.78rem; color: var(--text-dim); font-style: italic;
   }
 
   /* ── RESPONSIVE ── */
@@ -497,6 +391,7 @@
     .section-body { padding: 1.1rem 1.2rem; }
     .contact-card { flex-direction: column; gap: 0.8rem; }
     .top-bar-back span { display: none; }
+    .part-divider-line { display: none; }
   }
 </style>
 </head>
@@ -506,7 +401,7 @@
 
 <!-- TOP BAR -->
 <nav class="top-bar">
-  <a href="GradeWise_supabase.html" class="top-bar-brand">
+  <a href="javascript:history.back()" class="top-bar-brand">
     <div class="brand-logo">GW</div>
     <span class="brand-name">GradeWise</span>
   </a>
@@ -527,42 +422,76 @@
       <div class="doc-meta-item">🌐 Platform: <span>GradeWise</span></div>
       <div class="doc-meta-item">⚖️ Jurisdiction: <span>India</span></div>
     </div>
+    <div class="scope-pills">
+      <span class="scope-pill internship">🎓 Internships</span>
+      <span class="scope-pill placement">🏢 Placements</span>
+    </div>
   </div>
 
   <!-- NOTICE -->
   <div class="notice-box">
-    <strong>Important Notice:</strong> Welcome to GradeWise. By accessing or using our platform, you agree to comply with and be bound by the following Terms and Conditions. Please read this document carefully before proceeding. <strong>If you do not agree to these terms, please refrain from using our services.</strong>
+    <strong>Important Notice:</strong> Welcome to GradeWise. By accessing or using our platform — including the Internship Explorer, Placement Drives, and Live Jobs features — you agree to comply with and be bound by the following Terms and Conditions. Please read this document carefully before proceeding. <strong>If you do not agree to these terms, please refrain from using our services.</strong>
   </div>
 
   <!-- TABLE OF CONTENTS -->
   <div class="toc-box">
     <div class="toc-title">Contents</div>
+
+    <div class="toc-category"><span class="cat-dot cyan"></span>Part A — Internships</div>
     <div class="toc-grid">
-      <a href="#s1" class="toc-item"><span class="toc-num">01</span> Nature of Service</a>
-      <a href="#s2" class="toc-item"><span class="toc-num">02</span> No Affiliation</a>
+      <a href="#s1" class="toc-item"><span class="toc-num">01</span> Nature of Internship Service</a>
+      <a href="#s2" class="toc-item"><span class="toc-num">02</span> No Affiliation (Internships)</a>
       <a href="#s3" class="toc-item"><span class="toc-num">03</span> Data Usage &amp; Attribution</a>
-      <a href="#s4" class="toc-item"><span class="toc-num">04</span> Accuracy of Information</a>
-      <a href="#s5" class="toc-item"><span class="toc-num">05</span> Third-Party Links</a>
-      <a href="#s6" class="toc-item"><span class="toc-num">06</span> User Responsibility</a>
-      <a href="#s7" class="toc-item"><span class="toc-num">07</span> Intellectual Property</a>
-      <a href="#s8" class="toc-item"><span class="toc-num">08</span> Limitation of Liability</a>
-      <a href="#s9" class="toc-item"><span class="toc-num">09</span> Content Removal Requests</a>
-      <a href="#s10" class="toc-item"><span class="toc-num">10</span> Changes to Terms</a>
-      <a href="#s11" class="toc-item"><span class="toc-num">11</span> Governing Law</a>
-      <a href="#s12" class="toc-item"><span class="toc-num">12</span> Contact Information</a>
-      <a href="#s13" class="toc-item"><span class="toc-num">13</span> Educational Purpose Disclaimer</a>
+      <a href="#s4" class="toc-item"><span class="toc-num">04</span> Accuracy of Internship Info</a>
     </div>
+
+    <div class="toc-category"><span class="cat-dot green"></span>Part B — Placements</div>
+    <div class="toc-grid">
+      <a href="#s5" class="toc-item green"><span class="toc-num green">05</span> Nature of Placement Service</a>
+      <a href="#s6" class="toc-item green"><span class="toc-num green">06</span> Campus &amp; Off-Campus Drives</a>
+      <a href="#s7" class="toc-item green"><span class="toc-num green">07</span> Live Job Aggregation</a>
+      <a href="#s8" class="toc-item green"><span class="toc-num green">08</span> CGPA &amp; Eligibility</a>
+      <a href="#s9" class="toc-item green"><span class="toc-num green">09</span> Accuracy of Placement Info</a>
+      <a href="#s10" class="toc-item green"><span class="toc-num green">10</span> No Affiliation (Placements)</a>
+    </div>
+
+    <div class="toc-category"><span class="cat-dot purple"></span>Part C — General Terms</div>
+    <div class="toc-grid">
+      <a href="#s11" class="toc-item"><span class="toc-num">11</span> Third-Party Links</a>
+      <a href="#s12" class="toc-item"><span class="toc-num">12</span> User Responsibility</a>
+      <a href="#s13" class="toc-item"><span class="toc-num">13</span> Intellectual Property</a>
+      <a href="#s14" class="toc-item"><span class="toc-num">14</span> Limitation of Liability</a>
+      <a href="#s15" class="toc-item"><span class="toc-num">15</span> Content Removal Requests</a>
+      <a href="#s16" class="toc-item"><span class="toc-num">16</span> Changes to Terms</a>
+      <a href="#s17" class="toc-item"><span class="toc-num">17</span> Governing Law</a>
+      <a href="#s18" class="toc-item"><span class="toc-num">18</span> Contact Information</a>
+      <a href="#s19" class="toc-item"><span class="toc-num">19</span> Educational Purpose Disclaimer</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- PART A: INTERNSHIPS                 -->
+  <!-- ═══════════════════════════════════ -->
+  <div class="part-divider">
+    <div class="part-divider-line cyan"></div>
+    <div class="part-label internship">🎓 Part A — Internships</div>
+    <div class="part-divider-line cyan reverse"></div>
   </div>
 
   <!-- SECTION 1 -->
   <div class="section" id="s1">
     <div class="section-header">
       <div class="section-num">§ 01</div>
-      <div class="section-title">Nature of Service</div>
+      <div class="section-title">Nature of Internship Service</div>
     </div>
     <div class="section-body">
-      <p>GradeWise is an informational platform that aggregates internship opportunities sourced from various publicly available channels, including but not limited to third-party websites such as Internshala, LinkedIn, and Unstop.</p>
-      <p>We do not host, process, or directly provide internship applications through our platform. When users initiate an "Apply Now" action, they are redirected to the respective originating third-party website to complete their application.</p>
+      <p>GradeWise is an informational platform that aggregates internship opportunities sourced from various publicly available channels, including but not limited to third-party websites such as Internshala, LinkedIn, Unstop, JSearch, and Remotive.</p>
+      <p>We do not host, process, or directly facilitate internship applications through our platform. When users initiate an "Apply Now" action on an internship listing, they are redirected to the respective originating third-party website to complete their application independently.</p>
+      <ul>
+        <li>GradeWise acts solely as an aggregator and does not participate in the hiring, selection, or onboarding process for any internship.</li>
+        <li>Any communication, offer, or agreement arising from an internship application is strictly between the applicant and the recruiting organisation.</li>
+        <li>GradeWise does not receive any commission or financial benefit from internship applications made via our platform.</li>
+      </ul>
     </div>
   </div>
 
@@ -570,12 +499,12 @@
   <div class="section" id="s2">
     <div class="section-header">
       <div class="section-num">§ 02</div>
-      <div class="section-title">No Affiliation</div>
+      <div class="section-title">No Affiliation — Internship Sources</div>
     </div>
     <div class="section-body">
-      <p>GradeWise is an independent platform and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Internshala, LinkedIn, Unstop, or any other third-party platform referenced herein.</p>
+      <p>GradeWise is an independent platform and is not affiliated, associated, authorised, endorsed by, or in any way officially connected with Internshala, LinkedIn, Unstop, JSearch, Remotive, or any other third-party platform referenced in the Internship section.</p>
       <div class="highlight-box">
-        <strong>Disclaimer:</strong> All trademarks, logos, brand names, and proprietary content visible on this platform belong exclusively to their respective owners. Their appearance on GradeWise does not constitute or imply any endorsement or partnership.
+        <strong>Disclaimer:</strong> All trademarks, logos, brand names, and proprietary content visible within internship listings belong exclusively to their respective owners. Their appearance on GradeWise does not constitute or imply any endorsement, partnership, or official association.
       </div>
     </div>
   </div>
@@ -603,88 +532,231 @@
   <div class="section" id="s4">
     <div class="section-header">
       <div class="section-num">§ 04</div>
-      <div class="section-title">Accuracy of Information</div>
+      <div class="section-title">Accuracy of Internship Information</div>
     </div>
     <div class="section-body">
       <p>GradeWise makes no representations or warranties regarding the following aspects of any internship listing displayed on this platform:</p>
       <ul>
-        <li><strong>Accuracy</strong> — Information may have changed since it was aggregated.</li>
+        <li><strong>Accuracy</strong> — Information may have changed since it was aggregated from the source.</li>
         <li><strong>Completeness</strong> — Listings may not reflect the full scope of the opportunity.</li>
-        <li><strong>Reliability</strong> — Data is sourced externally and may contain errors.</li>
+        <li><strong>Reliability</strong> — Data is sourced externally and may contain errors or outdated details.</li>
+        <li><strong>Availability</strong> — Internship positions may have been filled or withdrawn from the original platform.</li>
       </ul>
       <p>All users are advised to independently verify details directly from the original platform before submitting any application or making any career-related decisions.</p>
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════ -->
+  <!-- PART B: PLACEMENTS                  -->
+  <!-- ═══════════════════════════════════ -->
+  <div class="part-divider">
+    <div class="part-divider-line green"></div>
+    <div class="part-label placement">🏢 Part B — Placements</div>
+    <div class="part-divider-line green reverse"></div>
+  </div>
+
   <!-- SECTION 5 -->
   <div class="section" id="s5">
     <div class="section-header">
-      <div class="section-num">§ 05</div>
-      <div class="section-title">Third-Party Links</div>
+      <div class="section-num green">§ 05</div>
+      <div class="section-title">Nature of Placement Service</div>
     </div>
-    <div class="section-body">
-      <p>Our platform contains hyperlinks directing users to external websites. GradeWise expressly disclaims responsibility for the following aspects of any third-party sites:</p>
+    <div class="section-body green-border">
+      <p>The GradeWise Placements section is a curated job-opportunity board that serves two distinct streams of content:</p>
       <ul>
-        <li><strong>Content</strong> — We do not control or moderate third-party site content.</li>
-        <li><strong>Privacy Policies</strong> — Each external site maintains its own data and privacy practices.</li>
-        <li><strong>Business Practices</strong> — We are not liable for actions taken by third-party operators.</li>
+        <li><strong>Campus &amp; Off-Campus Drives</strong> — Manually curated placement drives, walk-in interviews, and recruitment events sourced and posted directly by the GradeWise team.</li>
+        <li><strong>Live Remote Jobs</strong> — Real-time job listings automatically aggregated from third-party public job APIs including Remotive, Arbeitnow, and Jobicy. These listings are refreshed automatically approximately every 5 minutes.</li>
       </ul>
-      <p>Accessing external websites via links on this platform is entirely at your own risk. We recommend reviewing the privacy policy and terms of service of any external site you visit.</p>
+      <div class="info-box-green">
+        <strong>Important:</strong> GradeWise serves as an information aggregator for placements. It does not act as a recruiter, placement agency, or employment intermediary. All applications and employment relationships are formed solely between users and the respective employers.
+      </div>
     </div>
   </div>
 
   <!-- SECTION 6 -->
   <div class="section" id="s6">
     <div class="section-header">
-      <div class="section-num">§ 06</div>
-      <div class="section-title">User Responsibility</div>
+      <div class="section-num green">§ 06</div>
+      <div class="section-title">Campus &amp; Off-Campus Drive Listings</div>
     </div>
-    <div class="section-body">
-      <p>By accessing and using this platform, you expressly agree to the following obligations:</p>
+    <div class="section-body green-border">
+      <p>Placement drives manually listed on this platform by the GradeWise team are intended to help students of relevant institutions discover recruitment events. Users should be aware of the following:</p>
       <ul>
-        <li>You will not misuse, redistribute, or commercially exploit the data and listings provided on this platform.</li>
-        <li>You will not attempt unauthorized access, reverse-engineering, or automated scraping of this platform's content or systems.</li>
-        <li>You will comply with all applicable local, national, and international laws and regulations in connection with your use of this platform.</li>
+        <li><strong>Campus Drives</strong> — These are drives typically conducted at a specific college or institution. Eligibility may be restricted to students of that institution. GradeWise does not guarantee admission to or participation in any campus drive.</li>
+        <li><strong>Off-Campus Drives</strong> — These are drives open to candidates from multiple institutions. GradeWise provides listing information only; the selection process is managed entirely by the recruiting company.</li>
+        <li><strong>Walk-In Interviews</strong> — These allow direct walk-in attendance without prior scheduling. GradeWise is not responsible for venue changes, cancellations, or alterations to walk-in drive details.</li>
+        <li><strong>Deadlines</strong> — Application deadlines are displayed where available. GradeWise does not guarantee the accuracy of deadline information and users must verify these with the original source.</li>
+        <li><strong>Package Information</strong> — CTC/LPA figures displayed are indicative and sourced from publicly available information. Actual compensation may vary and should be confirmed directly with the recruiting company.</li>
       </ul>
+      <div class="warning-box">
+        <strong>Notice:</strong> GradeWise does not manage, influence, or participate in the selection, shortlisting, or offer process for any placement drive listed on this platform.
+      </div>
     </div>
   </div>
 
   <!-- SECTION 7 -->
   <div class="section" id="s7">
     <div class="section-header">
-      <div class="section-num">§ 07</div>
-      <div class="section-title">Intellectual Property</div>
+      <div class="section-num green">§ 07</div>
+      <div class="section-title">Live Job Aggregation (Remotive · Arbeitnow · Jobicy)</div>
     </div>
-    <div class="section-body">
-      <p>All original content developed and published on this platform — including but not limited to the interface design, original written content, code, graphics, and branding elements — is the exclusive intellectual property of GradeWise.</p>
-      <p>Third-party content, including internship listings, company names, logos, and trademarks, remains the intellectual property of the respective originating owners and is used in accordance with applicable fair use principles for informational purposes only.</p>
+    <div class="section-body green-border">
+      <p>The "Live Jobs" feature within the Placements section fetches and displays real-time job listings from the following third-party public job APIs:</p>
+      <ul>
+        <li><strong>Remotive</strong> — Specialises in remote tech and software jobs globally.</li>
+        <li><strong>Arbeitnow</strong> — Aggregates job listings primarily in the European market, including remote roles.</li>
+        <li><strong>Jobicy</strong> — A remote job board covering roles across software, data, design, and other domains.</li>
+      </ul>
+      <p>These listings are classified by domain (Tech/Software, Data/AI-ML, Design/UI-UX) based on automated keyword analysis of job titles and tags. Domain classification is approximate and may not always accurately reflect the full scope of a role.</p>
+      <ul>
+        <li>Live job listings are fetched directly from external APIs and are not verified, reviewed, or endorsed by GradeWise.</li>
+        <li>The auto-refresh cycle is approximately every 5 minutes; listings displayed may not represent the absolute latest state of availability on the source platform.</li>
+        <li>Duplicate listings may occasionally appear due to the same role being listed across multiple API sources. GradeWise applies deduplication logic but cannot guarantee its completeness.</li>
+        <li>GradeWise is not responsible for the accuracy, legality, or authenticity of any live job listing sourced from these APIs.</li>
+      </ul>
+      <div class="highlight-box">
+        <strong>Disclaimer:</strong> GradeWise is not affiliated with Remotive, Arbeitnow, or Jobicy. These are independent third-party services and their listing data is used under their respective public API terms.
+      </div>
     </div>
   </div>
 
   <!-- SECTION 8 -->
   <div class="section" id="s8">
     <div class="section-header">
-      <div class="section-num">§ 08</div>
-      <div class="section-title">Limitation of Liability</div>
+      <div class="section-num green">§ 08</div>
+      <div class="section-title">CGPA &amp; Eligibility Display</div>
     </div>
-    <div class="section-body">
-      <p>To the fullest extent permitted by applicable law, GradeWise and its developers shall not be held liable for:</p>
+    <div class="section-body green-border">
+      <p>The GradeWise Placements section may display a personalised CGPA eligibility badge based on the academic data entered by the user in the Grade Calculator section of the application. Users acknowledge the following:</p>
       <ul>
-        <li>Any direct, indirect, incidental, or consequential loss or damage arising from the use of, or inability to use, this platform.</li>
-        <li>Decisions made in reliance upon internship listings or information presented on this platform.</li>
-        <li>Technical issues, disputes, or adverse outcomes arising from interactions with third-party websites.</li>
+        <li>CGPA displayed on the Placements page is calculated from user-entered marks and is intended for informational and guidance purposes only.</li>
+        <li>Eligibility criteria shown alongside placement drives are based on publicly listed requirements and may not reflect real-time updates from the recruiting company.</li>
+        <li>GradeWise does not guarantee that meeting or exceeding a listed CGPA criterion ensures eligibility, shortlisting, or selection for any placement drive.</li>
+        <li>Final eligibility determination rests solely with the recruiting organisation, not with GradeWise.</li>
       </ul>
+      <div class="warning-box">
+        <strong>Notice:</strong> Users must not rely solely on GradeWise's CGPA eligibility indicators when deciding whether to apply for a placement opportunity. Always verify eligibility criteria directly with the company or your institution's placement cell.
+      </div>
     </div>
   </div>
 
   <!-- SECTION 9 -->
   <div class="section" id="s9">
     <div class="section-header">
-      <div class="section-num">§ 09</div>
+      <div class="section-num green">§ 09</div>
+      <div class="section-title">Accuracy of Placement Information</div>
+    </div>
+    <div class="section-body green-border">
+      <p>GradeWise makes no representations or warranties regarding the following aspects of any placement listing displayed on this platform:</p>
+      <ul>
+        <li><strong>Accuracy</strong> — Drive details, package information, and eligibility criteria may have changed since listing.</li>
+        <li><strong>Completeness</strong> — Listings may not include all terms, conditions, or requirements of a drive.</li>
+        <li><strong>Availability</strong> — Drives may have been cancelled, postponed, or filled prior to your application.</li>
+        <li><strong>Live Job Freshness</strong> — API-sourced live jobs reflect data at the time of the last API refresh and may be outdated.</li>
+        <li><strong>Salary/Package Data</strong> — Compensation figures are indicative and sourced from publicly available information; actual offers may differ.</li>
+      </ul>
+      <p>Users are strongly advised to independently verify all placement details directly from official company sources, career portals, or institutional placement cells before applying.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 10 -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <div class="section-num green">§ 10</div>
+      <div class="section-title">No Affiliation — Placement &amp; Job Sources</div>
+    </div>
+    <div class="section-body green-border">
+      <p>GradeWise is an independent student-led platform and is not affiliated, associated, authorised, or endorsed by any company, institution, recruiting firm, or job platform whose listings appear in the Placements section, including but not limited to Remotive, Arbeitnow, Jobicy, or any company whose placement drive is listed here.</p>
+      <div class="highlight-box">
+        <strong>Disclaimer:</strong> All company names, logos, trademarks, and brand identifiers appearing on placement cards belong exclusively to their respective owners. Their display on GradeWise does not imply any partnership, endorsement, or official relationship with GradeWise.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- PART C: GENERAL TERMS              -->
+  <!-- ═══════════════════════════════════ -->
+  <div class="part-divider">
+    <div class="part-divider-line cyan"></div>
+    <div class="part-label shared">⚖️ Part C — General Terms</div>
+    <div class="part-divider-line cyan reverse"></div>
+  </div>
+
+  <!-- SECTION 11 -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <div class="section-num">§ 11</div>
+      <div class="section-title">Third-Party Links</div>
+    </div>
+    <div class="section-body">
+      <p>Our platform contains hyperlinks directing users to external websites, including internship platforms, company career pages, job boards, and live job sources. GradeWise expressly disclaims responsibility for:</p>
+      <ul>
+        <li><strong>Content</strong> — We do not control or moderate third-party site content.</li>
+        <li><strong>Privacy Policies</strong> — Each external site maintains its own data and privacy practices.</li>
+        <li><strong>Business Practices</strong> — We are not liable for actions taken by third-party operators or recruiting companies.</li>
+        <li><strong>Application Outcomes</strong> — GradeWise is not responsible for any outcome arising from applications submitted on external platforms.</li>
+      </ul>
+      <p>Accessing external websites via links on this platform is entirely at your own risk. We recommend reviewing the privacy policy and terms of service of any external site you visit.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 12 -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <div class="section-num">§ 12</div>
+      <div class="section-title">User Responsibility</div>
+    </div>
+    <div class="section-body">
+      <p>By accessing and using this platform — including its Internship Explorer, Placements, and Live Jobs features — you expressly agree to the following obligations:</p>
+      <ul>
+        <li>You will not misuse, redistribute, or commercially exploit the data, listings, or any other content provided on this platform.</li>
+        <li>You will not attempt unauthorised access, reverse-engineering, or automated scraping of this platform's content, API data, or systems.</li>
+        <li>You will not use listing information to contact companies or individuals in a manner that violates the policies of the originating platforms.</li>
+        <li>You will comply with all applicable local, national, and international laws and regulations in connection with your use of this platform and any applications submitted via external links.</li>
+        <li>You understand that any personal academic data (marks, CGPA) entered into the platform is used solely for in-app calculations and display and is not shared with any employer or third party by GradeWise.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION 13 -->
+  <div class="section" id="s13">
+    <div class="section-header">
+      <div class="section-num">§ 13</div>
+      <div class="section-title">Intellectual Property</div>
+    </div>
+    <div class="section-body">
+      <p>All original content developed and published on this platform — including but not limited to the interface design, original written content, code, graphics, CGPA calculator logic, and branding elements — is the exclusive intellectual property of GradeWise.</p>
+      <p>Third-party content, including internship listings, placement drive details, live job data, company names, logos, and trademarks, remains the intellectual property of the respective originating owners and is used in accordance with applicable fair use principles for informational and educational purposes only.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 14 -->
+  <div class="section" id="s14">
+    <div class="section-header">
+      <div class="section-num">§ 14</div>
+      <div class="section-title">Limitation of Liability</div>
+    </div>
+    <div class="section-body">
+      <p>To the fullest extent permitted by applicable law, GradeWise and its developers shall not be held liable for:</p>
+      <ul>
+        <li>Any direct, indirect, incidental, or consequential loss or damage arising from the use of, or inability to use, this platform.</li>
+        <li>Decisions made in reliance upon internship listings, placement drives, or live job information presented on this platform.</li>
+        <li>Failed, cancelled, or modified internship or placement applications arising from inaccurate or outdated listing data.</li>
+        <li>Technical issues, API outages, or data discrepancies arising from third-party job APIs (Remotive, Arbeitnow, Jobicy).</li>
+        <li>Disputes or adverse outcomes arising from interactions with third-party websites or recruiting organisations.</li>
+        <li>Any reliance on CGPA-based eligibility indicators displayed within the Placements section.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION 15 -->
+  <div class="section" id="s15">
+    <div class="section-header">
+      <div class="section-num">§ 15</div>
       <div class="section-title">Content Removal Requests</div>
     </div>
     <div class="section-body">
-      <p>GradeWise respects the intellectual property rights of all content creators and platform operators. If you are a content owner and wish to request the removal or modification of any listing or content attributed to your platform, please contact us via the details below.</p>
+      <p>GradeWise respects the intellectual property rights of all content creators, platform operators, and companies. If you are a content owner and wish to request the removal or modification of any listing, job card, company logo, or content attributed to your platform or brand, please contact us via the details below.</p>
       <div class="contact-card">
         <div class="contact-icon">📧</div>
         <div class="contact-detail">
@@ -696,35 +768,35 @@
     </div>
   </div>
 
-  <!-- SECTION 10 -->
-  <div class="section" id="s10">
+  <!-- SECTION 16 -->
+  <div class="section" id="s16">
     <div class="section-header">
-      <div class="section-num">§ 10</div>
+      <div class="section-num">§ 16</div>
       <div class="section-title">Changes to Terms</div>
     </div>
     <div class="section-body">
       <p>GradeWise reserves the right to update, modify, or revise these Terms and Conditions at any time without prior notice. Such modifications will be effective immediately upon publication on this page.</p>
       <div class="warning-box">
-        <strong>Notice:</strong> Your continued use of the platform following any changes to these Terms constitutes your acceptance of the revised Terms and Conditions. We recommend reviewing this page periodically.
+        <strong>Notice:</strong> Your continued use of the platform — including use of the Internship Explorer and Placements features — following any changes to these Terms constitutes your acceptance of the revised Terms and Conditions. We recommend reviewing this page periodically.
       </div>
     </div>
   </div>
 
-  <!-- SECTION 11 -->
-  <div class="section" id="s11">
+  <!-- SECTION 17 -->
+  <div class="section" id="s17">
     <div class="section-header">
-      <div class="section-num">§ 11</div>
+      <div class="section-num">§ 17</div>
       <div class="section-title">Governing Law</div>
     </div>
     <div class="section-body">
-      <p>These Terms and Conditions shall be governed by and construed in accordance with the laws of the Republic of India. Any disputes arising out of or in connection with these Terms shall be subject to the exclusive jurisdiction of the competent courts located in India.</p>
+      <p>These Terms and Conditions shall be governed by and construed in accordance with the laws of the Republic of India. Any disputes arising out of or in connection with these Terms — including those relating to the use of the Internship Explorer or the Placements features — shall be subject to the exclusive jurisdiction of the competent courts located in India.</p>
     </div>
   </div>
 
-  <!-- SECTION 12 -->
-  <div class="section" id="s12">
+  <!-- SECTION 18 -->
+  <div class="section" id="s18">
     <div class="section-header">
-      <div class="section-num">§ 12</div>
+      <div class="section-num">§ 18</div>
       <div class="section-title">Contact Information</div>
     </div>
     <div class="section-body">
@@ -745,30 +817,31 @@
 
   <div class="divider"></div>
 
-  <!-- SECTION 13 — Educational Disclaimer (highlighted) -->
-  <div class="section" id="s13">
+  <!-- SECTION 19 — Educational Disclaimer -->
+  <div class="section" id="s19">
     <div class="section-header">
-      <div class="section-num">§ 13</div>
+      <div class="section-num">§ 19</div>
       <div class="section-title">Educational Purpose Disclaimer</div>
     </div>
     <div class="section-body">
-      <p>This platform is developed and operated primarily for <strong style="color:var(--cyan)">educational, informational, and demonstration purposes</strong>. The aggregation and display of internship listings are intended to showcase technological capabilities, including data aggregation, user interface design, and information accessibility.</p>
+      <p>This platform is developed and operated primarily for <strong style="color:var(--cyan)">educational, informational, and demonstration purposes</strong>. The aggregation and display of internship listings, placement drives, and live job feeds are intended to showcase technological capabilities, including data aggregation, API integration, real-time updates, and user interface design.</p>
       <ul>
-        <li>We do not claim ownership of any third-party content displayed on this platform. All internship listings, trademarks, and related materials belong to their respective owners.</li>
-        <li>Users are advised to refer to the original platforms for complete and official information. This platform does not guarantee the accuracy, legality, or authenticity of any listings.</li>
-        <li>Nothing on this platform should be construed as professional, legal, or employment advice of any kind.</li>
+        <li>We do not claim ownership of any third-party content displayed on this platform. All internship listings, placement drive details, live job data, trademarks, and related materials belong to their respective owners.</li>
+        <li>Users are advised to refer to the original platforms for complete and official information. This platform does not guarantee the accuracy, legality, or authenticity of any listing — internship or placement.</li>
+        <li>CGPA eligibility indicators are for personal guidance only and do not constitute official academic or career advice of any kind.</li>
+        <li>Nothing on this platform should be construed as professional, legal, employment, or recruitment advice of any kind.</li>
       </ul>
       <div class="highlight-box" style="margin-top:1.2rem;">
-        <strong>Academic &amp; Demonstration Notice:</strong> GradeWise is a student-led technology project. Its purpose is to demonstrate the integration of modern web technologies, data aggregation, and user experience design in an academically enriching context.
+        <strong>Academic &amp; Demonstration Notice:</strong> GradeWise is a student-led technology project. Its purpose is to demonstrate the integration of modern web technologies, data aggregation, real-time APIs, and user experience design in an academically enriching context. It covers both internship discovery and campus/live job placement features as part of this mission.
       </div>
     </div>
   </div>
 
-  <!-- FOOTER ACCEPTANCE BLOCK -->
+  <!-- FOOTER -->
   <div class="doc-footer">
     <div class="doc-footer-seal">
       <strong>Acceptance of Terms</strong><br>
-      By accessing or using the GradeWise platform, you acknowledge that you have carefully read, fully understood, and unequivocally agreed to be bound by these Terms and Conditions in their entirety.
+      By accessing or using the GradeWise platform — including the Internship Explorer and Placement Drives features — you acknowledge that you have carefully read, fully understood, and unequivocally agreed to be bound by these Terms and Conditions in their entirety.
     </div>
     <div class="footer-acceptance">
       This document was last revised on <strong>24 April 2026</strong> and supersedes all prior versions.
@@ -779,7 +852,6 @@
 </div><!-- /page-wrapper -->
 
 <script>
-  // Reading progress bar
   window.addEventListener('scroll', () => {
     const scrollTop = window.scrollY;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
