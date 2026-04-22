@@ -111,7 +111,67 @@
     color: var(--text-dim);
   }
 
-  /* ── SCAN BUTTON ── */
+  /* ══════════════════════════════════════════════════
+     LIGHT MODE — override all dark !important rules
+  ══════════════════════════════════════════════════ */
+  body.light-mode {
+    background: #f0f4f8 !important;
+    background-image: none !important;
+  }
+  body.light-mode::after { display: none !important; }
+  body.light-mode .header {
+    background: rgba(255,255,255,0.97) !important;
+    border-bottom: 1px solid rgba(0,168,120,0.15) !important;
+    box-shadow: 0 1px 16px rgba(0,0,0,0.07) !important;
+  }
+  body.light-mode .header::before { display: none !important; }
+  body.light-mode .app-sidebar,
+  body.light-mode .sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid rgba(0,168,120,0.15) !important;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.05) !important;
+  }
+  body.light-mode .app-sidebar::after,
+  body.light-mode .sidebar::after { display: none !important; }
+  body.light-mode .right-panel {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
+    border-left: 1px solid rgba(0,168,120,0.12) !important;
+  }
+  body.light-mode .panel-section {
+    background: rgba(255,255,255,0.92) !important;
+    border: 1px solid rgba(0,0,0,0.07) !important;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05) !important;
+  }
+  body.light-mode .panel-section:hover { border-color: rgba(0,168,120,0.25) !important; }
+  body.light-mode .subject-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+  }
+  body.light-mode .subject-card:hover { border-color: rgba(0,168,120,0.3) !important; }
+  body.light-mode .subject-card::before { display: none !important; }
+  body.light-mode .dash-stat {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+  }
+  body.light-mode .dash-stat::before { display: none !important; }
+  body.light-mode .dash-action-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+  }
+  body.light-mode .intern-card,
+  body.light-mode .place-card,
+  body.light-mode .analyser-card,
+  body.light-mode .wc-panel,
+  body.light-mode .unit-card,
+  body.light-mode .res-card,
+  body.light-mode .res-subj-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+  }
+
+/* ── SCAN BUTTON ── */
   .hdr-scan-btn {
     display: flex;
     align-items: center;
