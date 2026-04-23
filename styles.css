@@ -409,7 +409,14 @@
     background: rgba(2,132,199,0.1);
   }
 
-  html { font-size: 16px; }
+  html {
+    font-size: 16px;
+    background: #030712;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -418,13 +425,19 @@
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100%;
   }
 
   /* ===== GRID BACKGROUND ===== */
   body::before {
     content: '';
     position: fixed;
-    inset: 0;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-deep);
     background-image:
       linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px),
       linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px);
@@ -3155,8 +3168,9 @@ body.light-mode .compact-input::placeholder { color: var(--text-dim); }
 ════════════════════════════════════════════════════════ */
 
 /* ── Prevent horizontal scroll ── */
-*, *::before, *::after { box-sizing: border-box; }
-body { overflow-x: hidden; max-width: 100vw; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #030712; }
+body { overflow-x: hidden; max-width: 100vw; margin: 0; padding: 0; background: #030712; }
 
 /* ── Global input/select mobile fix ── */
 input, select, textarea { max-width: 100%; box-sizing: border-box; }
