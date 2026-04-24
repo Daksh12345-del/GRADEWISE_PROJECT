@@ -625,28 +625,62 @@
   .header {
     background: rgba(13,17,23,0.95);
     border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    height: 70px;
+    padding: 0 1.2rem 0 1rem;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
     backdrop-filter: blur(20px);
   }
-
-  .header-logo {
-    display: flex; align-items: center; gap: 12px;
+  body.light-mode .header {
+    background: rgba(255,255,255,0.97);
+    border-bottom: 1px solid rgba(0,0,0,0.09);
+    box-shadow: 0 1px 10px rgba(0,0,0,0.06);
   }
 
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  /* ── Logo icon: transparent, no box, no border ── */
   .h-logo-icon {
-    width: 40px; height: 40px;
-    background: linear-gradient(135deg, rgba(6,182,212,0.3), rgba(139,92,246,0.3));
-    border: 1px solid var(--cyan);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-display);
-    font-size: 1rem;
-    color: var(--cyan);
+    width: auto;
+    height: 42px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+
+  /* ── DARK MODE: multiply blend removes white bg, cyan filter tints logo ── */
+  .h-logo-icon img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    border-radius: 0;
+    /* mix-blend-mode:screen makes the black box invisible on dark bg */
+    mix-blend-mode: screen;
+    filter: invert(1) sepia(1) saturate(3) hue-rotate(163deg) brightness(1.2);
+    transition: filter 0.3s ease, mix-blend-mode 0.3s ease;
+  }
+
+  /* ── LIGHT MODE: multiply blend removes white bg on light bg too ── */
+  body.light-mode .h-logo-icon img {
+    mix-blend-mode: multiply;
+    filter: invert(0%) sepia(80%) saturate(500%) hue-rotate(185deg) brightness(0.55);
   }
 
   .h-logo-text {
@@ -1694,7 +1728,10 @@
 
     /* Header */
     .header { padding: 0 0.8rem; height: 56px; }
-    .h-logo-icon { width: 32px; height: 32px; font-size: 0.75rem; }
+    .h-logo-icon { width: auto; height: 32px; }
+    .h-logo-icon img { height: 30px; mix-blend-mode: screen; }
+    body.light-mode .h-logo-icon img { mix-blend-mode: multiply; }
+    .h-logo-icon img { height: 30px; }
     .h-logo-text { font-size: 0.8rem; letter-spacing: 0.5px; }
     .user-badge { padding: 4px 10px 4px 6px; }
     .user-name { font-size: 0.8rem; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -3229,7 +3266,10 @@ img, svg { max-width: 100%; height: auto; }
 
   /* Header */
   .header { padding: 0 1rem; height: 60px; gap: 0.6rem; }
-  .h-logo-icon { width: 36px; height: 36px; font-size: 0.85rem; }
+  .h-logo-icon { width: auto; height: 36px; }
+  .h-logo-icon img { height: 34px; mix-blend-mode: screen; }
+  body.light-mode .h-logo-icon img { mix-blend-mode: multiply; }
+  .h-logo-icon img { height: 34px; }
   .h-logo-text { font-size: 0.85rem; }
   .user-badge { padding: 5px 11px 5px 7px; }
   .user-name { font-size: 0.85rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -3413,7 +3453,10 @@ img, svg { max-width: 100%; height: auto; }
 @media (max-width: 359px) {
   html { font-size: 13px; }
   .header { height: 50px; padding: 0 0.6rem; }
-  .h-logo-icon { width: 30px; height: 30px; font-size: 0.72rem; }
+  .h-logo-icon { width: auto; height: 30px; }
+  .h-logo-icon img { height: 28px; mix-blend-mode: screen; }
+  body.light-mode .h-logo-icon img { mix-blend-mode: multiply; }
+  .h-logo-icon img { height: 28px; }
   .h-logo-text { display: none; }
   .user-name { display: none; }
   .content-area { padding: 0.65rem; }
@@ -3594,7 +3637,7 @@ body.light-mode .marks-input-back {
   align-items: center;
   justify-content: space-between;
   height: 64px;
-  padding: 0 1.6rem;
+  padding: 0 1.2rem 0 1rem;
   background: rgba(13,17,23,0.97);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -3604,13 +3647,22 @@ body.light-mode .marks-input-back {
   flex-shrink: 0;
   gap: 1rem;
 }
+body.light-mode #internshipsPage .intern-header {
+  background: rgba(255,255,255,0.97);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+}
 
 /* Header left: hamburger + logo */
 #internshipsPage .intern-hdr-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
+}
+#internshipsPage .intern-hdr-left .header-logo {
+  gap: 6px;
+  margin-left: 0;
 }
 
 /* Header right: AI LIVE → Back → Username → Sign Out */
@@ -4670,6 +4722,9 @@ body.light-mode #placementsPage .place-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+#placementsPage .place-hdr-left .h-logo-icon {
+  margin-right: 4px;
 }
 #placementsPage .place-back-btn {
   background: rgba(16,185,129,0.08);
