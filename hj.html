@@ -883,7 +883,7 @@
     min-height: calc(100vh - 70px);
     transition: grid-template-columns 0.3s cubic-bezier(0.16,1,0.3,1);
     box-sizing: border-box;
-    overflow: visible;
+    overflow: hidden;
   }
 
   /* SIDEBAR */
@@ -4378,7 +4378,7 @@ body.light-mode #internshipsPage .intern-header {
 .app-sidebar {
   background: var(--bg-card);
   border-right: 1px solid var(--border);
-  padding: 1rem 0 1.2rem 0;
+  padding: 0 0 1.2rem 0;
   position: sticky;
   top: 70px;
   height: calc(100vh - 70px);
@@ -4387,8 +4387,7 @@ body.light-mode #internshipsPage .intern-header {
   transition: width 0.3s cubic-bezier(0.16,1,0.3,1), min-width 0.3s cubic-bezier(0.16,1,0.3,1);
   width: 220px;
   min-width: 220px;
-  flex-shrink: 0;
-  align-self: start;
+  flex-shrink: 0;       /* never shrink in flex layout */
 }
 
 /* Collapsed state */
@@ -4469,7 +4468,7 @@ body.light-mode #internshipsPage .intern-header {
 .app-nav-title {
   font-size: 0.78rem; color: var(--text-dim);
   letter-spacing: 0.6px; text-transform: uppercase;
-  padding: 0 1.5rem; margin: 0 0 0.7rem 0;
+  padding: 0 1.5rem; margin-bottom: 0.7rem;
   font-weight: 700;
 }
 .app-nav-btn {
