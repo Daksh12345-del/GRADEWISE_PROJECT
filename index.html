@@ -1788,6 +1788,14 @@
     .mobile-nav { display: flex; }
     body { padding-bottom: 65px; }
 
+    /* Hide floating CGPA on mobile — replaced by stats bar */
+    .floating-cgpa { display: none !important; }
+
+    /* Mobile stats bar */
+    .mobile-stats-bar {
+      display: flex;
+    }
+
     /* Header */
     .header { padding: 0 0.8rem; height: 56px; }
     .h-logo-icon { width: auto; height: 32px; }
@@ -2729,6 +2737,51 @@
 
   .fc-label { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.3px; text-transform: uppercase; }
   .fc-val { font-family: var(--font-display); font-size: 1.4rem; color: var(--cyan); }
+
+  /* MOBILE STATS BAR — hidden by default, shown on phones via media query */
+  .mobile-stats-bar {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0.45rem 1rem;
+    position: sticky;
+    top: 56px;
+    z-index: 990;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .msb-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    flex: 1;
+  }
+  .msb-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .msb-val {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cyan);
+    line-height: 1;
+  }
+  .msb-sgpa { color: #a78bfa; }
+  .msb-sem { color: var(--text); font-size: 0.95rem; }
+  .msb-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 0.5rem;
+  }
 
   /* ════════════════════════════════
      RESOURCES PAGE
@@ -5729,6 +5782,24 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
   <div class="floating-cgpa">
     <div class="fc-label">CGPA</div>
     <div class="fc-val" id="fc-cgpa">0.00</div>
+  </div>
+
+  <!-- Mobile stats bar (below header, only on phones) -->
+  <div class="mobile-stats-bar" id="mobile-stats-bar">
+    <div class="msb-item">
+      <span class="msb-label">CGPA</span>
+      <span class="msb-val" id="msb-cgpa">0.00</span>
+    </div>
+    <div class="msb-divider"></div>
+    <div class="msb-item">
+      <span class="msb-label">SGPA</span>
+      <span class="msb-val msb-sgpa" id="msb-sgpa">0.00</span>
+    </div>
+    <div class="msb-divider"></div>
+    <div class="msb-item msb-sem-item" id="msb-sem-label">
+      <span class="msb-label">SEM</span>
+      <span class="msb-val msb-sem" id="msb-sem">I</span>
+    </div>
   </div>
 
   <!-- Main layout -->
@@ -18453,6 +18524,9 @@ function switchSem(idx) {
   currentSem = idx;
   document.querySelectorAll('.sem-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
   document.querySelectorAll('.mobile-sem-btn:not(.mobile-nav-page-btn)').forEach((b, i) => b.classList.toggle('active', i === idx));
+  // Update mobile stats bar semester label
+  const msbSem = document.getElementById('msb-sem');
+  if (msbSem && SEMESTERS[idx]) msbSem.textContent = SEMESTERS[idx].label.replace('Semester ', 'Sem ');
   renderSemester(idx);
   updatePanels();
 }
@@ -19217,6 +19291,11 @@ function updatePanels() {
   const displayCGPA = (globalHasBack && cgpaBack > cgpa) ? cgpaBack : cgpa;
   document.getElementById('panel-cgpa').textContent = displayCGPA.toFixed(2);
   document.getElementById('fc-cgpa').textContent = displayCGPA.toFixed(2);
+  // Update mobile stats bar
+  const msbCgpa = document.getElementById('msb-cgpa');
+  const msbSgpa = document.getElementById('msb-sgpa');
+  if (msbCgpa) msbCgpa.textContent = displayCGPA.toFixed(2);
+  if (msbSgpa) msbSgpa.textContent = displaySGPA.toFixed(2);
 
   // Rank badge
   const rankEl = document.getElementById('cgpa-rank-badge');
