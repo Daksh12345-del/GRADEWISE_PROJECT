@@ -883,7 +883,7 @@
     min-height: calc(100vh - 70px);
     transition: grid-template-columns 0.3s cubic-bezier(0.16,1,0.3,1);
     box-sizing: border-box;
-    overflow: visible;
+    overflow: hidden;
   }
 
   /* SIDEBAR */
@@ -957,6 +957,8 @@
     min-width: 0;
     overflow-x: hidden;
     box-sizing: border-box;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .sem-header {
@@ -1265,6 +1267,8 @@
     scrollbar-color: rgba(6,182,212,0.2) transparent;
     flex-shrink: 0;
     align-self: start;
+    grid-column: 3;
+    grid-row: 1;
   }
   .right-panel::-webkit-scrollbar { width: 4px; }
   .right-panel::-webkit-scrollbar-track { background: transparent; }
@@ -2464,6 +2468,7 @@
     padding: 3rem 2rem 4rem;
     position: relative;
     z-index: 1;
+    grid-column: 1 / -1;
   }
 
   .cgpa-pictograph-section::before {
@@ -2672,6 +2677,7 @@
     z-index: 100;
     overflow-x: auto;
     gap: 0.5rem;
+    grid-column: 1 / -1;
   }
 
   .mobile-sem-btn {
@@ -4389,6 +4395,8 @@ body.light-mode #internshipsPage .intern-header {
   min-width: 220px;
   flex-shrink: 0;
   align-self: start;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 /* Collapsed state */
@@ -4469,7 +4477,7 @@ body.light-mode #internshipsPage .intern-header {
 .app-nav-title {
   font-size: 0.78rem; color: var(--text-dim);
   letter-spacing: 0.6px; text-transform: uppercase;
-  padding: 0 1.5rem; margin: 0 0 0.7rem 0;
+  padding: 0 1.5rem; margin-bottom: 0.7rem;
   font-weight: 700;
 }
 .app-nav-btn {
