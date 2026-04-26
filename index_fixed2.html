@@ -13,7 +13,8 @@
   img-src    'self' data: https:;
   connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co
     https://remotive.com https://jsearch.p.rapidapi.com
-    https://gradewise-backend.onrender.com;
+    https://gradewise-backend.onrender.com
+    https://api.rss2json.com;
   frame-ancestors 'none';
   object-src 'none';
   base-uri   'self';
@@ -82,24 +83,21 @@
   }
 
   body.light-mode .subject-card {
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
-    border-color: rgba(2,132,199,0.18);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   }
 
   body.light-mode .header {
-    background: rgba(255,255,255,0.98);
-    border-bottom: 1px solid rgba(2,132,199,0.15);
-    box-shadow: 0 1px 0 rgba(2,132,199,0.12), 0 4px 20px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.97);
+    border-bottom: 1px solid rgba(0,0,0,0.09);
+    box-shadow: 0 1px 10px rgba(0,0,0,0.06);
   }
 
   body.light-mode .sidebar {
-    box-shadow: 2px 0 16px rgba(0,0,0,0.07);
-    border-right-color: rgba(2,132,199,0.18);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.05);
   }
 
   body.light-mode .right-panel {
-    box-shadow: -2px 0 16px rgba(0,0,0,0.07);
-    border-left-color: rgba(2,132,199,0.18);
+    box-shadow: -2px 0 12px rgba(0,0,0,0.05);
   }
 
   body.light-mode .marks-input {
@@ -449,9 +447,8 @@
     padding: 0;
     width: 100%;
     min-height: 100%;
-    box-sizing: border-box;
   }
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: var(--font-body);
@@ -459,12 +456,10 @@
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
     width: 100%;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
+    /* Ensure theme transitions are smooth */
     transition: background 0.3s ease, color 0.3s ease;
   }
 
@@ -662,22 +657,18 @@
 
   /* HEADER */
   .header {
-    background: rgba(13,17,23,0.97);
+    background: rgba(13,17,23,0.95);
     border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    height: 70px;
+    padding: 0 1.5rem;
+    height: 64px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: sticky; top: 0; z-index: 1000;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(20px);
     width: 100%;
-    left: 0;
-    right: 0;
     box-sizing: border-box;
-    box-shadow: 0 1px 0 var(--border), 0 4px 24px rgba(0,0,0,0.3);
   }
   body.light-mode .header {
     background: rgba(255,255,255,0.97);
@@ -876,27 +867,23 @@
   .main-layout {
     display: grid;
     grid-template-columns: 220px 1fr 320px;
-    align-items: start;
     flex: 1;
     width: 100%;
     min-width: 0;
-    min-height: calc(100vh - 70px);
+    min-height: calc(100vh - 64px);
     transition: grid-template-columns 0.3s cubic-bezier(0.16,1,0.3,1);
     box-sizing: border-box;
-    overflow: hidden;
   }
 
   /* SIDEBAR */
   .sidebar {
     background: var(--bg-card);
     border-right: 1px solid var(--border);
-    padding: 1.2rem 0;
+    padding: 1.5rem 0;
     position: sticky;
-    top: 70px;
-    height: calc(100vh - 70px);
+    top: 64px;          /* synced to header height */
+    height: calc(100vh - 64px);
     overflow-y: auto;
-    flex-shrink: 0;
-    align-self: start;
   }
 
   .sidebar::-webkit-scrollbar { width: 4px; }
@@ -952,15 +939,15 @@
 
   /* CONTENT AREA — grid child of .main-layout */
   .content-area {
-    padding: 1.5rem 2.5rem 2.5rem;
+    padding: 2.5rem 3rem;
     overflow-y: auto;
-    min-width: 0;
+    min-width: 0;        /* prevents grid blowout */
     overflow-x: hidden;
     box-sizing: border-box;
   }
 
   .sem-header {
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
   }
 
   .sem-title {
@@ -1254,8 +1241,8 @@
     border-left: 1px solid rgba(6,182,212,0.12);
     padding: 0;
     position: sticky;
-    top: 70px;
-    height: calc(100vh - 70px);
+    top: 64px;          /* synced to header height */
+    height: calc(100vh - 64px);
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
@@ -1263,8 +1250,6 @@
     gap: 0;
     scrollbar-width: thin;
     scrollbar-color: rgba(6,182,212,0.2) transparent;
-    flex-shrink: 0;
-    align-self: start;
   }
   .right-panel::-webkit-scrollbar { width: 4px; }
   .right-panel::-webkit-scrollbar-track { background: transparent; }
@@ -1275,7 +1260,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
-    padding: 0 0.85rem 1.2rem;
+    padding: 1rem 0.85rem 1.2rem;
   }
 
   /* Section cards */
@@ -1773,7 +1758,7 @@
     .picto-cgpa-main { flex-direction: column; align-items: center; gap: 1.5rem; }
     .picto-bars-wrap { max-width: 100%; }
     .login-card { padding: 2rem; }
-    .content-area { padding: 0.8rem 1.5rem 1.5rem; }
+    .content-area { padding: 1.5rem; }
   }
 
   /* ── Mobile L (480–767px): collapse sidebar to bottom nav ── */
@@ -1796,7 +1781,7 @@
     .btn-logout { padding: 5px 10px; font-size: 0.75rem; }
 
     /* Content area */
-    .content-area { padding: 0.8rem 1rem 1rem; }
+    .content-area { padding: 1rem; }
     .sem-title { font-size: 1.1rem; }
 
     /* Subject cards */
@@ -1875,7 +1860,7 @@
     .h-logo-text { display: none; }
     .user-name { display: none; }
     .btn-logout { font-size: 0.7rem; padding: 4px 8px; }
-    .content-area { padding: 0.6rem 0.7rem 0.7rem; }
+    .content-area { padding: 0.7rem; }
     .sem-title { font-size: 1rem; }
     .login-card { padding: 1.8rem 1.3rem; margin: 0.6rem; }
     .logo-title { font-size: 1.3rem; letter-spacing: 0.2px; }
@@ -3277,7 +3262,7 @@ img, svg { max-width: 100%; height: auto; }
   .main-layout { grid-template-columns: 270px 1fr 360px; }
   .subjects-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
   .analyser-body { max-width: 1300px; }
-  .content-area { padding: 0.8rem 2.5rem 2.5rem; }
+  .content-area { padding: 2.5rem; }
 }
 
 /* ── Desktop 1280–1599px ── */
@@ -3302,7 +3287,7 @@ img, svg { max-width: 100%; height: auto; }
   .floating-cgpa { display: flex !important; }
   .header { padding: 0 1.2rem; }
   .stats-bar { padding: 1rem 1.2rem; gap: 1rem; }
-  .content-area { padding: 0.8rem 1.4rem 1.4rem; }
+  .content-area { padding: 1.4rem; }
   .subjects-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
   .analyser-body { padding: 1.3rem; }
   .analyser-summary { grid-template-columns: repeat(2, 1fr); }
@@ -3344,7 +3329,7 @@ img, svg { max-width: 100%; height: auto; }
   .stat-value { font-size: 1.05rem; }
 
   /* Content */
-  .content-area { padding: 0.8rem 1.1rem 1.1rem; }
+  .content-area { padding: 1.1rem; }
   .sem-title { font-size: 1.15rem; }
   .sem-header { padding: 0.9rem 0; }
 
@@ -3445,7 +3430,7 @@ img, svg { max-width: 100%; height: auto; }
   .hdr-scan-btn { padding: 6px 9px; font-size: 1rem; border: none; background: none; }
 
   /* Content */
-  .content-area { padding: 0.6rem 0.85rem 0.85rem; }
+  .content-area { padding: 0.85rem; }
   .sem-title { font-size: 1rem; }
 
   /* Single column cards */
@@ -3517,7 +3502,7 @@ img, svg { max-width: 100%; height: auto; }
   .h-logo-icon img { height: 28px; }
   .h-logo-text { display: none; }
   .user-name { display: none; }
-  .content-area { padding: 0.5rem 0.65rem 0.65rem; }
+  .content-area { padding: 0.65rem; }
   .subjects-grid { gap: 0.65rem; }
   .subject-card { padding: 0.85rem; }
   .login-card { margin: 0.35rem; padding: 1.6rem 1rem; }
@@ -3820,7 +3805,7 @@ body.light-mode #internshipsPage .intern-header {
   flex: 1;              /* fills .page column space */
   width: 100%;          /* explicit full width in column-flex context */
   min-width: 0;
-  min-height: calc(100vh - 70px);
+  min-height: calc(100vh - 64px);
   position: relative;
   z-index: 1;
   align-items: stretch;
@@ -3833,8 +3818,8 @@ body.light-mode #internshipsPage .intern-header {
   border-right: 1px solid var(--border);
   padding: 1.5rem 0;
   position: sticky;
-  top: 70px;
-  height: calc(100vh - 70px);
+  top: 64px;
+  height: calc(100vh - 64px);
   overflow-y: auto;
   flex-shrink: 0;
 }
@@ -4020,14 +4005,14 @@ body.light-mode #internshipsPage .intern-header {
 #internshipsPage .src-tab:hover { border-color: rgba(6,182,212,0.4); color: var(--text); }
 #internshipsPage .src-tab.active { border-color: var(--cyan); background: rgba(6,182,212,0.08); color: var(--cyan); }
 #internshipsPage .src-tab.active.internshala { border-color: #f59e0b; background: rgba(245,158,11,0.08); color: #f59e0b; }
-
+#internshipsPage .src-tab.active.unstop { border-color: #ef4444; background: rgba(239,68,68,0.08); color: #ef4444; }
 #internshipsPage .src-tab.active.linkedin { border-color: #0a66c2; background: rgba(10,102,194,0.08); color: #0a66c2; }
 #internshipsPage .src-tab.active.jsearch { border-color: #8b5cf6; background: rgba(139,92,246,0.08); color: #8b5cf6; }
 #internshipsPage .src-tab.active.remotive { border-color: #06b6d4; background: rgba(6,182,212,0.08); color: #06b6d4; }
 #internshipsPage .src-dot { width: 8px; height: 8px; border-radius: 50%; }
 #internshipsPage .src-dot.all { background: var(--cyan); }
 #internshipsPage .src-dot.internshala { background: #f59e0b; }
-
+#internshipsPage .src-dot.unstop { background: #ef4444; }
 #internshipsPage .src-dot.linkedin { background: #0a66c2; }
 #internshipsPage .src-dot.jsearch  { background: #8b5cf6; }
 #internshipsPage .src-dot.remotive { background: #06b6d4; }
@@ -4145,7 +4130,7 @@ body.light-mode #internshipsPage .intern-header {
 #internshipsPage .intern-card:hover { border-color: rgba(6,182,212,0.4); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
 #internshipsPage .intern-card:hover::before { opacity: 1; }
 #internshipsPage .intern-card[data-source="internshala"] { --card-accent: #f59e0b; }
-
+#internshipsPage .intern-card[data-source="unstop"] { --card-accent: #ef4444; }
 #internshipsPage .intern-card[data-source="linkedin"] { --card-accent: #0a66c2; }
 
 /* card top */
@@ -4171,7 +4156,7 @@ body.light-mode #internshipsPage .intern-header {
   font-family: var(--font-mono);
 }
 #internshipsPage .source-pill.internshala { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
-
+#internshipsPage .source-pill.unstop { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
 #internshipsPage .source-pill.linkedin { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.35); }
 #internshipsPage .source-pill.jsearch { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.35); }
 #internshipsPage .source-pill.indeed { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.35); }
@@ -4378,10 +4363,10 @@ body.light-mode #internshipsPage .intern-header {
 .app-sidebar {
   background: var(--bg-card);
   border-right: 1px solid var(--border);
-  padding: 0 0 1.2rem 0;
+  padding: 1.5rem 0;
   position: sticky;
-  top: 70px;
-  height: calc(100vh - 70px);
+  top: 64px;            /* match header height: 64px */
+  height: calc(100vh - 64px);
   overflow-y: auto;
   overflow-x: hidden;
   transition: width 0.3s cubic-bezier(0.16,1,0.3,1), min-width 0.3s cubic-bezier(0.16,1,0.3,1);
@@ -4466,20 +4451,20 @@ body.light-mode #internshipsPage .intern-header {
 .app-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .app-nav-title {
-  font-size: 0.78rem; color: var(--text-dim);
-  letter-spacing: 0.6px; text-transform: uppercase;
-  padding: 0 1.5rem; margin-bottom: 0.7rem;
-  font-weight: 700;
+  font-size: 0.65rem; color: var(--text-dim);
+  letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 0 1.5rem; margin-bottom: 0.6rem;
+  font-weight: 600;
 }
 .app-nav-btn {
   width: 100%; background: none; border: none;
   border-left: 3px solid transparent;
-  padding: 0.72rem 1.5rem;
+  padding: 0.7rem 1.5rem;
   text-align: left; cursor: pointer;
   transition: all 0.2s;
   display: flex; align-items: center; gap: 10px;
   color: var(--text-muted);
-  font-family: var(--font-body); font-size: 0.98rem; font-weight: 500;
+  font-family: var(--font-body); font-size: 0.92rem; font-weight: 500;
 }
 .app-nav-btn:hover { background: rgba(6,182,212,0.05); color: var(--text); }
 .app-nav-btn.active {
@@ -4511,15 +4496,15 @@ body.light-mode #internshipsPage .intern-header {
   flex: 1;
   width: 100%;
   min-width: 0;
-  min-height: calc(100vh - 70px);
+  min-height: calc(100vh - 64px);
   align-items: stretch;
   box-sizing: border-box;
 }
 .dash-content {
-  flex: 1;
-  padding: 1.5rem 2rem;
+  flex: 1;              /* flex child of .dash-layout — takes all remaining width */
+  padding: 2rem 2.5rem;
   overflow-y: auto;
-  min-width: 0;
+  min-width: 0;         /* prevents flex blowout */
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -4809,7 +4794,7 @@ body.light-mode #placementsPage .place-header {
   display: flex;
   flex: 1;
   min-height: 0;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 64px);
   overflow: hidden;
 }
 
@@ -4949,10 +4934,18 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
 #placementsPage .place-src-tab.active.remotive {
   border-color: var(--cyan); background: rgba(6,182,212,0.08); color: var(--cyan);
 }
+#placementsPage .place-src-tab.active.naukri {
+  border-color: #f97316; background: rgba(249,115,22,0.08); color: #f97316;
+}
+#placementsPage .place-src-tab.active.internshala {
+  border-color: #f59e0b; background: rgba(245,158,11,0.08); color: #f59e0b;
+}
 #placementsPage .place-src-dot { width: 7px; height: 7px; border-radius: 50%; }
 #placementsPage .place-src-dot.all      { background: var(--green); }
 #placementsPage .place-src-dot.jsearch  { background: var(--purple); }
 #placementsPage .place-src-dot.remotive { background: var(--cyan); }
+#placementsPage .place-src-dot.naukri   { background: #f97316; }
+#placementsPage .place-src-dot.internshala { background: #f59e0b; }
 #placementsPage .place-src-count {
   font-family: var(--font-mono); font-size: 0.65rem;
   background: rgba(255,255,255,0.07); color: var(--text-dim);
@@ -5032,6 +5025,8 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
 }
 #placementsPage .place-card.src-jsearch  { border-left: 3px solid var(--purple); }
 #placementsPage .place-card.src-remotive { border-left: 3px solid var(--cyan); }
+#placementsPage .place-card.src-naukri   { border-left: 3px solid #f97316; }
+#placementsPage .place-card.src-internshala { border-left: 3px solid #f59e0b; }
 #placementsPage .place-card.src-linkedin { border-left: 3px solid #a78bfa; }
 #placementsPage .place-card.src-indeed   { border-left: 3px solid #60a5fa; }
 #placementsPage .place-card.src-glassdoor { border-left: 3px solid var(--green); }
@@ -5066,7 +5061,8 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
 #placementsPage .place-src-pill.linkedin   { background: rgba(139,92,246,0.12); color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); }
 #placementsPage .place-src-pill.indeed     { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
 #placementsPage .place-src-pill.glassdoor  { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
-
+#placementsPage .place-src-pill.naukri     { background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+#placementsPage .place-src-pill.internshala { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
 
 #placementsPage .place-card-tags {
   display: flex; flex-wrap: wrap; gap: 5px;
@@ -5126,168 +5122,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
 @media (max-width: 420px) {
   #placementsPage .place-stats { grid-template-columns: 1fr 1fr; }
 }
-
-
-  /* ═══════════════════════════════════════════
-     PREMIUM LIGHT MODE POLISH
-  ═══════════════════════════════════════════ */
-  body.light-mode {
-    background: #f0f4f8;
-  }
-  body.light-mode .sidebar {
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  }
-  body.light-mode .right-panel {
-    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-    border-left-color: rgba(2,132,199,0.15);
-  }
-
-  /* Cards in light mode — polished with depth */
-  body.light-mode .subject-card,
-  body.light-mode .panel-section,
-  body.light-mode .dash-stat,
-  body.light-mode .quick-card {
-    background: #ffffff;
-    border: 1px solid rgba(2,132,199,0.14);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.05);
-    transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
-  }
-  body.light-mode .subject-card:hover {
-    box-shadow: 0 4px 20px rgba(2,132,199,0.12), 0 1px 4px rgba(0,0,0,0.06);
-    border-color: rgba(2,132,199,0.3);
-    transform: translateY(-1px);
-  }
-  body.light-mode .dash-stat:hover {
-    box-shadow: 0 4px 20px rgba(2,132,199,0.1);
-    border-color: rgba(2,132,199,0.25);
-  }
-
-  /* Nav items in light mode */
-  body.light-mode .sem-btn,
-  body.light-mode .app-nav-btn {
-    color: #334155;
-  }
-  body.light-mode .sem-btn:hover,
-  body.light-mode .app-nav-btn:hover {
-    background: rgba(2,132,199,0.08);
-    color: #0284c7;
-  }
-  body.light-mode .sem-btn.active,
-  body.light-mode .app-nav-btn.active {
-    background: rgba(2,132,199,0.12);
-    color: #0284c7;
-    border-left-color: #0284c7;
-  }
-
-  /* Quick access cards */
-  body.light-mode .quick-card {
-    background: #ffffff;
-  }
-
-  /* Semester progress pills */
-  body.light-mode .sem-progress-pill {
-    background: #ffffff;
-    border: 1px solid rgba(2,132,199,0.14);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  }
-
-  /* Grade chips */
-  body.light-mode .grade-chip {
-    background: rgba(2,132,199,0.07);
-    border-color: rgba(2,132,199,0.2);
-  }
-
-  /* Semester buttons in left nav */
-  body.light-mode .sem-list a,
-  body.light-mode .sem-list button {
-    color: #475569;
-  }
-
-  /* Improved contrast for text */
-  body.light-mode .stat-label {
-    color: #64748b;
-  }
-
-  /* Scan result modal in light mode */
-  body.light-mode .scan-card {
-    background: #ffffff;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(139,92,246,0.15);
-  }
-
-
-  /* Right panel panel-sections in light mode */
-  body.light-mode .panel-section {
-    background: #ffffff;
-    border: 1px solid rgba(2,132,199,0.14);
-    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-  }
-  body.light-mode .panel-title {
-    color: #0284c7;
-  }
-  body.light-mode .cgpa-hero-badge {
-    background: linear-gradient(135deg, rgba(2,132,199,0.1), rgba(124,58,237,0.1));
-    border-color: rgba(2,132,199,0.2);
-  }
-  body.light-mode .cgpa-num { color: #0284c7; }
-  body.light-mode .cgpa-label { color: #64748b; }
-  body.light-mode .dash-hero-badge {
-    background: linear-gradient(135deg, rgba(2,132,199,0.1), rgba(124,58,237,0.1));
-    border-color: rgba(2,132,199,0.25);
-  }
-  body.light-mode .sem-bars-label { color: #64748b; }
-  body.light-mode .sem-bar-fill-wrap { background: rgba(2,132,199,0.1); }
-  body.light-mode .grade-chip-row { border-bottom-color: rgba(2,132,199,0.08); }
-  body.light-mode .grade-chip-name { color: #334155; }
-  body.light-mode .insight-item { color: #334155; }
-  body.light-mode .target-planner-input {
-    background: rgba(2,132,199,0.05);
-    border-color: rgba(2,132,199,0.2);
-    color: #0f172a;
-  }
-  body.light-mode .planner-title-text { color: #0f172a; }
-  body.light-mode .export-btn {
-    background: rgba(2,132,199,0.08);
-    border-color: rgba(2,132,199,0.25);
-    color: #0284c7;
-  }
-  body.light-mode .analyse-btn-panel {
-    background: rgba(245,158,11,0.08);
-    border-color: rgba(245,158,11,0.25);
-    color: #d97706;
-  }
-  /* Dashboard stats cards in light mode */
-  body.light-mode .dash-stat {
-    background: #ffffff;
-    border: 1px solid rgba(2,132,199,0.14);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 2px 12px rgba(0,0,0,0.04);
-  }
-  body.light-mode .dash-stat-lbl { color: #64748b; }
-  body.light-mode .dash-stat-sub { color: #94a3b8; }
-  body.light-mode .dash-stat-val { color: #0284c7; }
-  body.light-mode .dash-stat-val.purple { color: #7c3aed; }
-  body.light-mode .dash-stat-val.green { color: #059669; }
-  body.light-mode .dash-stat-val.yellow { color: #d97706; }
-  /* Quick access cards */
-  body.light-mode .quick-card {
-    background: #ffffff;
-    border: 1px solid rgba(2,132,199,0.14);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
-  }
-  body.light-mode .quick-card:hover {
-    box-shadow: 0 4px 20px rgba(2,132,199,0.12), 0 1px 4px rgba(0,0,0,0.06);
-    border-color: rgba(2,132,199,0.3);
-    transform: translateY(-2px);
-  }
-  body.light-mode .quick-card-title { color: #1e293b; }
-  body.light-mode .quick-card-desc { color: #475569; }
-  /* Semester progress in light mode */
-  body.light-mode .sem-progress-pill {
-    background: #ffffff;
-    border: 1px solid rgba(2,132,199,0.15);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  }
-  body.light-mode .sem-progress-label { color: #64748b; }
-  body.light-mode .sem-progress-val { color: #0284c7; }
 
 </style>
 </head>
@@ -6045,7 +5879,7 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
         <button class="dash-action-card" onclick="openInternships()" style="--card-accent: linear-gradient(90deg, var(--purple), #ec4899);">
           <div class="dash-action-icon">💼</div>
           <div class="dash-action-name">Internships</div>
-          <div class="dash-action-desc">AI-matched internships from Internshala, JSearch & Remotive.</div>
+          <div class="dash-action-desc">AI-matched internships from Internshala, Unstop, JSearch & Remotive.</div>
           <span class="dash-action-arrow">→</span>
         </button>
         <button class="dash-action-card" onclick="openPlacements()" style="--card-accent: linear-gradient(90deg, var(--green), #06b6d4);">
@@ -17059,7 +16893,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
         <span class="nav-icon">🎯</span> Internshala
         <span class="nav-count" id="cnt-internshala">0</span>
       </button>
-
       <button class="nav-btn" onclick="filterBySource('jsearch')" id="nav-jsearch">
         <span class="nav-icon">🔍</span> JSearch
         <span class="nav-count" id="cnt-jsearch">0</span>
@@ -17159,7 +16992,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
         <span class="src-dot internshala"></span> Internshala
         <span class="tab-count" id="tab-count-internshala">0</span>
       </div>
-
       <div class="src-tab jsearch" onclick="filterBySource('jsearch')" id="tab-jsearch">
         <span class="src-dot jsearch"></span> JSearch
         <span class="tab-count" id="tab-count-jsearch">0</span>
@@ -17210,7 +17042,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
           <input type="checkbox" id="chk-internshala" checked onchange="toggleCheck('internshala')">
           🎯 Internshala
         </label>
-
         <label class="checkbox-item" id="chk-linkedin-wrap">
           <input type="checkbox" id="chk-linkedin" onchange="toggleCheck('linkedin')">
           💼 LinkedIn
@@ -17390,8 +17221,9 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
       <button class="place-nav-btn" onclick="placeFilterSrc('remotive',this)" id="pnav-remotive">
         🌐 Remotive <span class="place-nav-count" id="pncnt-remotive">0</span>
       </button>
-
-
+      <button class="place-nav-btn" onclick="placeFilterSrc('internshala',this)" id="pnav-internshala">
+        🎯 Internshala <span class="place-nav-count" id="pncnt-internshala">0</span>
+      </button>
       <div class="place-sidebar-divider"></div>
       <div class="place-sidebar-title">Quick Filters</div>
       <button class="place-nav-btn" onclick="placeFilterType('remote',this)">
@@ -17416,7 +17248,7 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
       <!-- Page header -->
       <div class="place-page-hdr">
         <div class="place-title">PLACEMENTS <span>&amp; JOBS</span></div>
-        <div class="place-sub">Live jobs from JSearch (LinkedIn · Indeed · Glassdoor) + Remotive</div>
+        <div class="place-sub">Live jobs from JSearch (LinkedIn · Indeed · Glassdoor) + Remotive + Internshala</div>
       </div>
 
       <!-- Stats -->
@@ -17433,8 +17265,10 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
           <div class="place-stat-lbl">🌐 Remotive</div>
           <div class="place-stat-val purple" id="pstat-remotive">—</div>
         </div>
-
-
+        <div class="place-stat-card">
+          <div class="place-stat-lbl">🎯 Internshala</div>
+          <div class="place-stat-val" style="color:#f59e0b" id="pstat-internshala">—</div>
+        </div>
         <div class="place-stat-card">
           <div class="place-stat-lbl">🏠 Remote</div>
           <div class="place-stat-val yellow" id="pstat-remote">—</div>
@@ -17479,8 +17313,10 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
           <span class="place-src-dot remotive"></span> Remotive
           <span class="place-src-count" id="scnt-remotive">0</span>
         </div>
-
-
+        <div class="place-src-tab internshala" id="stab-internshala" onclick="placeFilterSrc('internshala',null)">
+          <span class="place-src-dot internshala"></span> Internshala
+          <span class="place-src-count" id="scnt-internshala">0</span>
+        </div>
       </div>
 
       <!-- Refresh badge -->
@@ -22046,8 +21882,9 @@ async function fetchInternships(forceRefresh = false) {
       <div class="loading-steps">
         <div class="loading-step active" id="step1"><span class="step-icon">🔍</span> Connecting to local backend…</div>
         <div class="loading-step" id="step2"><span class="step-icon">🟠</span> Scraping Internshala listings…</div>
-        <div class="loading-step" id="step3"><span class="step-icon">🌐</span> Fetching from JSearch & Remotive…</div>
-        <div class="loading-step" id="step4"><span class="step-icon">✨</span> Processing & deduplicating…</div>
+
+        <div class="loading-step" id="step4"><span class="step-icon">🌐</span> Fetching from JSearch & Remotive…</div>
+        <div class="loading-step" id="step5"><span class="step-icon">✨</span> Processing & deduplicating…</div>
       </div>
     </div>`;
 
@@ -22084,8 +21921,9 @@ async function fetchInternships(forceRefresh = false) {
           <div class="loading-steps">
             <div class="loading-step done"  id="step1"><span class="step-icon">🔍</span> Connected to backend ✓</div>
             <div class="loading-step active" id="step2"><span class="step-icon">🟠</span> Scraping Internshala listings…</div>
-            <div class="loading-step"        id="step3"><span class="step-icon">🌐</span> Fetching JSearch & Remotive…</div>
-            <div class="loading-step"        id="step4"><span class="step-icon">✨</span> Processing & deduplicating…</div>
+
+            <div class="loading-step"        id="step4"><span class="step-icon">🌐</span> Fetching JSearch & Remotive…</div>
+            <div class="loading-step"        id="step5"><span class="step-icon">✨</span> Processing & deduplicating…</div>
           </div>
           <p style="font-size:0.8rem;color:var(--text-muted);margin:14px 0 4px">
             Auto-checking in <span id="cdTimer">${countdown}</span>s…
@@ -22946,6 +22784,8 @@ async function placeFetchAll() {
       <div class="place-loading-steps">
         <div class="place-loading-step active" id="pstep-jsearch">🔍 JSearch (LinkedIn · Indeed · Glassdoor)…</div>
         <div class="place-loading-step active" id="pstep-remotive">🌐 Remotive (Remote Jobs)…</div>
+        <div class="place-loading-step active" id="pstep-naukri">🟠 Naukri RSS (India Jobs)…</div>
+        <div class="place-loading-step active" id="pstep-internshala">🎯 Internshala (Internships · Jobs)…</div>
         <div class="place-loading-step" id="pstep-done">✨ Merging results…</div>
       </div>
     </div>`;
@@ -22961,7 +22801,7 @@ async function placeFetchAll() {
     if (el) { el.textContent = '⚠️ ' + label + ': ' + msg; }
   };
 
-  // ── All 2 sources fire simultaneously ──
+  // ── All 4 sources fire simultaneously ──
   await Promise.allSettled([
 
     // JSearch
@@ -22975,6 +22815,15 @@ async function placeFetchAll() {
       placeStreamAdd(jobs);
       setDone('pstep-remotive', jobs.length, 'Remotive');
     }).catch(e => setFail('pstep-remotive', 'Remotive', e.message)),
+
+      placeStreamAdd(jobs);
+
+
+    // Internshala RSS
+    placeFetchInternshala().then(jobs => {
+      placeStreamAdd(jobs);
+      setDone('pstep-internshala', jobs.length, 'Internshala');
+    }).catch(e => setFail('pstep-internshala', 'Internshala', e.message)),
 
   ]);
 
@@ -23130,6 +22979,8 @@ function placeRender() {
     jobs = jobs.filter(j => j._src === 'jsearch');
   } else if (_placeCurrentSrc === 'remotive') {
     jobs = jobs.filter(j => j._src === 'remotive');
+  } else if (_placeCurrentSrc === 'internshala') {
+    jobs = jobs.filter(j => j._src === 'internshala');
   }
 
   // Type filter
@@ -23176,9 +23027,11 @@ function placeRender() {
       : src === 'indeed' ? 'Indeed'
       : src === 'glassdoor' ? 'Glassdoor'
       : src === 'remotive' ? 'Remotive'
+      : src === 'internshala' ? 'Internshala'
       : 'JSearch';
     const srcClass = ['linkedin','indeed','glassdoor'].includes(src) ? 'linkedin'
       : src === 'remotive' ? 'remotive'
+      : src === 'internshala' ? 'internshala'
       : 'jsearch';
     const logoEl = job.logo
       ? `<img src="${esc(job.logo)}" style="width:36px;height:36px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
@@ -23219,11 +23072,13 @@ function placeUpdateStats() {
   const total  = _placeJobs.length;
   const js     = _placeJobs.filter(j => j._src === 'jsearch').length;
   const rm     = _placeJobs.filter(j => j._src === 'remotive').length;
+  const ins    = _placeJobs.filter(j => j._src === 'internshala').length;
   const remote = _placeJobs.filter(j => j.isRemote).length;
   const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   s('pstat-total', total);
   s('pstat-jsearch', js);
   s('pstat-remotive', rm);
+  s('pstat-internshala', ins);
   s('pstat-remote', remote);
 }
 
@@ -23232,10 +23087,12 @@ function placeUpdateCounts() {
   const total  = _placeJobs.length;
   const js     = _placeJobs.filter(j => j._src === 'jsearch').length;
   const rm     = _placeJobs.filter(j => j._src === 'remotive').length;
+  const ins    = _placeJobs.filter(j => j._src === 'internshala').length;
   const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   s('scnt-all', total);        s('pncnt-all', total);
   s('scnt-jsearch', js);       s('pncnt-jsearch', js);
   s('scnt-remotive', rm);      s('pncnt-remotive', rm);
+  s('scnt-internshala', ins);  s('pncnt-internshala', ins);
 }
 
 // ── Refresh badge ──
@@ -23281,7 +23138,116 @@ async function sbCacheWrite(srcKey, jobs) {
   } catch(e) { /* non-fatal */ }
 }
 
+// ── Naukri RSS (via rss2json.com) — all feeds in parallel ──
+async function placeFetchNaukri() {
+  const cached = await sbCacheRead('naukri');
+  if (cached) return cached;
 
+  const RSS2JSON = 'https://api.rss2json.com/v1/api.json';
+  const feeds = [
+    'https://www.naukri.com/rss/jobs/it-software-jobs.rss',
+    'https://www.naukri.com/rss/jobs/software-developer-jobs.rss',
+    'https://www.naukri.com/rss/jobs/web-developer-jobs.rss',
+    'https://www.naukri.com/rss/jobs/data-analyst-jobs.rss',
+    'https://www.naukri.com/rss/jobs/machine-learning-engineer-jobs.rss',
+    'https://www.naukri.com/rss/jobs/fresher-jobs.rss',
+  ];
+
+  // Fire all feeds simultaneously
+  const settled = await Promise.allSettled(
+    feeds.map(feed =>
+      fetch(RSS2JSON + '?rss_url=' + encodeURIComponent(feed) + '&count=30&api_key=',
+        { headers: { 'Accept': 'application/json' } }
+      ).then(r => r.ok ? r.json() : null)
+    )
+  );
+
+  const results = [];
+  const seen = new Set();
+  for (const s of settled) {
+    if (s.status !== 'fulfilled' || s.value?.status !== 'ok') continue;
+    for (const item of (s.value.items || [])) {
+      const key = (item.title + '|' + (item.author || '')).toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const descText = (item.description || '').replace(/<[^>]+>/g, '');
+      const locMatch = descText.match(/Location[:\s]+([^\n|]+)/i);
+      const salMatch = descText.match(/Salary[:\s]+([^\n|<]+)/i);
+      results.push({
+        _src: 'naukri', _subsrc: 'naukri',
+        title: item.title || '',
+        company: item.author || item.categories?.[0] || '',
+        location: locMatch ? locMatch[1].trim() : 'India',
+        type: (item.title || '').toLowerCase().includes('intern') ? 'INTERN' : 'FULLTIME',
+        isRemote: (item.title + descText).toLowerCase().includes('remote'),
+        description: descText.substring(0, 180),
+        applyUrl: item.link || 'https://www.naukri.com/jobs-in-india',
+        postedTs: item.pubDate ? Math.floor(new Date(item.pubDate).getTime() / 1000) : 0,
+        salary: salMatch ? salMatch[1].trim() : '',
+        logo: item.enclosure?.link || '',
+        tags: (item.categories || []).slice(0, 4),
+      });
+    }
+  }
+
+  await sbCacheWrite('naukri', results);
+  return results;
+}
+
+// ── Internshala RSS — both feeds in parallel ──
+async function placeFetchInternshala() {
+  const cached = await sbCacheRead('internshala');
+  if (cached) return cached;
+
+  const RSS2JSON = 'https://api.rss2json.com/v1/api.json';
+  const feeds = [
+    { url: 'https://internshala.com/rss/jobs.xml',        isIntern: false },
+    { url: 'https://internshala.com/rss/internships.xml', isIntern: true  },
+  ];
+
+  // Fire both feeds simultaneously
+  const settled = await Promise.allSettled(
+    feeds.map(f =>
+      fetch(RSS2JSON + '?rss_url=' + encodeURIComponent(f.url) + '&count=50&order_by=pubDate&order_dir=desc',
+        { headers: { 'Accept': 'application/json' } }
+      ).then(r => r.ok ? r.json().then(d => ({ d, isIntern: f.isIntern })) : null)
+    )
+  );
+
+  const results = [];
+  const seen = new Set();
+  for (const s of settled) {
+    if (s.status !== 'fulfilled' || !s.value || s.value.d?.status !== 'ok') continue;
+    const { d, isIntern } = s.value;
+    for (const item of (d.items || [])) {
+      const key = (item.title || '').toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const descText = (item.description || '').replace(/<[^>]+>/g, '');
+      const locMatch  = descText.match(/(?:Location|City)[:\s]+([^\n|<,]+)/i);
+      const salMatch  = descText.match(/(?:Stipend|Salary|CTC)[:\s]+([^\n|<]+)/i);
+      const compMatch = descText.match(/(?:Company|Organisation)[:\s]+([^\n|<]+)/i);
+      const text = item.title + descText;
+      results.push({
+        _src: 'internshala', _subsrc: 'internshala',
+        title: item.title || '',
+        company: compMatch ? compMatch[1].trim() : (item.author || ''),
+        location: locMatch ? locMatch[1].trim() : 'India',
+        type: isIntern ? 'INTERN' : 'FULLTIME',
+        isRemote: text.toLowerCase().includes('work from home') || text.toLowerCase().includes('remote'),
+        description: descText.substring(0, 180),
+        applyUrl: item.link || 'https://internshala.com',
+        postedTs: item.pubDate ? Math.floor(new Date(item.pubDate).getTime() / 1000) : 0,
+        salary: salMatch ? salMatch[1].trim() : '',
+        logo: '',
+        tags: (item.categories || []).slice(0, 4),
+      });
+    }
+  }
+
+  await sbCacheWrite('internshala', results);
+  return results;
+}
 
 // ── Manual refresh ──
 async function placeRefresh() {

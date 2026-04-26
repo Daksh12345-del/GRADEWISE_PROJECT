@@ -876,7 +876,6 @@
   .main-layout {
     display: grid;
     grid-template-columns: 220px 1fr 320px;
-    align-items: start;
     flex: 1;
     width: 100%;
     min-width: 0;
@@ -896,7 +895,6 @@
     height: calc(100vh - 70px);
     overflow-y: auto;
     flex-shrink: 0;
-    align-self: start;
   }
 
   .sidebar::-webkit-scrollbar { width: 4px; }
@@ -952,9 +950,9 @@
 
   /* CONTENT AREA — grid child of .main-layout */
   .content-area {
-    padding: 1.5rem 2.5rem 2.5rem;
+    padding: 0.8rem 3rem 2.5rem;
     overflow-y: auto;
-    min-width: 0;
+    min-width: 0;        /* prevents grid blowout */
     overflow-x: hidden;
     box-sizing: border-box;
   }
@@ -1264,7 +1262,6 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(6,182,212,0.2) transparent;
     flex-shrink: 0;
-    align-self: start;
   }
   .right-panel::-webkit-scrollbar { width: 4px; }
   .right-panel::-webkit-scrollbar-track { background: transparent; }
@@ -4466,20 +4463,20 @@ body.light-mode #internshipsPage .intern-header {
 .app-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .app-nav-title {
-  font-size: 0.78rem; color: var(--text-dim);
-  letter-spacing: 0.6px; text-transform: uppercase;
-  padding: 0 1.5rem; margin-bottom: 0.7rem;
-  font-weight: 700;
+  font-size: 0.65rem; color: var(--text-dim);
+  letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 0 1.5rem; margin-bottom: 0.6rem;
+  font-weight: 600;
 }
 .app-nav-btn {
   width: 100%; background: none; border: none;
   border-left: 3px solid transparent;
-  padding: 0.72rem 1.5rem;
+  padding: 0.7rem 1.5rem;
   text-align: left; cursor: pointer;
   transition: all 0.2s;
   display: flex; align-items: center; gap: 10px;
   color: var(--text-muted);
-  font-family: var(--font-body); font-size: 0.98rem; font-weight: 500;
+  font-family: var(--font-body); font-size: 0.92rem; font-weight: 500;
 }
 .app-nav-btn:hover { background: rgba(6,182,212,0.05); color: var(--text); }
 .app-nav-btn.active {
