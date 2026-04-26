@@ -957,6 +957,8 @@
     min-width: 0;
     overflow-x: hidden;
     box-sizing: border-box;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .sem-header {
@@ -1265,6 +1267,8 @@
     scrollbar-color: rgba(6,182,212,0.2) transparent;
     flex-shrink: 0;
     align-self: start;
+    grid-column: 3;
+    grid-row: 1;
   }
   .right-panel::-webkit-scrollbar { width: 4px; }
   .right-panel::-webkit-scrollbar-track { background: transparent; }
@@ -2464,6 +2468,7 @@
     padding: 3rem 2rem 4rem;
     position: relative;
     z-index: 1;
+    grid-column: 1 / -1;
   }
 
   .cgpa-pictograph-section::before {
@@ -2672,6 +2677,7 @@
     z-index: 100;
     overflow-x: auto;
     gap: 0.5rem;
+    grid-column: 1 / -1;
   }
 
   .mobile-sem-btn {
@@ -4378,7 +4384,7 @@ body.light-mode #internshipsPage .intern-header {
 .app-sidebar {
   background: var(--bg-card);
   border-right: 1px solid var(--border);
-  padding: 0 0 1.2rem 0;
+  padding: 1rem 0 1.2rem 0;
   position: sticky;
   top: 70px;
   height: calc(100vh - 70px);
@@ -4387,7 +4393,10 @@ body.light-mode #internshipsPage .intern-header {
   transition: width 0.3s cubic-bezier(0.16,1,0.3,1), min-width 0.3s cubic-bezier(0.16,1,0.3,1);
   width: 220px;
   min-width: 220px;
-  flex-shrink: 0;       /* never shrink in flex layout */
+  flex-shrink: 0;
+  align-self: start;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 /* Collapsed state */
@@ -5289,50 +5298,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
   body.light-mode .sem-progress-label { color: #64748b; }
   body.light-mode .sem-progress-val { color: #0284c7; }
 
-
-/* ── MOBILE SIDEBAR DRAWER ── */
-@media (max-width: 767px) {
-  .app-sidebar {
-    position: fixed !important;
-    top: 0 !important;
-    left: -270px !important;
-    width: 260px !important;
-    min-width: 260px !important;
-    height: 100vh !important;
-    z-index: 600 !important;
-    padding-top: 70px !important;
-    transition: left 0.28s cubic-bezier(0.16,1,0.3,1) !important;
-    box-shadow: none !important;
-    overflow-y: auto !important;
-  }
-  .app-sidebar.mob-open {
-    left: 0 !important;
-    box-shadow: 6px 0 30px rgba(0,0,0,0.4) !important;
-  }
-  /* collapsed class must not interfere on mobile */
-  .app-sidebar.collapsed {
-    left: -270px !important;
-    width: 260px !important;
-    min-width: 260px !important;
-    padding: 70px 0 1.2rem 0 !important;
-    border-right: 1px solid var(--border) !important;
-  }
-  /* Backdrop */
-  .mob-app-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 599;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-  }
-  .mob-app-backdrop.open { display: block; }
-  /* Main layout: single column, sidebar not in flow */
-  .main-layout { grid-template-columns: 1fr !important; }
-  .content-area { grid-column: 1 !important; grid-row: 1 !important; }
-}
-
 </style>
 </head>
 <body>
@@ -5753,31 +5718,28 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
     <div class="fc-val" id="fc-cgpa">0.00</div>
   </div>
 
-  <!-- Mobile sidebar backdrop -->
-  <div class="mob-app-backdrop" id="mobAppBackdrop" onclick="closeMobAppSidebar()"></div>
-
   <!-- Main layout -->
   <div class="main-layout">
     <!-- Sidebar -->
     <nav class="app-sidebar">
       <div class="app-nav-title">Main Menu</div>
-      <button class="app-nav-btn" onclick="if(window.innerWidth<=767)closeMobAppSidebar();showDashboard()">
+      <button class="app-nav-btn" onclick="showDashboard()">
         <span>📊</span> Dashboard
       </button>
-      <button class="app-nav-btn" id="grades-nav-btn" onclick="if(window.innerWidth<=767)closeMobAppSidebar();openGrades()">
+      <button class="app-nav-btn" id="grades-nav-btn" onclick="openGrades()">
         <span>📚</span> Grades
       </button>
-      <button class="app-nav-btn" onclick="if(window.innerWidth<=767)closeMobAppSidebar();openResources()">
+      <button class="app-nav-btn" onclick="openResources()">
         <span>🎓</span> Resources
       </button>
-      <button class="app-nav-btn" onclick="if(window.innerWidth<=767)closeMobAppSidebar();openInternships()">
+      <button class="app-nav-btn" onclick="openInternships()">
         <span>💼</span> Internships
       </button>
-      <button class="app-nav-btn" onclick="if(window.innerWidth<=767)closeMobAppSidebar();openPlacements()">
+      <button class="app-nav-btn" onclick="openPlacements()">
         <span>🏢</span> Placements
       </button>
       <hr class="app-nav-divider">
-      <button class="app-nav-btn" onclick="if(window.innerWidth<=767)closeMobAppSidebar();openAnalyser()">
+      <button class="app-nav-btn" onclick="openAnalyser()">
         <span>🔍</span> Analyse
       </button>
       <hr class="app-nav-divider">
@@ -18464,40 +18426,12 @@ function buildSidebar() {
 
 function buildMobileNav() {
   const mn = document.getElementById('mobile-nav');
-  let html = '';
-  html += `<button class="mobile-sem-btn" onclick="openResources()" style="border-color:rgba(16,185,129,0.4);color:#10b981;flex-shrink:0;" title="Resources">📚</button>`;
-  html += `<button class="mobile-sem-btn" onclick="openAnalyser()" style="flex-shrink:0;" title="Analyse">🔍</button>`;
-  html += `<button class="mobile-sem-btn" onclick="exportReport()" style="border-color:rgba(6,182,212,0.4);color:#06b6d4;flex-shrink:0;font-size:0.72rem;padding:5px 10px;" title="Export PDF">⬇ PDF</button>`;
-  html += `<button class="mobile-sem-btn" onclick="toggleGradingMobile()" style="border-color:rgba(139,92,246,0.4);color:#a78bfa;flex-shrink:0;font-size:0.72rem;padding:5px 10px;" title="Grading System">📊 Grade</button>`;
+  let html = `<button class="mobile-sem-btn" onclick="openResources()" style="border-color:rgba(16,185,129,0.4);color:#10b981;flex-shrink:0;">📚</button>`;
+  html += `<button class="mobile-sem-btn" onclick="openAnalyser()" style="flex-shrink:0;">🔍</button>`;
   html += SEMESTERS.map((s, i) => `
     <button class="mobile-sem-btn ${i === 0 ? 'active' : ''}" onclick="switchSem(${i})" id="mn-${i}">Sem ${s.sem}</button>
   `).join('');
   mn.innerHTML = html;
-}
-
-function toggleGradingMobile() {
-  // Show grading panel in a simple alert/modal on mobile since right-panel is hidden
-  const gb = document.getElementById('grading-body');
-  if (!gb) return;
-  // Force open grading section and scroll to it in content area
-  gb.style.display = 'block';
-  const ca = document.getElementById('content-area');
-  if (ca) {
-    // Append a temporary grading card at the bottom of content on mobile
-    let mg = document.getElementById('mobile-grading-card');
-    if (!mg) {
-      mg = document.createElement('div');
-      mg.id = 'mobile-grading-card';
-      mg.style.cssText = 'margin-top:1.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1rem;';
-      mg.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;"><span style="font-size:0.75rem;font-weight:700;color:var(--cyan);letter-spacing:0.5px;text-transform:uppercase;">Grading System</span><button onclick="document.getElementById('mobile-grading-card').remove()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;">✕</button></div>' + (gb.innerHTML || '');
-      ca.appendChild(mg);
-    } else {
-      mg.remove();
-    }
-    if (document.getElementById('mobile-grading-card')) {
-      document.getElementById('mobile-grading-card').scrollIntoView({behavior:'smooth', block:'start'});
-    }
-  }
 }
 
 function switchSem(idx) {
@@ -22481,60 +22415,16 @@ function showToast(msg, type='') {
 
 // ===== MOBILE SIDEBAR =====
 // ── App/Dashboard sidebar toggle (3-dot button) ──────────────
-let _appSidebarOpen = false;
-
+let _appSidebarOpen = true;
 function toggleAppSidebar() {
-  if (window.innerWidth <= 767) {
-    // Mobile: slide-in drawer
-    _appSidebarOpen = !_appSidebarOpen;
-    const sidebar  = document.querySelector('#appPage .app-sidebar');
-    const backdrop = document.getElementById('mobAppBackdrop');
-    const btn      = document.getElementById('appSidebarToggle');
-    if (sidebar)  { sidebar.classList.toggle('mob-open', _appSidebarOpen); sidebar.classList.remove('collapsed'); }
-    if (backdrop) backdrop.classList.toggle('open', _appSidebarOpen);
-    if (btn)      btn.classList.toggle('open', _appSidebarOpen);
-  } else {
-    // Desktop: collapse grid column
-    _appSidebarOpen = !_appSidebarOpen;
-    const sidebar = document.querySelector('#appPage .app-sidebar');
-    const layout  = document.querySelector('#appPage .main-layout');
-    const btn     = document.getElementById('appSidebarToggle');
-    if (sidebar) { sidebar.classList.toggle('collapsed', !_appSidebarOpen); sidebar.classList.remove('mob-open'); }
-    if (layout)  layout.classList.toggle('sidebar-collapsed', !_appSidebarOpen);
-    if (btn)     btn.classList.toggle('open', _appSidebarOpen);
-  }
+  _appSidebarOpen = !_appSidebarOpen;
+  const sidebar = document.querySelector('#appPage .app-sidebar');
+  const layout  = document.querySelector('#appPage .main-layout');
+  const btn     = document.getElementById('appSidebarToggle');
+  if (sidebar) sidebar.classList.toggle('collapsed', !_appSidebarOpen);
+  if (layout)  layout.classList.toggle('sidebar-collapsed', !_appSidebarOpen);
+  if (btn)     btn.classList.toggle('open', _appSidebarOpen);
 }
-
-function closeMobAppSidebar() {
-  _appSidebarOpen = false;
-  const sidebar  = document.querySelector('#appPage .app-sidebar');
-  const backdrop = document.getElementById('mobAppBackdrop');
-  const btn      = document.getElementById('appSidebarToggle');
-  if (sidebar)  { sidebar.classList.remove('mob-open'); }
-  if (backdrop) backdrop.classList.remove('open');
-  if (btn)      btn.classList.remove('open');
-}
-
-// On resize: reset sidebar state correctly
-window.addEventListener('resize', () => {
-  const sidebar  = document.querySelector('#appPage .app-sidebar');
-  const backdrop = document.getElementById('mobAppBackdrop');
-  if (!sidebar) return;
-  if (window.innerWidth > 767) {
-    // Desktop: remove mobile classes
-    sidebar.classList.remove('mob-open');
-    if (backdrop) backdrop.classList.remove('open');
-    if (!_appSidebarOpen) {
-      sidebar.classList.add('collapsed');
-    } else {
-      sidebar.classList.remove('collapsed');
-    }
-  } else {
-    // Mobile: remove desktop classes, hide sidebar
-    sidebar.classList.remove('collapsed');
-    if (!_appSidebarOpen) sidebar.classList.remove('mob-open');
-  }
-});
 let _dashSidebarOpen = true;
 function toggleDashSidebar() {
   _dashSidebarOpen = !_dashSidebarOpen;
