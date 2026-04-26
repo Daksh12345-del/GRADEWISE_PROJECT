@@ -2701,6 +2701,19 @@
     color: var(--cyan);
   }
 
+  .mobile-nav-divider {
+    width: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+    align-self: stretch;
+    margin: 2px 2px;
+  }
+
+  .mobile-nav-page-btn {
+    font-size: 1rem;
+    padding: 5px 10px;
+  }
+
   /* FLOATING CGPA */
   .floating-cgpa {
     display: none;
@@ -18426,8 +18439,10 @@ function buildSidebar() {
 
 function buildMobileNav() {
   const mn = document.getElementById('mobile-nav');
-  let html = `<button class="mobile-sem-btn" onclick="openResources()" style="border-color:rgba(16,185,129,0.4);color:#10b981;flex-shrink:0;">📚</button>`;
-  html += `<button class="mobile-sem-btn" onclick="openAnalyser()" style="flex-shrink:0;">🔍</button>`;
+  let html = `<button class="mobile-sem-btn mobile-nav-page-btn" id="mn-dash-btn" onclick="showDashboard()" style="border-color:rgba(6,182,212,0.4);color:#06b6d4;flex-shrink:0;" title="Dashboard">📊</button>`;
+  html += `<button class="mobile-sem-btn mobile-nav-page-btn active" id="mn-grades-btn" onclick="openGrades()" style="flex-shrink:0;" title="Grades">📚</button>`;
+  html += `<button class="mobile-sem-btn mobile-nav-page-btn" id="mn-cgpa-btn" onclick="document.getElementById('cgpa-pictograph')?.scrollIntoView({behavior:'smooth',block:'start'})" style="border-color:rgba(167,139,250,0.4);color:#a78bfa;flex-shrink:0;" title="CGPA">CGPA</button>`;
+  html += `<div class="mobile-nav-divider"></div>`;
   html += SEMESTERS.map((s, i) => `
     <button class="mobile-sem-btn ${i === 0 ? 'active' : ''}" onclick="switchSem(${i})" id="mn-${i}">Sem ${s.sem}</button>
   `).join('');
@@ -18437,7 +18452,7 @@ function buildMobileNav() {
 function switchSem(idx) {
   currentSem = idx;
   document.querySelectorAll('.sem-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-  document.querySelectorAll('.mobile-sem-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.mobile-sem-btn:not(.mobile-nav-page-btn)').forEach((b, i) => b.classList.toggle('active', i === idx));
   renderSemester(idx);
   updatePanels();
 }
@@ -21841,6 +21856,11 @@ function showDashboard() {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const dashBtn = document.getElementById('dash-nav-dashboard');
   if (dashBtn) dashBtn.classList.add('active');
+  // Update mobile nav page buttons
+  const mnDash = document.getElementById('mn-dash-btn');
+  const mnGrades = document.getElementById('mn-grades-btn');
+  if (mnDash) mnDash.classList.add('active');
+  if (mnGrades) mnGrades.classList.remove('active');
   const isLight = document.body.classList.contains('light-mode');
   const t = document.getElementById('toggle-thumb-dash');
   if (t) t.textContent = isLight ? '☀️' : '🌙';
@@ -21855,6 +21875,11 @@ function openGrades() {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const gradesBtn = document.getElementById('grades-nav-btn');
   if (gradesBtn) gradesBtn.classList.add('active');
+  // Update mobile nav page buttons
+  const mnDash = document.getElementById('mn-dash-btn');
+  const mnGrades = document.getElementById('mn-grades-btn');
+  if (mnDash) mnDash.classList.remove('active');
+  if (mnGrades) mnGrades.classList.add('active');
   gwTrackVisit('grades');
 }
 
