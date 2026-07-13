@@ -247,6 +247,9 @@ export default function AppPage() {
       <div className="header">
         <div className="header-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <SidebarToggleButton open={sidebarToggle.open} mobileOpen={sidebarToggle.mobileOpen} toggle={sidebarToggle.toggle} />
+          <div className="h-logo-icon" style={{ background: 'none', padding: 0, width: 36, height: 36, display: 'flex', alignItems: 'center' }}>
+            <img src="/images/img_3.png" width="34" height="34" alt="GW Logo" style={{ borderRadius: '50%', objectFit: 'cover' }} />
+          </div>
           <span style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>Grades</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
