@@ -172,6 +172,9 @@ export default function PlacementsPage() {
       <header className="header">
         <div className="header-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <SidebarToggleButton {...sidebarToggle} />
+          <div className="h-logo-icon" style={{ background: 'none', padding: 0, width: 36, height: 36, display: 'flex', alignItems: 'center' }}>
+            <img src="/images/img_3.png" width="34" height="34" alt="GW Logo" style={{ borderRadius: '50%', objectFit: 'cover' }} />
+          </div>
           <div>
             <span style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>Placements</span>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)', letterSpacing: 1 }}>
