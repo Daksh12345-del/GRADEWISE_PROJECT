@@ -5964,6 +5964,8 @@ body.light-mode #internshipsPage .intern-header {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 18px; padding: 1.3rem;
+  min-width: 0; /* allow this grid item to shrink below its content's natural width */
+  overflow: hidden;
 }
 .dash-panel-title {
   font-family: var(--font-display); font-size: 0.72rem;
@@ -5991,6 +5993,7 @@ body.light-mode #internshipsPage .intern-header {
   border: 1px solid var(--border);
   border-radius: 12px; padding: 0.7rem 1rem;
   cursor: pointer; transition: all 0.2s;
+  min-width: 0;
 }
 .dash-intern-mini:hover { border-color: rgba(6,182,212,0.35); transform: translateX(3px); }
 .dash-intern-logo { font-size: 1.4rem; }
