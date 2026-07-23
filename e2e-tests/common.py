@@ -1,4 +1,4 @@
-="""
+"""
 common.py — shared setup/helpers used by every test_*.py file in this folder.
 
 Run these against YOUR real deployment, not a sandbox — they need genuine
