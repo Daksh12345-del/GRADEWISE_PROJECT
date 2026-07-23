@@ -7,7 +7,7 @@ network access to Clerk and Supabase.
 ============================================================
 SETUP — read before running anything in this folder
 ============================================================
-1. pip install selenium
+1. pip install -r requirements.txt
    Selenium 4's built-in Selenium Manager auto-resolves a matching
    chromedriver as long as this machine has normal internet access.
 
@@ -18,6 +18,10 @@ SETUP — read before running anything in this folder
      TEST_VERIFICATION_CODE    see note below
      TEST_ROLL                 roll number to sign up with (also doubles
                                 as the password for returning sign-ins)
+     CLERK_SECRET_KEY          REQUIRED for the 7 authenticated-page test
+                                files (test_login.py / test_auth_guard.py
+                                don't need it). See note 5 below — this is
+                                sensitive, GitHub Secrets only, never commit it.
 
 3. Email verification:
    If your Clerk instance requires email verification on sign-up, use an
@@ -31,6 +35,18 @@ SETUP — read before running anything in this folder
    in this module) — they don't share a session across files, so running
    all 7 files back to back does 7 sign-ins. Use a "+clerk_test" email so
    that's fully automated rather than needing a fresh code every time.
+
+5. CAPTCHA / bot-detection in headless CI:
+   Clerk's sign-up form runs a CAPTCHA/bot-detection check that commonly
+   fails to load in a headless browser on a CI runner (you'll see "Auth
+   error: Error loading CAPTCHA" on screen if this happens). Clerk's
+   documented fix for automated tests is a short-lived "Testing Token"
+   fetched from their Backend API — see get_clerk_testing_token() below.
+   This needs your Clerk **Secret Key** (Dashboard -> API Keys -> Secret
+   key, starts with sk_) — NOT the publishable key. Add it as a GitHub
+   Actions secret named CLERK_SECRET_KEY. Never commit this key or put it
+   in a public file — it grants backend-level access to your Clerk app.
+   https://clerk.com/docs/guides/development/testing/overview
 ============================================================
 """
 import os
@@ -38,6 +54,7 @@ import time
 import unittest
 from pathlib import Path
 
+import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -52,6 +69,7 @@ TEST_VERIFICATION_CODE = os.environ.get(
 )
 TEST_NAME = "Test Student"
 TEST_ROLL = os.environ.get("TEST_ROLL", "2300100300001")
+CLERK_SECRET_KEY = os.environ.get("CLERK_SECRET_KEY", "")
 
 SCREENSHOT_DIR = Path(__file__).parent / "screenshots"
 SCREENSHOT_DIR.mkdir(exist_ok=True)
@@ -68,6 +86,31 @@ def make_driver(width=1440, height=900, headless=True):
     return driver
 
 
+def get_clerk_testing_token():
+    """Fetches a short-lived Clerk Testing Token via the Backend API. This
+    is Clerk's own documented way to let automated browsers (Selenium,
+    Playwright, etc.) bypass their bot-detection/CAPTCHA, which otherwise
+    blocks headless CI runs with an "Error loading CAPTCHA" screen.
+    Docs: https://clerk.com/docs/guides/development/testing/overview
+    """
+    if not CLERK_SECRET_KEY:
+        raise RuntimeError(
+            "CLERK_SECRET_KEY is not set. Sign-up needs a Clerk Testing "
+            "Token to bypass CAPTCHA/bot-detection in headless CI — "
+            "without it, the form shows 'Error loading CAPTCHA' and never "
+            "proceeds. Get your Secret Key from the Clerk Dashboard -> "
+            "API Keys (starts with sk_), and add it as a GitHub Actions "
+            "secret named CLERK_SECRET_KEY."
+        )
+    resp = requests.post(
+        "https://api.clerk.com/v1/testing_tokens",
+        headers={"Authorization": f"Bearer {CLERK_SECRET_KEY}"},
+        timeout=10,
+    )
+    resp.raise_for_status()
+    return resp.json()["token"]
+
+
 def assert_no_unexpected_console_errors(test_case, driver, extra_allowed=()):
     logs = driver.get_log("browser")
     severe = [l for l in logs if l["level"] == "SEVERE"]
@@ -79,7 +122,8 @@ def assert_no_unexpected_console_errors(test_case, driver, extra_allowed=()):
 def sign_up(driver):
     """Runs the real Clerk sign-up flow end to end. Leaves the browser on
     /dashboard when done."""
-    driver.get(BASE_URL + "/")
+    testing_token = get_clerk_testing_token()
+    driver.get(f"{BASE_URL}/?__clerk_testing_token={testing_token}")
     WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "login-course")))
 
     driver.find_element(By.ID, "login-name").send_keys(TEST_NAME)
@@ -175,4 +219,3 @@ class AuthenticatedPageTest(unittest.TestCase):
         time.sleep(0.3)
         html_after = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class") or ""
         self.assertNotEqual(html_before, html_after, "Theme toggle click had no visible effect")
-       
