@@ -1,4 +1,4 @@
-"""
+="""
 common.py — shared setup/helpers used by every test_*.py file in this folder.
 
 Run these against YOUR real deployment, not a sandbox — they need genuine
@@ -102,18 +102,32 @@ def sign_up(driver):
 
     try:
         WebDriverWait(driver, 8).until(EC.visibility_of_element_located((By.ID, "login-verification")))
+    except Exception:
+        pass  # no verification step required by this Clerk instance — already signed in
+    else:
+        # A verification step DID appear — this branch only runs if it did.
         if not TEST_VERIFICATION_CODE:
+            driver.save_screenshot(str(SCREENSHOT_DIR / "signup_failure_no_code.png"))
             raise RuntimeError(
                 "This Clerk instance requires email verification, but no "
-                "TEST_VERIFICATION_CODE was set. Use a '+clerk_test' email "
-                "(auto-accepts code 424242) or supply a real code."
+                "TEST_VERIFICATION_CODE was set/resolved. Use a '+clerk_test' "
+                "email (auto-accepts code 424242 — but only if your Clerk "
+                "project has 'test mode' enabled in the Clerk dashboard under "
+                "Configure > Email, phone, username), or supply a real code "
+                "via the TEST_VERIFICATION_CODE secret."
             )
         driver.find_element(By.ID, "login-verification").send_keys(TEST_VERIFICATION_CODE)
         driver.find_element(By.XPATH, '//button[contains(text(),"Confirm & Launch")]').click()
-    except Exception:
-        pass  # no verification step required by this Clerk instance
 
-    WebDriverWait(driver, 15).until(EC.url_contains("/dashboard"))
+    try:
+        WebDriverWait(driver, 15).until(EC.url_contains("/dashboard"))
+    except Exception:
+        # Capture what's actually on screen when this fails, instead of just
+        # a bare TimeoutException with no clue what page we were stuck on.
+        driver.save_screenshot(str(SCREENSHOT_DIR / "signup_failure_final_state.png"))
+        with open(SCREENSHOT_DIR / "signup_failure_page_source.html", "w") as f:
+            f.write(driver.page_source)
+        raise
 
 
 class AuthenticatedPageTest(unittest.TestCase):
@@ -161,3 +175,4 @@ class AuthenticatedPageTest(unittest.TestCase):
         time.sleep(0.3)
         html_after = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class") or ""
         self.assertNotEqual(html_before, html_after, "Theme toggle click had no visible effect")
+       
