@@ -1,0 +1,49 @@
+name: Frontend Build Check
+
+# Runs on every push/PR to main — makes sure the frontend actually builds
+# before it ever reaches Vercel. Separate from selenium-tests.yml, which
+# tests the site AFTER it's deployed; this one catches a broken build
+# immediately, without needing a live URL at all.
+"on":
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        # Real values aren't needed for a build check — Vite just needs the
+        # vars to be present so main.jsx's "Missing VITE_CLERK_PUBLISHABLE_KEY"
+        # guard doesn't fail the build. Real secrets are set in Vercel itself
+        # for actual deployments, not here.
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: pk_test_placeholder_for_ci_build_only
+          VITE_SUPABASE_URL: https://placeholder.supabase.co
+          VITE_SUPABASE_ANON_KEY: placeholder
+          VITE_PYTHON_BACKEND_URL: https://placeholder.example.com
+        run: npm run build
+
+      - name: Upload build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
