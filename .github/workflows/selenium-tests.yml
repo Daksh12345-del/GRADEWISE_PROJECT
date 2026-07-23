@@ -46,6 +46,7 @@ jobs:
           GRADEWALLAH_URL: ${{ secrets.GRADEWALLAH_URL }}
           TEST_EMAIL: ${{ secrets.TEST_EMAIL }}          # use a "+clerk_test" address — see README.md
           TEST_ROLL: ${{ secrets.TEST_ROLL }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}   # Dashboard -> API Keys -> Secret key (sk_...) — bypasses CAPTCHA in headless CI
         run: |
           python3 -m unittest test_dashboard -v
           python3 -m unittest test_grades -v
@@ -66,9 +67,13 @@ jobs:
 # ============================================================
 # One-time setup needed in your GitHub repo before this will run:
 #   Settings → Secrets and variables → Actions → New repository secret
-#     GRADEWALLAH_URL   e.g. https://gradewallah.com
-#     TEST_EMAIL        e.g. yourname+clerk_test@example.com
-#     TEST_ROLL         e.g. 2300100300001
+#     GRADEWALLAH_URL     e.g. https://gradewallah.com
+#     TEST_EMAIL          e.g. yourname+clerk_test@example.com
+#     TEST_ROLL           e.g. 2300100300001
+#     CLERK_SECRET_KEY    from Clerk Dashboard -> API Keys -> Secret key
+#                         (starts with sk_). Needed to bypass CAPTCHA/
+#                         bot-detection in headless CI — without it,
+#                         sign-up will fail showing "Error loading CAPTCHA".
 # Without these secrets set, the workflow will run but the authenticated
-# tests will fail at sign-up (empty email/URL).
+# tests will fail at sign-up (empty email/URL, or blocked by CAPTCHA).
 # ============================================================
