@@ -224,8 +224,9 @@ class AuthenticatedPageTest(unittest.TestCase):
         toggles = self.driver.find_elements(By.CSS_SELECTOR, ".theme-toggle")
         if not toggles:
             self.skipTest(f"{self.PATH} has no theme toggle")
-        html_before = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class") or ""
+        # useTheme.js toggles a 'light-mode' class on <body>, not <html>.
+        body_before = self.driver.find_element(By.TAG_NAME, "body").get_attribute("class") or ""
         toggles[0].click()
         time.sleep(0.3)
-        html_after = self.driver.find_element(By.TAG_NAME, "html").get_attribute("class") or ""
-        self.assertNotEqual(html_before, html_after, "Theme toggle click had no visible effect")
+        body_after = self.driver.find_element(By.TAG_NAME, "body").get_attribute("class") or ""
+        self.assertNotEqual(body_before, body_after, "Theme toggle click had no visible effect")
