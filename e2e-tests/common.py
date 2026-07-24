@@ -50,6 +50,7 @@ SETUP — read before running anything in this folder
 ============================================================
 """
 import os
+import random
 import time
 import unittest
 from pathlib import Path
@@ -63,13 +64,18 @@ from selenium.webdriver.support import expected_conditions as EC
 
 BASE_URL = os.environ.get("GRADEWALLAH_URL", "http://localhost:5173")
 
-# Every run needs a BRAND NEW account — reusing the same roll/email across
-# runs makes Clerk treat it as a returning user and show "extra
+# Every test file needs its OWN brand new account — reusing the same
+# roll/email makes Clerk treat it as a returning user and show "extra
 # verification steps this page doesn't support", since our sign_up() flow
-# only ever drives the sign-UP form, not sign-in. GITHUB_RUN_ID is unique
-# per CI run (falls back to a timestamp for local runs), so appending it
-# guarantees a fresh identity every single time without any manual cleanup.
-_RUN_SUFFIX = os.environ.get("GITHUB_RUN_ID") or str(int(time.time()))
+# only ever drives the sign-UP form, not sign-in. This bit tripped us up
+# twice: GITHUB_RUN_ID alone is only unique *per CI run*, but all 7
+# authenticated-page test files (test_dashboard, test_grades, ...) run as
+# separate `python3 -m unittest` processes *within the same run* — so they
+# all computed the identical suffix and collided with each other. Adding a
+# random component (freshly generated each time this module is imported,
+# i.e. once per test file's process) fixes that; GITHUB_RUN_ID is kept too
+# so failures are still traceable back to the run that created them.
+_RUN_SUFFIX = (os.environ.get("GITHUB_RUN_ID") or str(int(time.time()))) + str(random.randint(1000, 9999))
 
 _raw_email = os.environ.get("TEST_EMAIL", "test.student+clerk_test@example.com")
 if "+clerk_test" in _raw_email:
@@ -87,7 +93,10 @@ TEST_VERIFICATION_CODE = os.environ.get(
     "424242" if "+clerk_test" in TEST_EMAIL else ""
 )
 TEST_NAME = "Test Student"
-TEST_ROLL = (os.environ.get("TEST_ROLL", "2300100300001") + _RUN_SUFFIX)[:20]
+# [-20:] (not [:20]) so the unique suffix at the END is always preserved —
+# truncating from the front would risk cutting into the part that actually
+# guarantees uniqueness.
+TEST_ROLL = (os.environ.get("TEST_ROLL", "2300100300001") + _RUN_SUFFIX)[-20:]
 CLERK_SECRET_KEY = os.environ.get("CLERK_SECRET_KEY", "")
 
 SCREENSHOT_DIR = Path(__file__).parent / "screenshots"
