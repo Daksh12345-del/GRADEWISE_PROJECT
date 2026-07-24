@@ -184,6 +184,16 @@ class AuthenticatedPageTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        # This base class itself has PATH=None — it's a template, not a real
+        # test. But Python's unittest loader has a well-known gotcha: doing
+        # `from common import AuthenticatedPageTest` in test_dashboard.py
+        # (etc.) makes that name part of test_dashboard's module namespace,
+        # and `python -m unittest test_dashboard` picks up EVERY TestCase
+        # subclass visible in that namespace — including this imported base
+        # class — not just the ones actually defined in that file. Skip
+        # cleanly here instead of crashing on `BASE_URL + None`.
+        if cls.PATH is None:
+            raise unittest.SkipTest("AuthenticatedPageTest is an abstract base class, not a real test")
         cls.driver = make_driver()
         sign_up(cls.driver)
 
