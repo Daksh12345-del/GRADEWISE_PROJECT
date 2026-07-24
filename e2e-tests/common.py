@@ -62,13 +62,32 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 BASE_URL = os.environ.get("GRADEWALLAH_URL", "http://localhost:5173")
-TEST_EMAIL = os.environ.get("TEST_EMAIL", "test.student+clerk_test@example.com")
+
+# Every run needs a BRAND NEW account — reusing the same roll/email across
+# runs makes Clerk treat it as a returning user and show "extra
+# verification steps this page doesn't support", since our sign_up() flow
+# only ever drives the sign-UP form, not sign-in. GITHUB_RUN_ID is unique
+# per CI run (falls back to a timestamp for local runs), so appending it
+# guarantees a fresh identity every single time without any manual cleanup.
+_RUN_SUFFIX = os.environ.get("GITHUB_RUN_ID") or str(int(time.time()))
+
+_raw_email = os.environ.get("TEST_EMAIL", "test.student+clerk_test@example.com")
+if "+clerk_test" in _raw_email:
+    _local, _domain = _raw_email.split("@", 1)
+    _prefix, _, _rest = _local.partition("+clerk_test")
+    # Keep "+clerk_test" intact (Clerk pattern-matches on it) — uniqueness
+    # goes into the part *before* it instead.
+    TEST_EMAIL = f"{_prefix}.{_RUN_SUFFIX}+clerk_test{_rest}@{_domain}"
+else:
+    _local, _domain = _raw_email.split("@", 1)
+    TEST_EMAIL = f"{_local}.{_RUN_SUFFIX}@{_domain}"
+
 TEST_VERIFICATION_CODE = os.environ.get(
     "TEST_VERIFICATION_CODE",
     "424242" if "+clerk_test" in TEST_EMAIL else ""
 )
 TEST_NAME = "Test Student"
-TEST_ROLL = os.environ.get("TEST_ROLL", "2300100300001")
+TEST_ROLL = (os.environ.get("TEST_ROLL", "2300100300001") + _RUN_SUFFIX)[:20]
 CLERK_SECRET_KEY = os.environ.get("CLERK_SECRET_KEY", "")
 
 SCREENSHOT_DIR = Path(__file__).parent / "screenshots"
