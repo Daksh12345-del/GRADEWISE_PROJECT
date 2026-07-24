@@ -7,7 +7,11 @@ from common import AuthenticatedPageTest
 
 class DsaTrackerPageTests(AuthenticatedPageTest):
     PATH = "/dsa-tracker"
-    CHECK_SELECTOR = (By.XPATH, '//*[contains(text(),"LeetCode")]')
+    # "LeetCode" text only appears after a fetch is triggered (see
+    # PlatformResult in DsaTrackerPage.jsx — `if (!state) return null`).
+    # The "DSA Tracker" heading and the username inputs are what's actually
+    # present on initial load, so check for those instead.
+    CHECK_SELECTOR = (By.XPATH, '//*[contains(text(),"DSA Tracker")]')
 
 
 if __name__ == "__main__":
