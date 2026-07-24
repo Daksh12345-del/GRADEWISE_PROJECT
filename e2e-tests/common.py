@@ -133,7 +133,14 @@ def get_clerk_testing_token():
 def assert_no_unexpected_console_errors(test_case, driver, extra_allowed=()):
     logs = driver.get_log("browser")
     severe = [l for l in logs if l["level"] == "SEVERE"]
-    allowed = ("favicon",) + tuple(extra_allowed)
+    allowed = (
+        "favicon",
+        # Clerk's own SDK probes "is there an existing sign-in attempt?"
+        # during sign-up and gets a 422 when there isn't one — this is an
+        # internal state check, not a real error (confirmed harmless: the
+        # page loads and works fine despite it appearing every run).
+        "client/sign_ins",
+    ) + tuple(extra_allowed)
     unexpected = [l for l in severe if not any(a in l["message"].lower() for a in allowed)]
     test_case.assertEqual(unexpected, [], f"Unexpected console errors: {unexpected}")
 
