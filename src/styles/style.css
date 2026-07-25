@@ -7392,11 +7392,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
   transform: translateY(-4px) !important;
 }
 .dash-action-icon { font-size: 2.2rem !important; }
-.dash-action-name {
-  font-size: 0.9rem !important;
-  font-weight: 800 !important;
-  color: #e2e8f0 !important;
-}
 .dash-action-desc {
   font-size: 0.8rem !important;
   color: #94a3b8 !important;
