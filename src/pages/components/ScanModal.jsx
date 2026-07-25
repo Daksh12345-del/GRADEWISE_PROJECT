@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { SEMESTERS } from '../../lib/gradesData'
 import { scanResultPdf, applyScannedResults } from '../../lib/pdfScan'
 import { useGrades } from '../../lib/GradesContext'
@@ -70,7 +71,7 @@ export default function ScanModal({ open, onClose }) {
     setTimeout(handleClose, 900)
   }
 
-  return (
+  return createPortal(
     <div id="scanModal" className="open">
       <div className="scan-card">
         <div style={{ flexShrink: 0, paddingBottom: '1rem', borderBottom: '1px solid rgba(139,92,246,0.15)', marginBottom: '1rem' }}>
@@ -182,6 +183,7 @@ export default function ScanModal({ open, onClose }) {
           <button className="scan-btn-cancel" onClick={handleClose}>Cancel</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
