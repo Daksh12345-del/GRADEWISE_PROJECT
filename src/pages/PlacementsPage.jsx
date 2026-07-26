@@ -4,6 +4,7 @@ import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
 import JobStatsBar from './components/JobStatsBar'
 import JobFilterControls from './components/JobFilterControls'
+import QuickApplyModal from './components/QuickApplyModal'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { fetchPlacements } from '../lib/api'
@@ -52,6 +53,7 @@ function timeAgo(iso) {
 function PlacementCard({ item }) {
   const mode = classifyWorkMode(item)
   const modeMeta = WORK_MODE_META[mode]
+  const [quickApplyOpen, setQuickApplyOpen] = useState(false)
   return (
     <div className="job-card">
       <div className="job-card-top">
@@ -87,9 +89,13 @@ function PlacementCard({ item }) {
               ⏳ Closing soon
             </span>
           )}
+          <button className="job-quickapply-btn" onClick={() => setQuickApplyOpen(true)}>⚡ Quick Apply</button>
           <a href={item.apply_url} target="_blank" rel="noopener noreferrer" className="job-apply-btn">Apply →</a>
         </div>
       </div>
+      {quickApplyOpen && (
+        <QuickApplyModal item={{ ...item, type: 'placement' }} onClose={() => setQuickApplyOpen(false)} />
+      )}
     </div>
   )
 }
