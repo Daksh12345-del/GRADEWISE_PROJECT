@@ -1,4 +1,5 @@
 import { PYTHON_BACKEND_URL } from './supabase'
+import { getClerkUserId } from './clerkUser'
 
 // The Python backend (Render, free tier) can cold-start, so give it a
 // generous timeout and let callers retry once if the first attempt times out.
@@ -35,6 +36,47 @@ async function getJson(url, { timeoutMs = 45000, retryOnColdStart = true } = {})
     throw new Error(json.error || `HTTP ${res.status}`)
   }
   return json
+}
+
+async function postJson(url, body, { timeoutMs = 15000 } = {}) {
+  let res
+  try {
+    res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }, timeoutMs)
+  } catch (err) {
+    throw new Error(err.name === 'AbortError' ? 'Request timed out, please try again' : (err.message || 'Network error'))
+  }
+  let json
+  try {
+    json = await res.json()
+  } catch {
+    throw new Error(`Backend returned an invalid response (HTTP ${res.status})`)
+  }
+  if (!res.ok) {
+    throw new Error(json.error || `HTTP ${res.status}`)
+  }
+  return json
+}
+
+/**
+ * POST /api/quick-apply — saves a Quick Apply lead (applicant details for
+ * one internship/placement listing) to the backend. Backend contract
+ * (finalize once the actual backend is wired up):
+ *   Request body: {
+ *     user_id, item_unique_id, item_type, item_title, item_company,
+ *     applicant_name, applicant_email, applicant_phone,
+ *     applicant_degree, resume_link
+ *   }
+ *   Response: { success: true } on success, or { error: "..." } with a
+ *   non-2xx status on failure.
+ */
+export async function submitQuickApply(payload) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const url = `${PYTHON_BACKEND_URL}/api/quick-apply`
+  return postJson(url, { user_id: getClerkUserId(), ...payload })
 }
 
 /** GET /api/internships — returns array of internship listings */
