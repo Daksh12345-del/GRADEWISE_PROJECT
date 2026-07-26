@@ -4,10 +4,10 @@ import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
 import JobStatsBar from './components/JobStatsBar'
 import JobFilterControls from './components/JobFilterControls'
-import QuickApplyModal from './components/QuickApplyModal'
+import { useAuthUser } from '../lib/useAuthUser'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
-import { fetchPlacements } from '../lib/api'
+import { fetchPlacements, submitQuickApply } from '../lib/api'
 import { getCachedListings, setCachedListings } from '../lib/jobListingsCache'
 import { classifyWorkMode, computeJobStats, WORK_MODE_META, isClosingSoon, daysUntilExpiry, SORTERS } from '../lib/jobStats'
 
@@ -53,7 +53,7 @@ function timeAgo(iso) {
 function PlacementCard({ item }) {
   const mode = classifyWorkMode(item)
   const modeMeta = WORK_MODE_META[mode]
-  const [quickApplyOpen, setQuickApplyOpen] = useState(false)
+  const { user } = useAuthUser()
   return (
     <div className="job-card">
       <div className="job-card-top">
@@ -89,13 +89,27 @@ function PlacementCard({ item }) {
               ⏳ Closing soon
             </span>
           )}
-          <button className="job-quickapply-btn" onClick={() => setQuickApplyOpen(true)}>⚡ Quick Apply</button>
-          <a href={item.apply_url} target="_blank" rel="noopener noreferrer" className="job-apply-btn">Apply →</a>
+          <a
+            href={item.apply_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="job-apply-btn"
+            onClick={() => {
+              submitQuickApply({
+                item_unique_id: item.unique_id,
+                item_type: 'placement',
+                item_title: item.title,
+                item_company: item.company,
+                applicant_name: user?.name || '',
+                applicant_email: user?.email || '',
+                applicant_phone: '',
+                applicant_degree: user?.branch || '',
+                resume_link: '',
+              }).catch(() => { /* non-fatal — never block real navigation over a lost lead record */ })
+            }}
+          >Apply →</a>
         </div>
       </div>
-      {quickApplyOpen && (
-        <QuickApplyModal item={{ ...item, type: 'placement' }} onClose={() => setQuickApplyOpen(false)} />
-      )}
     </div>
   )
 }
