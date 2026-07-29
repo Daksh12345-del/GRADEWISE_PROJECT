@@ -1085,6 +1085,10 @@ body.light-mode .theme-toggle { background: rgba(109,40,217,0.1); }
 #scanModal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
 #scanModal.open { display: flex; }
 
+/* ── VIEW RESULT MODAL (same overlay treatment as scan modal) ── */
+#viewResultModal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+#viewResultModal.open { display: flex; }
+
 .scan-card {
   background: linear-gradient(155deg, rgba(16,18,65,0.98), rgba(12,14,43,0.99));
   border: 1px solid rgba(124,58,237,0.3);
@@ -1359,6 +1363,21 @@ body.light-mode #dash-cgpa-hero {
     overflow-y: auto;
   }
   #scanModal.open { display: flex; }
+
+  /* ── VIEW RESULT MODAL ── */
+  #viewResultModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  #viewResultModal.open { display: flex; }
 
   .scan-card {
     background: var(--bg-card);
@@ -4733,6 +4752,7 @@ img, svg { max-width: 100%; height: auto; }
   /* Scan modal */
   .scan-card { padding: 1.3rem 1.1rem; border-radius: 16px; }
   #scanModal { padding: 0.6rem; }
+  #viewResultModal { padding: 0.6rem; }
   .scan-card { max-height: calc(100vh - 1.2rem); }
   .scan-results-table-wrap { max-height: 190px; }
   .scan-title { font-size: 0.86rem; letter-spacing: 1px; }
@@ -4813,7 +4833,7 @@ img, svg { max-width: 100%; height: auto; }
 /* ── Print styles ── */
 @media print {
   .header, .sidebar, .mobile-nav, .floating-cgpa,
-  .right-panel, #scanModal { display: none !important; }
+  .right-panel, #scanModal, #viewResultModal { display: none !important; }
   .main-layout { grid-template-columns: 1fr; }
   .subjects-grid { grid-template-columns: repeat(3, 1fr); }
   body { padding-bottom: 0; background: white; color: black; }
@@ -7045,6 +7065,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
   /* ── Scan modal: slide up from bottom ── */
   #scanModal { padding: 0.4rem; align-items: flex-end; }
+  #viewResultModal { padding: 0.4rem; align-items: flex-end; }
   .scan-card { border-radius: 18px 18px 0 0; max-height: 92vh; overflow-y: auto; }
 
   /* ── CGPA pictograph ── */
@@ -7265,7 +7286,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 ═══════════════════════════════════════ */
 @media print {
   .header, .sidebar, .app-sidebar, .mobile-nav,
-  .floating-cgpa, .right-panel, #scanModal { display: none !important; }
+  .floating-cgpa, .right-panel, #scanModal, #viewResultModal { display: none !important; }
   .main-layout, .dash-layout { grid-template-columns: 1fr; display: block; }
   .subjects-grid { grid-template-columns: repeat(3, 1fr); }
   body { padding-bottom: 0; background: white; color: black; }
