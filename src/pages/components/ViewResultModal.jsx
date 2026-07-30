@@ -1,61 +1,120 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { SEMESTERS } from '../../lib/gradesData'
+import { applyScannedResults } from '../../lib/pdfScan'
+import { useGrades } from '../../lib/GradesContext'
 
-// Official AKTU One View result portal. This is the ONLY portal this modal
-// ever talks to — no scraping, no captcha automation, nothing happens
-// server-side. We just save the student a search + give them a place to
-// land back on this site afterwards.
-const AKTU_ONEVIEW_URL = 'https://oneview.aktu.ac.in/webpages/aktu/oneview.aspx'
+// ── YOUR ENDPOINT GOES HERE ──────────────────────────────────────────────
+// This modal no longer opens AKTU's site at all — it POSTs roll number +
+// DOB straight to whatever backend endpoint you configure below, and
+// expects a JSON response back. Everything about *how* that endpoint gets
+// the result (Playwright, sessions, whatever you're building) is entirely
+// yours; this file only knows about the request/response contract.
+//
+// Set this via an env var so you're not editing source to change it:
+//   VITE_RESULT_ENDPOINT=https://your-backend.example.com/api/fetch-result
+const RESULT_ENDPOINT = import.meta.env.VITE_RESULT_ENDPOINT || ''
 
-// Government/college portals almost always block being embedded in an
-// iframe on someone else's domain (X-Frame-Options / frame-ancestors CSP).
-// We can't know AKTU's exact setting from here, so we try the iframe and
-// fall back to a popup window if it doesn't load within a few seconds.
-const IFRAME_LOAD_TIMEOUT_MS = 3500
+// ── Expected response contract ───────────────────────────────────────────
+// {
+//   "success": true,
+//   "subjects": [
+//     { "semesterIndex": 4, "code": "KCS501", "internal": 45, "external": 60, "backPaper": null }
+//   ]
+// }
+// - semesterIndex is 0-based (Sem I = 0, Sem II = 1, ...), matching SEMESTERS.
+// - code must match the subject's `code` field in gradesData so it can be
+//   matched to the right row; unmatched codes are skipped, not guessed at.
+function mapApiResponseToScanned(subjects) {
+  const scanned = []
+  for (const item of subjects || []) {
+    const sem = SEMESTERS[item.semesterIndex]
+    if (!sem) continue
+    const ji = sem.subjects.findIndex((s) => s.code === item.code)
+    if (ji === -1) continue
+    scanned.push({
+      si: item.semesterIndex,
+      ji,
+      internal: item.internal ?? null,
+      external: item.external ?? null,
+      backPaper: item.backPaper ?? null,
+      matchedOption: item.matchedOption ?? null,
+    })
+  }
+  return scanned
+}
 
 export default function ViewResultModal({ open, onClose }) {
+  const grades = useGrades()
   const [roll, setRoll] = useState('')
   const [dob, setDob] = useState('')
-  const [stage, setStage] = useState('form') // 'form' | 'frame' | 'blocked'
-  const iframeRef = useRef(null)
-  const timeoutRef = useRef(null)
-  const loadedRef = useRef(false)
-
-  useEffect(() => {
-    if (!open) {
-      setStage('form')
-      setRoll('')
-      setDob('')
-      loadedRef.current = false
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    }
-  }, [open])
+  const [status, setStatus] = useState(null) // { type: 'loading'|'success'|'error', msg }
+  const [results, setResults] = useState(null)
+  const [busy, setBusy] = useState(false)
 
   if (!open) return null
 
+  function reset() {
+    setRoll('')
+    setDob('')
+    setStatus(null)
+    setResults(null)
+  }
+
   function handleClose() {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    reset()
     onClose()
   }
 
-  function openPortal() {
-    setStage('frame')
-    loadedRef.current = false
-    // If the iframe's load event hasn't fired shortly, assume it was
-    // blocked (blank/refused frame) and switch to the popup fallback
-    // instead of showing the student a permanently blank box.
-    timeoutRef.current = setTimeout(() => {
-      if (!loadedRef.current) setStage('blocked')
-    }, IFRAME_LOAD_TIMEOUT_MS)
+  async function fetchResult() {
+    if (!roll.trim() || !dob) {
+      setStatus({ type: 'error', msg: '⚠️ Enter your roll number and date of birth first.' })
+      return
+    }
+    if (!RESULT_ENDPOINT) {
+      setStatus({
+        type: 'error',
+        msg: '⚠️ No result endpoint configured yet. Set VITE_RESULT_ENDPOINT in your .env to point at your backend.',
+      })
+      return
+    }
+    setBusy(true)
+    setResults(null)
+    setStatus({ type: 'loading', msg: '📡 Fetching your result…' })
+    try {
+      const res = await fetch(RESULT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rollNumber: roll.trim(), dob }),
+      })
+      if (!res.ok) throw new Error(`Server responded with ${res.status}`)
+      const data = await res.json()
+      if (!data.success) throw new Error(data.message || 'Result not found.')
+
+      const scanned = mapApiResponseToScanned(data.subjects)
+      if (scanned.length === 0) {
+        setStatus({ type: 'error', msg: '❌ Got a response but no subjects matched — check the endpoint\'s data shape.' })
+        return
+      }
+      setResults(scanned)
+      const semsFound = [...new Set(scanned.map((r) => r.si + 1))]
+      const semLabel = semsFound.length > 1 ? `Semesters ${semsFound.join(', ')}` : `Semester ${semsFound[0]}`
+      setStatus({ type: 'success', msg: `✅ Found ${scanned.length} subject(s) across ${semLabel}! Review and click "Fill All Marks".` })
+    } catch (err) {
+      setStatus({ type: 'error', msg: '❌ ' + (err.message || 'Something went wrong. Please try again.') })
+    } finally {
+      setBusy(false)
+    }
   }
 
-  function handleIframeLoad() {
-    loadedRef.current = true
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-  }
-
-  function openInNewTab() {
-    window.open(AKTU_ONEVIEW_URL, '_blank', 'noopener,noreferrer')
+  function fillAllResults() {
+    if (!results || results.length === 0) return
+    const { nextMarksData, nextBackData, nextElectiveChoices } = applyScannedResults(
+      results, grades.marksData, grades.backData, grades.electiveChoices
+    )
+    grades.bulkApply(nextMarksData, nextBackData, nextElectiveChoices)
+    setStatus({ type: 'success', msg: `✅ Filled ${results.length} subject(s). You can review them on the Grades tabs.` })
+    setTimeout(handleClose, 900)
   }
 
   return createPortal(
@@ -72,87 +131,81 @@ export default function ViewResultModal({ open, onClose }) {
             >✕</button>
           </div>
           <div className="scan-sub" style={{ marginBottom: 0 }}>
-            Check your AKTU result without leaving this page
+            Enter your details — your result is fetched and filled automatically
           </div>
         </div>
 
         <div className="scan-card-body">
-          {stage === 'form' && (
-            <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-                  University Roll Number
-                  <input
-                    type="text"
-                    value={roll}
-                    onChange={(e) => setRoll(e.target.value)}
-                    placeholder="e.g. 2200270100XX"
-                    className="scan-sem-select"
-                    style={{ marginTop: 6, width: '100%' }}
-                  />
-                </label>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-                  Date of Birth
-                  <input
-                    type="date"
-                    value={dob}
-                    onChange={(e) => setDob(e.target.value)}
-                    className="scan-sem-select"
-                    style={{ marginTop: 6, width: '100%' }}
-                  />
-                </label>
-              </div>
-              <div className="scan-status" style={{ marginTop: 12 }}>
-                ℹ️ AKTU's portal will ask you to enter these yourself and complete
-                their verification (checkbox / image or audio challenge) — that
-                step happens on their site and can't be skipped or automated.
-                We're just saving you the trip to go find the URL.
-              </div>
-            </>
-          )}
-
-          {stage === 'frame' && (
-            <div style={{ position: 'relative', width: '100%', height: '60vh', minHeight: 380 }}>
-              <iframe
-                ref={iframeRef}
-                src={AKTU_ONEVIEW_URL}
-                onLoad={handleIframeLoad}
-                title="AKTU One View Result Portal"
-                style={{ width: '100%', height: '100%', border: '1px solid var(--border)', borderRadius: 8, background: '#fff' }}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+              University Roll Number
+              <input
+                type="text"
+                value={roll}
+                onChange={(e) => setRoll(e.target.value)}
+                placeholder="e.g. 2200270100XX"
+                className="scan-sem-select"
+                style={{ marginTop: 6, width: '100%' }}
+                disabled={busy}
               />
-              <div className="scan-status" style={{ marginTop: 10 }}>
-                Roll No: <strong>{roll || '—'}</strong> &nbsp;·&nbsp; DOB: <strong>{dob || '—'}</strong>
-                &nbsp;— enter these into AKTU's form above and complete their verification step.
-              </div>
-              <div className="scan-status" style={{ marginTop: 6 }}>
-                Once your result loads, use <strong>Scan Result</strong> (screenshot or
-                "Save as PDF") to pull the marks straight into your Grades tabs.
-              </div>
+            </label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+              Date of Birth
+              <input
+                type="date"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+                className="scan-sem-select"
+                style={{ marginTop: 6, width: '100%' }}
+                disabled={busy}
+              />
+            </label>
+          </div>
+
+          {status && (
+            <div className={`scan-status ${status.type === 'error' ? 'error' : ''}`} style={{ marginTop: 12 }}>
+              {status.msg}
             </div>
           )}
 
-          {stage === 'blocked' && (
-            <div className="scan-status error">
-              ❌ AKTU's site doesn't allow being embedded here (this is a security
-              setting on their end, not something we can change). Click below to
-              open it in a new tab instead — your roll number and DOB are below to
-              copy over.
-              <div style={{ marginTop: 10 }}>
-                Roll No: <strong>{roll || '—'}</strong> &nbsp;·&nbsp; DOB: <strong>{dob || '—'}</strong>
-              </div>
+          {results && results.length > 0 && (
+            <div className="scan-results-table-wrap" style={{ marginTop: 12, maxHeight: 220, overflowY: 'auto' }}>
+              <table style={{ width: '100%', fontSize: '0.8rem' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left' }}>Sem</th>
+                    <th style={{ textAlign: 'left' }}>Subject</th>
+                    <th>Internal</th>
+                    <th>External</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((r, idx) => {
+                    const subj = SEMESTERS[r.si]?.subjects[r.ji]
+                    return (
+                      <tr key={idx}>
+                        <td>{r.si + 1}</td>
+                        <td>{subj?.code || '—'}</td>
+                        <td style={{ textAlign: 'center' }}>{r.internal ?? '—'}</td>
+                        <td style={{ textAlign: 'center' }}>{r.external ?? '—'}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
 
         <div className="scan-actions" style={{ flexShrink: 0, paddingTop: '1rem', borderTop: '1px solid rgba(139,92,246,0.12)', marginTop: '0.8rem' }}>
-          {stage === 'form' && (
-            <button className="scan-btn-go" onClick={openPortal} disabled={!roll.trim() || !dob}>
-              <span>🚀</span> OPEN AKTU RESULT PORTAL
+          {!results && (
+            <button className="scan-btn-go" onClick={fetchResult} disabled={busy || !roll.trim() || !dob}>
+              <span>📡</span> {busy ? 'FETCHING…' : 'GET RESULT'}
             </button>
           )}
-          {stage === 'blocked' && (
-            <button className="scan-btn-go" onClick={openInNewTab}>
-              <span>↗️</span> OPEN IN NEW TAB
+          {results && results.length > 0 && (
+            <button className="scan-btn-go" onClick={fillAllResults}>
+              <span>✅</span> FILL ALL MARKS
             </button>
           )}
           <button className="scan-btn-cancel" onClick={handleClose}>Close</button>
