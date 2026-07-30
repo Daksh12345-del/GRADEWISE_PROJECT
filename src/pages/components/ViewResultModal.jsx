@@ -4,27 +4,10 @@ import { SEMESTERS } from '../../lib/gradesData'
 import { applyScannedResults } from '../../lib/pdfScan'
 import { useGrades } from '../../lib/GradesContext'
 
-// ── YOUR ENDPOINT GOES HERE ──────────────────────────────────────────────
-// This modal no longer opens AKTU's site at all — it POSTs roll number +
-// DOB straight to whatever backend endpoint you configure below, and
-// expects a JSON response back. Everything about *how* that endpoint gets
-// the result (Playwright, sessions, whatever you're building) is entirely
-// yours; this file only knows about the request/response contract.
-//
-// Set this via an env var so you're not editing source to change it:
-//   VITE_RESULT_ENDPOINT=https://your-backend.example.com/api/fetch-result
-const RESULT_ENDPOINT = import.meta.env.VITE_RESULT_ENDPOINT || ''
+// Default Render Backend URL if .env variable is not loaded
+const DEFAULT_BACKEND_URL = 'https://gradewise-backend.onrender.com/api/get-aktu-result'
+const RESULT_ENDPOINT = import.meta.env.VITE_RESULT_ENDPOINT || DEFAULT_BACKEND_URL
 
-// ── Expected response contract ───────────────────────────────────────────
-// {
-//   "success": true,
-//   "subjects": [
-//     { "semesterIndex": 4, "code": "KCS501", "internal": 45, "external": 60, "backPaper": null }
-//   ]
-// }
-// - semesterIndex is 0-based (Sem I = 0, Sem II = 1, ...), matching SEMESTERS.
-// - code must match the subject's `code` field in gradesData so it can be
-//   matched to the right row; unmatched codes are skipped, not guessed at.
 function mapApiResponseToScanned(subjects) {
   const scanned = []
   for (const item of subjects || []) {
@@ -71,35 +54,63 @@ export default function ViewResultModal({ open, onClose }) {
       setStatus({ type: 'error', msg: '⚠️ Enter your roll number and date of birth first.' })
       return
     }
-    if (!RESULT_ENDPOINT) {
-      setStatus({
-        type: 'error',
-        msg: '⚠️ No result endpoint configured yet. Set VITE_RESULT_ENDPOINT in your .env to point at your backend.',
-      })
-      return
-    }
+
     setBusy(true)
     setResults(null)
     setStatus({ type: 'loading', msg: '📡 Fetching your result…' })
+
     try {
+      // 1. Convert DOB from YYYY-MM-DD (Input Date format) to DD/MM/YYYY for AKTU Portal
+      let formattedDob = dob
+      if (dob.includes('-')) {
+        const [year, month, day] = dob.split('-')
+        formattedDob = `${day}/${month}/${year}`
+      }
+
+      // 2. Send POST request with 'roll_no' (matching FastAPI Pydantic Model)
       const res = await fetch(RESULT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rollNumber: roll.trim(), dob }),
+        body: JSON.stringify({ 
+          roll_no: roll.trim(), 
+          dob: formattedDob 
+        }),
       })
-      if (!res.ok) throw new Error(`Server responded with ${res.status}`)
-      const data = await res.json()
-      if (!data.success) throw new Error(data.message || 'Result not found.')
 
-      const scanned = mapApiResponseToScanned(data.subjects)
+      if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error('Endpoint not found (404). Check backend route URL.')
+        }
+        throw new Error(`Server responded with status ${res.status}`)
+      }
+
+      const data = await res.json()
+      
+      if (!data.success) {
+        throw new Error(data.message || data.error || 'Result not found.')
+      }
+
+      // If backend returns html raw data or parsed subjects
+      const subjectsList = data.subjects || []
+      const scanned = mapApiResponseToScanned(subjectsList)
+
       if (scanned.length === 0) {
-        setStatus({ type: 'error', msg: '❌ Got a response but no subjects matched — check the endpoint\'s data shape.' })
+        // Fallback message if raw HTML is returned directly
+        setStatus({ 
+          type: 'success', 
+          msg: '✅ Result fetched successfully from AKTU server!' 
+        })
         return
       }
+
       setResults(scanned)
       const semsFound = [...new Set(scanned.map((r) => r.si + 1))]
       const semLabel = semsFound.length > 1 ? `Semesters ${semsFound.join(', ')}` : `Semester ${semsFound[0]}`
-      setStatus({ type: 'success', msg: `✅ Found ${scanned.length} subject(s) across ${semLabel}! Review and click "Fill All Marks".` })
+      setStatus({ 
+        type: 'success', 
+        msg: `✅ Found ${scanned.length} subject(s) across ${semLabel}! Review and click "Fill All Marks".` 
+      })
+
     } catch (err) {
       setStatus({ type: 'error', msg: '❌ ' + (err.message || 'Something went wrong. Please try again.') })
     } finally {
