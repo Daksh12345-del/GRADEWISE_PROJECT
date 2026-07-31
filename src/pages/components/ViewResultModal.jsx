@@ -56,22 +56,23 @@ export default function ViewResultModal({ open, onClose }) {
     setStatus({ type: 'loading', msg: '📡 Connecting to AKTU OneView…' })
 
     try {
-      // Format DOB to DD/MM/YYYY
+      // Format DOB to DD/MM/YYYY for AKTU Portal
       let formattedDob = dob
       if (dob.includes('-')) {
         const [year, month, day] = dob.split('-')
         formattedDob = `${day}/${month}/${year}`
       }
 
-      // Proxy service to bypass CORS while keeping user's residential IP routing
       const targetUrl = 'https://erp.aktu.ac.in/webpages/oneview/oneview.aspx'
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
-
-      // 1. Fetch ASP.NET Initial Page for Session/ViewState
-      const getRes = await fetch(proxyUrl)
+      
+      // 1. Initial Page Session Fetch via AllOrigins JSON proxy
+      const getProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
+      const getRes = await fetch(getProxyUrl)
       if (!getRes.ok) throw new Error('AKTU OneView Portal unreachable right now.')
       
-      const htmlText = await getRes.text()
+      const jsonRes = await getRes.json()
+      const htmlText = jsonRes.contents
+
       const parser = new DOMParser()
       const doc = parser.parseFromString(htmlText, 'text/html')
 
@@ -83,7 +84,9 @@ export default function ViewResultModal({ open, onClose }) {
         throw new Error('Unable to extract session keys from AKTU Portal.')
       }
 
-      // 2. Prepare Form Data Body
+      setStatus({ type: 'loading', msg: '⌛ Submitting credentials…' })
+
+      // 2. Submit Form Credentials using AllOrigins Raw Proxy
       const formData = new URLSearchParams()
       formData.append('__VIEWSTATE', viewState)
       if (viewStateGen) formData.append('__VIEWSTATEGENERATOR', viewStateGen)
@@ -92,10 +95,9 @@ export default function ViewResultModal({ open, onClose }) {
       formData.append('txtDOB', formattedDob)
       formData.append('btnSearch', 'Search')
 
-      setStatus({ type: 'loading', msg: '⌛ Submitting credentials…' })
+      const postProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
 
-      // 3. POST request directly from browser
-      const postRes = await fetch(proxyUrl, {
+      const postRes = await fetch(postProxyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -181,6 +183,34 @@ export default function ViewResultModal({ open, onClose }) {
           {status && (
             <div className={`scan-status ${status.type === 'error' ? 'error' : ''}`} style={{ marginTop: 12 }}>
               {status.msg}
+            </div>
+          )}
+
+          {results && results.length > 0 && (
+            <div className="scan-results-table-wrap" style={{ marginTop: 12, maxHeight: 220, overflowY: 'auto' }}>
+              <table style={{ width: '100%', fontSize: '0.8rem' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left' }}>Sem</th>
+                    <th style={{ textAlign: 'left' }}>Subject</th>
+                    <th>Internal</th>
+                    <th>External</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((r, idx) => {
+                    const subj = SEMESTERS[r.si]?.subjects[r.ji]
+                    return (
+                      <tr key={idx}>
+                        <td>{r.si + 1}</td>
+                        <td>{subj?.code || '—'}</td>
+                        <td style={{ textAlign: 'center' }}>{r.internal ?? '—'}</td>
+                        <td style={{ textAlign: 'center' }}>{r.external ?? '—'}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
