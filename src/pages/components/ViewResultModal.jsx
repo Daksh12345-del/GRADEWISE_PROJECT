@@ -5,7 +5,7 @@ import { applyScannedResults } from '../../lib/pdfScan'
 import { useGrades } from '../../lib/GradesContext'
 
 // Default Render Backend URL if .env variable is not loaded
-const DEFAULT_BACKEND_URL = 'https://gradewise-backend.onrender.com/api/get-aktu-result'
+const DEFAULT_BACKEND_URL = 'https://gradewise-backend.onrender.com/api/fetch-result'
 const RESULT_ENDPOINT = import.meta.env.VITE_RESULT_ENDPOINT || DEFAULT_BACKEND_URL
 
 function mapApiResponseToScanned(subjects) {
@@ -67,7 +67,7 @@ export default function ViewResultModal({ open, onClose }) {
         formattedDob = `${day}/${month}/${year}`
       }
 
-      // 2. Send POST request with 'roll_no' (matching FastAPI Pydantic Model)
+      // 2. Send POST request
       const res = await fetch(RESULT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,25 +77,26 @@ export default function ViewResultModal({ open, onClose }) {
         }),
       })
 
+      const data = await res.json().catch(() => ({}))
+
       if (!res.ok) {
         if (res.status === 404) {
           throw new Error('Endpoint not found (404). Check backend route URL.')
         }
-        throw new Error(`Server responded with status ${res.status}`)
+        // Extract real error message sent by FastAPI backend
+        const serverErrorMsg = data.details || data.error || data.message || `Server responded with status ${res.status}`
+        throw new Error(serverErrorMsg)
       }
 
-      const data = await res.json()
-      
-      if (!data.success) {
+      if (!data.success && !data.data) {
         throw new Error(data.message || data.error || 'Result not found.')
       }
 
-      // If backend returns html raw data or parsed subjects
+      // Handle subjects if parsed by backend, or fallback
       const subjectsList = data.subjects || []
       const scanned = mapApiResponseToScanned(subjectsList)
 
       if (scanned.length === 0) {
-        // Fallback message if raw HTML is returned directly
         setStatus({ 
           type: 'success', 
           msg: '✅ Result fetched successfully from AKTU server!' 
