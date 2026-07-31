@@ -4,11 +4,13 @@ import { createPortal } from 'react-dom'
 export default function ViewResultModal({ open, onClose }) {
   const [roll, setRoll] = useState('')
   const [dob, setDob] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (open) {
       setRoll('')
       setDob('')
+      setLoading(false)
     }
   }, [open])
 
@@ -20,18 +22,20 @@ export default function ViewResultModal({ open, onClose }) {
       return
     }
 
-    // Date format conversion (YYYY-MM-DD -> DD/MM/YYYY)
+    setLoading(true)
+
+    // Convert Date of Birth format (YYYY-MM-DD to DD/MM/YYYY)
     let formattedDob = dob
     if (dob.includes('-')) {
       const [year, month, day] = dob.split('-')
       formattedDob = `${day}/${month}/${year}`
     }
 
-    // Direct Form Creation to Post directly to AKTU Portal
+    // Direct POST request submission to AKTU OneView Portal
     const form = document.createElement('form')
     form.method = 'POST'
     form.action = 'https://erp.aktu.ac.in/webpages/oneview/oneview.aspx'
-    form.target = '_blank' // Opens result directly in new tab
+    form.target = '_blank'
 
     const rollInput = document.createElement('input')
     rollInput.type = 'hidden'
@@ -55,6 +59,7 @@ export default function ViewResultModal({ open, onClose }) {
     form.submit()
     document.body.removeChild(form)
 
+    setLoading(false)
     onClose()
   }
 
@@ -104,8 +109,8 @@ export default function ViewResultModal({ open, onClose }) {
           </div>
 
           <div className="scan-actions" style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-            <button type="submit" className="scan-btn-go">
-              GET RESULT
+            <button type="submit" className="scan-btn-go" disabled={loading}>
+              {loading ? 'PROCESSING...' : 'GET RESULT'}
             </button>
             <button type="button" className="scan-btn-cancel" onClick={onClose}>Close</button>
           </div>
