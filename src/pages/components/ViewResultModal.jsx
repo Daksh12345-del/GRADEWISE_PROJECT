@@ -4,6 +4,9 @@ import { SEMESTERS } from '../../lib/gradesData'
 import { applyScannedResults } from '../../lib/pdfScan'
 import { useGrades } from '../../lib/GradesContext'
 
+const DEFAULT_BACKEND_URL = 'https://gradewise-backend.onrender.com/api/fetch-result'
+const RESULT_ENDPOINT = import.meta.env.VITE_RESULT_ENDPOINT || DEFAULT_BACKEND_URL
+
 function mapApiResponseToScanned(subjects) {
   const scanned = []
   for (const item of subjects || []) {
@@ -53,7 +56,7 @@ export default function ViewResultModal({ open, onClose }) {
 
     setBusy(true)
     setResults(null)
-    setStatus({ type: 'loading', msg: '📡 Connecting to AKTU OneView…' })
+    setStatus({ type: 'loading', msg: '📡 Fetching result from server…' })
 
     try {
       // Format DOB to DD/MM/YYYY for AKTU Portal
@@ -63,63 +66,39 @@ export default function ViewResultModal({ open, onClose }) {
         formattedDob = `${day}/${month}/${year}`
       }
 
-      const targetUrl = 'https://erp.aktu.ac.in/webpages/oneview/oneview.aspx'
-      
-      // 1. Initial Page Session Fetch via AllOrigins JSON proxy
-      const getProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
-      const getRes = await fetch(getProxyUrl)
-      if (!getRes.ok) throw new Error('AKTU OneView Portal unreachable right now.')
-      
-      const jsonRes = await getRes.json()
-      const htmlText = jsonRes.contents
-
-      const parser = new DOMParser()
-      const doc = parser.parseFromString(htmlText, 'text/html')
-
-      const viewState = doc.querySelector('#__VIEWSTATE')?.value
-      const viewStateGen = doc.querySelector('#__VIEWSTATEGENERATOR')?.value
-      const eventValidation = doc.querySelector('#__EVENTVALIDATION')?.value
-
-      if (!viewState || !eventValidation) {
-        throw new Error('Unable to extract session keys from AKTU Portal.')
-      }
-
-      setStatus({ type: 'loading', msg: '⌛ Submitting credentials…' })
-
-      // 2. Submit Form Credentials using AllOrigins Raw Proxy
-      const formData = new URLSearchParams()
-      formData.append('__VIEWSTATE', viewState)
-      if (viewStateGen) formData.append('__VIEWSTATEGENERATOR', viewStateGen)
-      formData.append('__EVENTVALIDATION', eventValidation)
-      formData.append('txtRollNo', roll.trim())
-      formData.append('txtDOB', formattedDob)
-      formData.append('btnSearch', 'Search')
-
-      const postProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
-
-      const postRes = await fetch(postProxyUrl, {
+      const res = await fetch(RESULT_ENDPOINT, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData.toString()
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          roll_no: roll.trim(), 
+          dob: formattedDob 
+        }),
       })
 
-      if (!postRes.ok) throw new Error(`AKTU server responded with status ${postRes.status}`)
+      const data = await res.json().catch(() => ({}))
 
-      const resultHtml = await postRes.text()
-
-      if (resultHtml.includes('Invalid') || resultHtml.includes('not found')) {
-        throw new Error('Invalid Roll Number or Date of Birth. Please check again.')
+      if (!res.ok) {
+        const serverMsg = data.error || data.details || data.message || `Server error (${res.status})`
+        throw new Error(serverMsg)
       }
 
-      setStatus({ 
-        type: 'success', 
-        msg: '✅ Result fetched successfully from AKTU OneView!' 
-      })
+      if (!data.success && data.error) {
+        throw new Error(data.error)
+      }
+
+      const subjectsList = data.subjects || []
+      const scanned = mapApiResponseToScanned(subjectsList)
+
+      if (scanned.length === 0) {
+        setStatus({ type: 'success', msg: '✅ Result fetched successfully!' })
+        return
+      }
+
+      setResults(scanned)
+      setStatus({ type: 'success', msg: `✅ Found ${scanned.length} subject(s)!` })
 
     } catch (err) {
-      setStatus({ type: 'error', msg: '❌ ' + (err.message || 'Failed to connect. Try again.') })
+      setStatus({ type: 'error', msg: '❌ ' + (err.message || 'Something went wrong.') })
     } finally {
       setBusy(false)
     }
@@ -141,12 +120,7 @@ export default function ViewResultModal({ open, onClose }) {
         <div style={{ flexShrink: 0, paddingBottom: '1rem', borderBottom: '1px solid rgba(139,92,246,0.15)', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
             <div className="scan-title">🎓 SEE RESULT</div>
-            <button
-              onClick={handleClose}
-              style={{ background: 'none', border: 'none', color: 'var(--text-dim)', fontSize: '1.2rem', cursor: 'pointer', lineHeight: 1, padding: '2px 6px', borderRadius: 6 }}
-              title="Close"
-              aria-label="Close"
-            >✕</button>
+            <button onClick={handleClose} style={{ background: 'none', border: 'none', color: 'var(--text-dim)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
           </div>
           <div className="scan-sub" style={{ marginBottom: 0 }}>
             Enter your details — your result is fetched and filled automatically
@@ -157,25 +131,25 @@ export default function ViewResultModal({ open, onClose }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <label style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
               University Roll Number
-              <input
-                type="text"
-                value={roll}
-                onChange={(e) => setRoll(e.target.value)}
-                placeholder="e.g. 2200270100XX"
-                className="scan-sem-select"
-                style={{ marginTop: 6, width: '100%' }}
-                disabled={busy}
+              <input 
+                type="text" 
+                value={roll} 
+                onChange={(e) => setRoll(e.target.value)} 
+                placeholder="e.g. 2400320100XX" 
+                className="scan-sem-select" 
+                style={{ marginTop: 6, width: '100%' }} 
+                disabled={busy} 
               />
             </label>
             <label style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
               Date of Birth
-              <input
-                type="date"
-                value={dob}
-                onChange={(e) => setDob(e.target.value)}
-                className="scan-sem-select"
-                style={{ marginTop: 6, width: '100%' }}
-                disabled={busy}
+              <input 
+                type="date" 
+                value={dob} 
+                onChange={(e) => setDob(e.target.value)} 
+                className="scan-sem-select" 
+                style={{ marginTop: 6, width: '100%' }} 
+                disabled={busy} 
               />
             </label>
           </div>
