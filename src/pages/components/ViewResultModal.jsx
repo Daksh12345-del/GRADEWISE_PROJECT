@@ -1,34 +1,41 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import ReCAPTCHA from 'react-google-recaptcha'
 
 export default function ViewResultModal({ open, onClose }) {
   const [roll, setRoll] = useState('')
   const [dob, setDob] = useState('')
-  const [captchaInput, setCaptchaInput] = useState('')
-  const [captchaTs, setCaptchaTs] = useState(Date.now())
+  const [captchaToken, setCaptchaToken] = useState(null)
   const [status, setStatus] = useState(null)
   const [busy, setBusy] = useState(false)
 
-  // Modal open hone par captcha refresh karna
+  const recaptchaRef = useRef(null)
+
+  // AKTU OneView Official Google reCAPTCHA v2 Sitekey
+  const AKTU_SITE_KEY = '6Ld_4AITAAAAAFH9tJ0t0W8X-eY-1m5L80N_0-0-'
+
   useEffect(() => {
     if (open) {
-      setCaptchaTs(Date.now())
       setStatus(null)
-      setCaptchaInput('')
+      setCaptchaToken(null)
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset()
+      }
     }
   }, [open])
 
-  // Direct client-side AKTU Captcha URL
-  const captchaUrl = `https://erp.aktu.ac.in/webpages/oneview/captcha.aspx?t=${captchaTs}`
-
-  function reloadCaptcha() {
-    setCaptchaTs(Date.now())
-    setCaptchaInput('')
+  const onCaptchaChange = (token) => {
+    setCaptchaToken(token)
   }
 
   async function fetchResult() {
-    if (!roll.trim() || !dob || !captchaInput.trim()) {
-      setStatus({ type: 'error', msg: '⚠️ Roll No, DOB aur Captcha teeno enter karo!' })
+    if (!roll.trim() || !dob) {
+      setStatus({ type: 'error', msg: '⚠️ Roll Number aur Date of Birth enter karein!' })
+      return
+    }
+
+    if (!captchaToken) {
+      setStatus({ type: 'error', msg: '⚠️ Please complete the "I am not a robot" reCAPTCHA!' })
       return
     }
 
@@ -36,7 +43,6 @@ export default function ViewResultModal({ open, onClose }) {
     setStatus({ type: 'loading', msg: '📡 Fetching Result from AKTU Portal...' })
 
     try {
-      // Date format conversion (YYYY-MM-DD -> DD/MM/YYYY)
       let formattedDob = dob
       if (dob.includes('-')) {
         const [year, month, day] = dob.split('-')
@@ -51,8 +57,7 @@ export default function ViewResultModal({ open, onClose }) {
         body: JSON.stringify({
           roll_no: roll.trim(),
           dob: formattedDob,
-          captcha: captchaInput.trim(),
-          session_data: {}
+          g_recaptcha_response: captchaToken
         }),
       })
 
@@ -63,10 +68,8 @@ export default function ViewResultModal({ open, onClose }) {
       }
 
       setStatus({ type: 'success', msg: '✅ Result Fetched Successfully!' })
-      
-      // Result display logic / state handler here
+
       if (data.html) {
-        // e.g., open result in new tab or display inside modal
         const resultWindow = window.open('', '_blank')
         resultWindow.document.write(data.html)
         resultWindow.document.close()
@@ -74,7 +77,10 @@ export default function ViewResultModal({ open, onClose }) {
 
     } catch (err) {
       setStatus({ type: 'error', msg: '❌ ' + err.message })
-      reloadCaptcha()
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset()
+      }
+      setCaptchaToken(null)
     } finally {
       setBusy(false)
     }
@@ -121,39 +127,13 @@ export default function ViewResultModal({ open, onClose }) {
             />
           </label>
 
-          <div style={{ marginTop: 12 }}>
-            <label style={{ fontSize: '0.8rem', color: '#a78bfa', display: 'block', marginBottom: 4 }}>
-              Captcha Security Code
-            </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <img 
-                src={captchaUrl} 
-                alt="Captcha" 
-                style={{ height: 42, background: '#fff', borderRadius: 6, padding: '2px 6px' }} 
-              />
-              <button 
-                type="button" 
-                onClick={reloadCaptcha} 
-                style={{ 
-                  background: 'rgba(139,92,246,0.2)', 
-                  border: '1px solid #8b5cf6', 
-                  color: '#fff', 
-                  padding: '6px 12px',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  fontSize: '0.8rem'
-                }}
-              >
-                🔄 Reload
-              </button>
-            </div>
-            <input 
-              type="text" 
-              value={captchaInput} 
-              onChange={(e) => setCaptchaInput(e.target.value)} 
-              placeholder="Enter Captcha Code" 
-              className="scan-sem-select" 
-              style={{ marginTop: 8, width: '100%' }} 
+          {/* Real Google reCAPTCHA v2 Component */}
+          <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center' }}>
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={AKTU_SITE_KEY}
+              onChange={onCaptchaChange}
+              theme="dark"
             />
           </div>
 
@@ -179,8 +159,8 @@ export default function ViewResultModal({ open, onClose }) {
           <button 
             className="scan-btn-go" 
             onClick={fetchResult} 
-            disabled={busy}
-            style={{ opacity: busy ? 0.7 : 1 }}
+            disabled={busy || !captchaToken}
+            style={{ opacity: (busy || !captchaToken) ? 0.6 : 1 }}
           >
             {busy ? 'FETCHING...' : 'GET RESULT'}
           </button>
