@@ -12,7 +12,7 @@ export default function ViewResultModal({ open, onClose }) {
   const recaptchaRef = useRef(null)
 
   // AKTU OneView Official Google reCAPTCHA v2 Sitekey
-  const AKTU_SITE_KEY = '6Ld_4AITAAAAAFH9tJ0t0W8X-eY-1m5L80N_0-0-'
+  const AKTU_SITE_KEY = '6LeZh24tAAAAANmQ9ZAhDGCub-YPiK8qf5OE6CIp'
 
   useEffect(() => {
     if (open) {
