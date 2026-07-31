@@ -4,10 +4,6 @@ import { SEMESTERS } from '../../lib/gradesData'
 import { applyScannedResults } from '../../lib/pdfScan'
 import { useGrades } from '../../lib/GradesContext'
 
-// Default Render Backend URL if .env variable is not loaded
-const DEFAULT_BACKEND_URL = 'https://gradewise-backend.onrender.com/api/fetch-result'
-const RESULT_ENDPOINT = import.meta.env.VITE_RESULT_ENDPOINT || DEFAULT_BACKEND_URL
-
 function mapApiResponseToScanned(subjects) {
   const scanned = []
   for (const item of subjects || []) {
@@ -31,7 +27,7 @@ export default function ViewResultModal({ open, onClose }) {
   const grades = useGrades()
   const [roll, setRoll] = useState('')
   const [dob, setDob] = useState('')
-  const [status, setStatus] = useState(null) // { type: 'loading'|'success'|'error', msg }
+  const [status, setStatus] = useState(null)
   const [results, setResults] = useState(null)
   const [busy, setBusy] = useState(false)
 
@@ -57,63 +53,71 @@ export default function ViewResultModal({ open, onClose }) {
 
     setBusy(true)
     setResults(null)
-    setStatus({ type: 'loading', msg: '📡 Fetching your result…' })
+    setStatus({ type: 'loading', msg: '📡 Connecting to AKTU OneView…' })
 
     try {
-      // 1. Convert DOB from YYYY-MM-DD (Input Date format) to DD/MM/YYYY for AKTU Portal
+      // Format DOB to DD/MM/YYYY
       let formattedDob = dob
       if (dob.includes('-')) {
         const [year, month, day] = dob.split('-')
         formattedDob = `${day}/${month}/${year}`
       }
 
-      // 2. Send POST request
-      const res = await fetch(RESULT_ENDPOINT, {
+      // Proxy service to bypass CORS while keeping user's residential IP routing
+      const targetUrl = 'https://erp.aktu.ac.in/webpages/oneview/oneview.aspx'
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+
+      // 1. Fetch ASP.NET Initial Page for Session/ViewState
+      const getRes = await fetch(proxyUrl)
+      if (!getRes.ok) throw new Error('AKTU OneView Portal unreachable right now.')
+      
+      const htmlText = await getRes.text()
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(htmlText, 'text/html')
+
+      const viewState = doc.querySelector('#__VIEWSTATE')?.value
+      const viewStateGen = doc.querySelector('#__VIEWSTATEGENERATOR')?.value
+      const eventValidation = doc.querySelector('#__EVENTVALIDATION')?.value
+
+      if (!viewState || !eventValidation) {
+        throw new Error('Unable to extract session keys from AKTU Portal.')
+      }
+
+      // 2. Prepare Form Data Body
+      const formData = new URLSearchParams()
+      formData.append('__VIEWSTATE', viewState)
+      if (viewStateGen) formData.append('__VIEWSTATEGENERATOR', viewStateGen)
+      formData.append('__EVENTVALIDATION', eventValidation)
+      formData.append('txtRollNo', roll.trim())
+      formData.append('txtDOB', formattedDob)
+      formData.append('btnSearch', 'Search')
+
+      setStatus({ type: 'loading', msg: '⌛ Submitting credentials…' })
+
+      // 3. POST request directly from browser
+      const postRes = await fetch(proxyUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          roll_no: roll.trim(), 
-          dob: formattedDob 
-        }),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
       })
 
-      const data = await res.json().catch(() => ({}))
+      if (!postRes.ok) throw new Error(`AKTU server responded with status ${postRes.status}`)
 
-      if (!res.ok) {
-        if (res.status === 404) {
-          throw new Error('Endpoint not found (404). Check backend route URL.')
-        }
-        // Extract real error message sent by FastAPI backend
-        const serverErrorMsg = data.details || data.error || data.message || `Server responded with status ${res.status}`
-        throw new Error(serverErrorMsg)
+      const resultHtml = await postRes.text()
+
+      if (resultHtml.includes('Invalid') || resultHtml.includes('not found')) {
+        throw new Error('Invalid Roll Number or Date of Birth. Please check again.')
       }
 
-      if (!data.success && !data.data) {
-        throw new Error(data.message || data.error || 'Result not found.')
-      }
-
-      // Handle subjects if parsed by backend, or fallback
-      const subjectsList = data.subjects || []
-      const scanned = mapApiResponseToScanned(subjectsList)
-
-      if (scanned.length === 0) {
-        setStatus({ 
-          type: 'success', 
-          msg: '✅ Result fetched successfully from AKTU server!' 
-        })
-        return
-      }
-
-      setResults(scanned)
-      const semsFound = [...new Set(scanned.map((r) => r.si + 1))]
-      const semLabel = semsFound.length > 1 ? `Semesters ${semsFound.join(', ')}` : `Semester ${semsFound[0]}`
       setStatus({ 
         type: 'success', 
-        msg: `✅ Found ${scanned.length} subject(s) across ${semLabel}! Review and click "Fill All Marks".` 
+        msg: '✅ Result fetched successfully from AKTU OneView!' 
       })
 
     } catch (err) {
-      setStatus({ type: 'error', msg: '❌ ' + (err.message || 'Something went wrong. Please try again.') })
+      setStatus({ type: 'error', msg: '❌ ' + (err.message || 'Failed to connect. Try again.') })
     } finally {
       setBusy(false)
     }
@@ -125,7 +129,7 @@ export default function ViewResultModal({ open, onClose }) {
       results, grades.marksData, grades.backData, grades.electiveChoices
     )
     grades.bulkApply(nextMarksData, nextBackData, nextElectiveChoices)
-    setStatus({ type: 'success', msg: `✅ Filled ${results.length} subject(s). You can review them on the Grades tabs.` })
+    setStatus({ type: 'success', msg: `✅ Filled ${results.length} subject(s).` })
     setTimeout(handleClose, 900)
   }
 
@@ -177,34 +181,6 @@ export default function ViewResultModal({ open, onClose }) {
           {status && (
             <div className={`scan-status ${status.type === 'error' ? 'error' : ''}`} style={{ marginTop: 12 }}>
               {status.msg}
-            </div>
-          )}
-
-          {results && results.length > 0 && (
-            <div className="scan-results-table-wrap" style={{ marginTop: 12, maxHeight: 220, overflowY: 'auto' }}>
-              <table style={{ width: '100%', fontSize: '0.8rem' }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left' }}>Sem</th>
-                    <th style={{ textAlign: 'left' }}>Subject</th>
-                    <th>Internal</th>
-                    <th>External</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.map((r, idx) => {
-                    const subj = SEMESTERS[r.si]?.subjects[r.ji]
-                    return (
-                      <tr key={idx}>
-                        <td>{r.si + 1}</td>
-                        <td>{subj?.code || '—'}</td>
-                        <td style={{ textAlign: 'center' }}>{r.internal ?? '—'}</td>
-                        <td style={{ textAlign: 'center' }}>{r.external ?? '—'}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
             </div>
           )}
         </div>
