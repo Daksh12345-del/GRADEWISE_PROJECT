@@ -187,18 +187,23 @@ function parseMarksFromPages(pages) {
       let finalExt = null
       let finalBp = bpMarks
 
-      if (subj.internalOnly) {
+      if (subj.code === 'BCS851') {
+        // Project-II is flagged internalOnly in the curriculum data (it's a
+        // single practical row, not a theory subject), but it still has a
+        // real internal/external split on the AKTU result sheet — so this
+        // check must run before the generic `subj.internalOnly` branch below,
+        // or `external` gets wiped out before it's ever read.
+        if (intMarks !== null || extMarks !== null) {
+          finalInt = intMarks
+          finalExt = extMarks
+          total = (intMarks !== null ? intMarks : 0) + (extMarks !== null ? extMarks : 0)
+        }
+      } else if (subj.internalOnly) {
         if (intMarks !== null) {
           total = intMarks
           finalInt = intMarks
           finalExt = null
           finalBp = null
-        }
-      } else if (subj.code === 'BCS851') {
-        if (intMarks !== null || extMarks !== null) {
-          finalInt = intMarks
-          finalExt = extMarks
-          total = (intMarks !== null ? intMarks : 0) + (extMarks !== null ? extMarks : 0)
         }
       } else {
         if (intMarks !== null && effectiveExt !== null) {

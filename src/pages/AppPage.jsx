@@ -7,7 +7,6 @@ import {
 } from '../lib/gradesEngine'
 import { useGrades } from '../lib/GradesContext'
 import ScanModal from './components/ScanModal'
-import ViewResultModal from './components/ViewResultModal'
 import RightPanel from './components/RightPanel'
 import CgpaPictograph from './components/CgpaPictograph'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
@@ -241,7 +240,6 @@ export default function AppPage() {
   const grades = useGrades()
   const [activeSem, setActiveSem] = useState(grades.currentSemIndex)
   const [scanOpen, setScanOpen] = useState(false)
-  const [viewResultOpen, setViewResultOpen] = useState(false)
   const sidebarToggle = useSidebarToggle()
 
   const sem = SEMESTERS[activeSem]
@@ -264,7 +262,6 @@ export default function AppPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <button className="hdr-scan-btn" title="Scan Result Sheet" onClick={() => setScanOpen(true)}>📷 <span>Scan Result</span></button>
-          <button className="hdr-scan-btn" title="See Result" onClick={() => setViewResultOpen(true)}>🎓 <span>See Result</span></button>
           <SyncBadge status={grades.syncStatus} />
         </div>
       </div>
@@ -355,7 +352,6 @@ export default function AppPage() {
       />
 
       <ScanModal open={scanOpen} onClose={() => setScanOpen(false)} />
-      <ViewResultModal open={viewResultOpen} onClose={() => setViewResultOpen(false)} />
     </div>
   )
 }

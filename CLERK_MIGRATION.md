@@ -14,26 +14,47 @@ VITE_CLERK_PUBLISHABLE_KEY=pk_live_... (or pk_test_...)
 
 Restart `npm run dev` after adding it.
 
-## 2. Clerk Dashboard — email verification setting
+## 2. Clerk Dashboard — passwordless email code sign-in
 
-The login form signs a brand-new user up silently (email + Roll Number as
-password, no separate confirmation step) — that only works if your Clerk
-instance does **not** require an email verification code on sign-up.
+The login form is **fully passwordless** — there is no password field
+anywhere, for either new or returning users. Every login and signup goes
+through a 6-digit code sent to the user's email (previously, Roll Number
+was used as the account password; that's gone, since roll numbers aren't
+actually secret — they're printed on ID cards and result sheets). For this
+to work, your Clerk instance needs email code enabled in **two** places,
+not just one:
 
-Clerk Dashboard → **User & Authentication → Email, Phone, Username** →
-under "Email address", check whether "Verify at sign-up" is on.
+Clerk Dashboard → **User & Authentication → Email, Phone, Username**:
 
-- **Off** → sign-up completes instantly, exactly like the old Supabase flow.
-- **On** → the app now handles this too (a 6-digit code step appears after
-  clicking "Launch Gradewallah" for new accounts), but it's an extra step
-  your users didn't have before. Turn it off if you want the original
-  one-click feel back.
+- Under "Email address" → **"Verify at sign-up"** should be **On**. New
+  accounts always go through `signUp.prepareEmailAddressVerification` now
+  — there's no silent-signup path anymore.
+- Under **"Sign-in options"** → make sure **"Email verification code"** is
+  enabled as a first-factor sign-in strategy. This is the one that's easy
+  to miss: it's a separate toggle from sign-up verification, and returning
+  users authenticate with `signIn.attemptFirstFactor({ strategy:
+  'email_code' })`, which needs it turned on.
+
+If you have existing accounts created under the old roll-number-as-password
+flow, they'll keep working here with no migration needed — the sign-in
+call no longer looks for a password at all, it just requests an email-code
+first factor, which Clerk will offer regardless of whether the account also
+happens to have an old password credential sitting on it.
 
 ## 3. Enable Google / GitHub OAuth (if you use them)
 
 Clerk Dashboard → **User & Authentication → Social Connections** → enable
 Google and/or GitHub. The buttons on the login page already call Clerk's
 OAuth redirect flow — no code changes needed once these are turned on.
+
+**Note on OAuth + profile data:** clicking Google/GitHub skips the app's
+2-step form entirely (Clerk handles the whole thing via redirect), so a
+brand-new OAuth user has no college/roll/branch/domain/group set. `
+src/lib/ProtectedRoute.jsx` catches this — any signed-in user missing that
+data gets redirected to `/complete-profile` (a short one-step form) before
+they can reach the dashboard or any other page. Nothing to configure for
+this, it's automatic, just worth knowing it's there if you're wondering
+why a fresh OAuth login doesn't land straight on `/dashboard`.
 
 ## 4. Supabase Dashboard — add Clerk as a Third-Party Auth provider
 
@@ -127,5 +148,16 @@ just sit there empty going forward.
   and the `profiles` table.
 - `src/pages/LoginPage.jsx` — same two-step UI, but the sign-in/sign-up
   calls go through Clerk (`useSignIn`/`useSignUp`) instead of Supabase
-  Auth. Adds a conditional email-verification-code step (see §2) and a
-  `/sso-callback` route for Google/GitHub OAuth.
+  Auth. Fully passwordless: every account (new or returning) confirms via
+  a 6-digit email code (see §2) — Roll Number is profile data only, never
+  a credential. Also adds a `/sso-callback` route for Google/GitHub OAuth.
+- `src/lib/useAuthUser.js` — exports `isProfileComplete(user)`, the single
+  definition of "has this account finished onboarding" used by both
+  `ProtectedRoute` and `CompleteProfilePage`.
+- `src/lib/ProtectedRoute.jsx` — now also redirects to `/complete-profile`
+  if the signed-in user is missing college/roll/branch/domain/group (only
+  possible via the OAuth path, since the password/OTP signup form always
+  collects all of it first).
+- `src/pages/CompleteProfilePage.jsx` — new page, reached only via that
+  redirect. One-step form covering the fields OAuth sign-in skips; saves
+  straight to Clerk's `unsafeMetadata` and continues to `/dashboard`.

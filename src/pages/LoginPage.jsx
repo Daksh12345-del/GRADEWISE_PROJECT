@@ -23,13 +23,19 @@ export default function LoginPage() {
   const [step, setStep] = useState(1)
   const [contentLoading, setContentLoading] = useState(false)
 
-  // Email-verification sub-step (only reached for brand-new accounts if
-  // your Clerk instance has "email verification code" turned on — see
-  // CLERK_MIGRATION.md). Existing accounts and instances with verification
-  // off never see this.
+  // Passwordless auth — there is no password field anywhere on this page.
+  // Every login/signup goes through a 6-digit email code instead. This
+  // sub-step shows that code input. `verificationMode` tracks which Clerk
+  // resource ('signIn' for a returning user, 'signUp' for a brand-new one)
+  // the code needs to be confirmed against, since they use different APIs.
   const [pendingVerification, setPendingVerification] = useState(false)
+  const [verificationMode, setVerificationMode] = useState(null) // 'signIn' | 'signUp' | null
   const [verificationCode, setVerificationCode] = useState('')
   const [verificationErr, setVerificationErr] = useState('')
+  // Holds the profile fields collected in Step 2 across the email-code
+  // round trip, so confirmVerificationCode can still read them after
+  // doLogin's own copy has gone out of scope.
+  const profileMetaRef = useRef(null)
 
   // Step 1 fields
   const [name, setName] = useState('')
@@ -176,6 +182,10 @@ export default function LoginPage() {
       domain: trimmedDomain,
       group,
     }
+    // Roll Number etc. above are profile data only — nothing here is ever
+    // used as a credential. Stash it so confirmVerificationCode can still
+    // read it once the code round trip completes.
+    profileMetaRef.current = profileMeta
 
     if (!signInLoaded || !signUpLoaded) {
       setIsSubmitting(false)
@@ -183,35 +193,33 @@ export default function LoginPage() {
       return
     }
 
-    // ── Auth flow: try sign-in first, then sign-up for new users ──
-    // (Same two-step logic as before, just against Clerk instead of
-    // Supabase Auth — email is the identifier, Roll Number is the password.)
+    // ── Passwordless auth: email OTP code, no password anywhere ──
+    // Try sign-in first (existing account); if Clerk says that email isn't
+    // registered, fall through to sign-up (brand-new account). Either way
+    // the next step is the same 6-digit code screen.
     try {
-      const signInAttempt = await signIn.create({ identifier: trimmedEmail, password: trimmedRoll })
-      if (signInAttempt.status === 'complete') {
-        await setActiveSignIn({ session: signInAttempt.createdSessionId })
-        // Keep the profile fields fresh in case anything changed since signup.
-        try { await window.Clerk?.user?.update({ unsafeMetadata: profileMeta }) } catch { /* non-fatal */ }
+      const signInAttempt = await signIn.create({ identifier: trimmedEmail })
+      const emailCodeFactor = signInAttempt.supportedFirstFactors?.find(
+        (f) => f.strategy === 'email_code'
+      )
+      if (!emailCodeFactor) {
+        // This account isn't set up for email-code sign-in (e.g. some other
+        // auth method is enforced) — this simple flow doesn't handle it.
         setIsSubmitting(false)
-        navigate('/dashboard')
+        setBanner2({ text: '⚠️ This account can\'t sign in with an email code. Please contact support.', color: '' })
         return
       }
-      // Some other in-progress status (e.g. MFA) — this simple flow doesn't handle it.
+      await signIn.prepareFirstFactor({
+        strategy: 'email_code',
+        emailAddressId: emailCodeFactor.emailAddressId,
+      })
       setIsSubmitting(false)
-      setBanner2({ text: '⚠️ This account needs extra verification steps this page doesn\'t support yet.', color: '' })
+      setVerificationMode('signIn')
+      setPendingVerification(true)
+      setBanner2({ text: `📧 We sent a 6-digit code to ${trimmedEmail}. Enter it below to sign in.`, color: '#06b6d4' })
       return
     } catch (signInErr) {
       const code = signInErr?.errors?.[0]?.code || ''
-
-      if (code === 'form_password_incorrect') {
-        // Account exists, but the roll number they typed doesn't match.
-        setIsSubmitting(false)
-        setBanner2({
-          text: '⚠️ This email is already registered. Make sure your Roll Number matches the one you used when you first signed up — it is your password.',
-          color: '#f97316',
-        })
-        return
-      }
 
       if (code !== 'form_identifier_not_found') {
         // Any other unexpected error — surface it, don't silently fall through to sign-up.
@@ -225,54 +233,55 @@ export default function LoginPage() {
     try {
       const signUpAttempt = await signUp.create({
         emailAddress: trimmedEmail,
-        password: trimmedRoll,
         unsafeMetadata: profileMeta,
       })
 
-      if (signUpAttempt.status === 'complete') {
-        await setActiveSignUp({ session: signUpAttempt.createdSessionId })
-        setIsSubmitting(false)
-        navigate('/dashboard')
-        return
-      }
-
-      if (signUpAttempt.unverifiedFields?.includes('email_address')) {
-        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
-        setIsSubmitting(false)
-        setPendingVerification(true)
-        setBanner2({ text: `📧 We sent a 6-digit code to ${trimmedEmail}. Enter it below to finish.`, color: '#06b6d4' })
-        return
-      }
-
+      // signUp.create with no password strategy always leaves email
+      // unverified — send the code and move to the same code screen used
+      // for sign-in above.
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
       setIsSubmitting(false)
-      setBanner2({ text: '⚠️ Could not create your account. Please try again.', color: '' })
+      setVerificationMode('signUp')
+      setPendingVerification(true)
+      setBanner2({ text: `📧 We sent a 6-digit code to ${trimmedEmail}. Enter it below to finish.`, color: '#06b6d4' })
     } catch (signUpErr) {
       setIsSubmitting(false)
       const msg = signUpErr?.errors?.[0]?.message || signUpErr.message || ''
-      if (msg.toLowerCase().includes('already')) {
-        setBanner2({
-          text: '⚠️ This email is already registered. Make sure your Roll Number matches the one you used when you first signed up — it is your password.',
-          color: '#f97316',
-        })
-      } else {
-        setBanner2({ text: '⚠️ Auth error: ' + msg, color: '' })
-      }
+      setBanner2({ text: '⚠️ Auth error: ' + msg, color: '' })
     }
   }
 
-  // Only reached if your Clerk instance requires email verification on
-  // sign-up (see the pendingVerification banner above).
+  // Confirms the 6-digit email code for whichever flow sent it — sign-in
+  // (returning user) or sign-up (brand-new user). Every account goes
+  // through this; there's no password-only fast path anymore.
   async function confirmVerificationCode() {
-    if (!verificationCode.trim() || !signUpLoaded) return
+    if (!verificationCode.trim()) return
     setVerificationErr('')
     setIsSubmitting(true)
     try {
-      const attempt = await signUp.attemptEmailAddressVerification({ code: verificationCode.trim() })
-      if (attempt.status === 'complete') {
-        await setActiveSignUp({ session: attempt.createdSessionId })
-        setIsSubmitting(false)
-        navigate('/dashboard')
-        return
+      if (verificationMode === 'signIn') {
+        if (!signInLoaded) return
+        const attempt = await signIn.attemptFirstFactor({
+          strategy: 'email_code',
+          code: verificationCode.trim(),
+        })
+        if (attempt.status === 'complete') {
+          await setActiveSignIn({ session: attempt.createdSessionId })
+          // Keep the profile fields fresh in case anything changed since signup.
+          try { await window.Clerk?.user?.update({ unsafeMetadata: profileMetaRef.current }) } catch { /* non-fatal */ }
+          setIsSubmitting(false)
+          navigate('/dashboard')
+          return
+        }
+      } else if (verificationMode === 'signUp') {
+        if (!signUpLoaded) return
+        const attempt = await signUp.attemptEmailAddressVerification({ code: verificationCode.trim() })
+        if (attempt.status === 'complete') {
+          await setActiveSignUp({ session: attempt.createdSessionId })
+          setIsSubmitting(false)
+          navigate('/dashboard')
+          return
+        }
       }
       setIsSubmitting(false)
       setVerificationErr("That code didn't work. Please check and try again.")
@@ -573,7 +582,7 @@ export default function LoginPage() {
                   </button>
                   <div style={{ textAlign: 'center', marginTop: '0.7rem' }}>
                     <button
-                      onClick={() => { setPendingVerification(false); setVerificationCode(''); setVerificationErr(''); setBanner2({ text: '', color: '' }) }}
+                      onClick={() => { setPendingVerification(false); setVerificationMode(null); setVerificationCode(''); setVerificationErr(''); setBanner2({ text: '', color: '' }) }}
                       style={{ background: 'none', border: 'none', color: 'var(--text-dim)', fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'var(--font-body)' }}
                     >
                       ← Back
@@ -723,7 +732,7 @@ export default function LoginPage() {
                 disabled={isSubmitting}
                 style={{ background: 'linear-gradient(135deg,#10b981,#06b6d4)' }}
               >
-                {isSubmitting ? 'Connecting…' : '🚀 Launch Gradewallah'}
+                {isSubmitting ? 'Sending…' : '📧 Send Me a Code'}
               </button>
               <div style={{ textAlign: 'center', marginTop: '0.7rem' }}>
                 <button

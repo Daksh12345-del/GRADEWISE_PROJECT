@@ -41,6 +41,22 @@ export function useAuthUser() {
   return { user, status }
 }
 
+// A profile is "complete" once every field the rest of the app relies on
+// (roll number, college, branch, domain, and batch group for AKTU) has
+// actually been filled in. The password/OTP signup flow in LoginPage.jsx
+// always sets all of these before creating the account — but the OAuth
+// (Google/GitHub) flow skips that form entirely, so an OAuth user can be
+// signed in with none of this set. ProtectedRoute uses this to redirect
+// those users to /complete-profile before they can reach any real page.
+export function isProfileComplete(user) {
+  if (!user) return false
+  if (!user.university || !user.course || !user.college || !user.roll || !user.branch || !user.domain) {
+    return false
+  }
+  if (user.university === 'AKTU' && !user.group) return false
+  return true
+}
+
 export function useLogout() {
   const navigate = useNavigate()
   const { signOut } = useClerk()

@@ -6,7 +6,6 @@ import { useGrades } from '../lib/GradesContext'
 import { fetchInternships, fetchPlacements } from '../lib/api'
 import { SORTERS } from '../lib/jobStats'
 import ScanModal from './components/ScanModal'
-import ViewResultModal from './components/ViewResultModal'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
@@ -40,7 +39,6 @@ export default function DashboardPage() {
   const [placements, setPlacements] = useState(null) // null = loading, [] = empty, [...] = data
   const [internships, setInternships] = useState(null) // null = loading, [] = empty, [...] = data
   const [scanOpen, setScanOpen] = useState(false)
-  const [viewResultOpen, setViewResultOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -122,7 +120,6 @@ export default function DashboardPage() {
             💼 <span>Internships</span>
           </button>
           <button className="hdr-scan-btn" title="Scan Result Sheet" onClick={() => setScanOpen(true)}>📷 <span>Scan Result</span></button>
-          <button className="hdr-scan-btn" title="See Result" onClick={() => setViewResultOpen(true)}>🎓 <span>See Result</span></button>
           <div className="user-badge">
             <div className="user-avatar">{initial}</div>
             <div className="user-name">
@@ -373,7 +370,6 @@ export default function DashboardPage() {
         </div>
       </div>
       <ScanModal open={scanOpen} onClose={() => setScanOpen(false)} />
-      <ViewResultModal open={viewResultOpen} onClose={() => setViewResultOpen(false)} />
     </div>
   )
 }

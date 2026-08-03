@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthUser } from './useAuthUser'
+import { useAuthUser, isProfileComplete } from './useAuthUser'
 
 // Wrap any route element in this to require a signed-in Clerk session.
 // Centralizing the check here means new pages are protected automatically —
@@ -13,14 +13,19 @@ import { useAuthUser } from './useAuthUser'
 //   'checking'       -> show a full-screen loader (avoids a flash of the
 //                        protected page before Clerk has resolved the session)
 //   'unauthenticated' -> redirect to '/' (login)
-//   'authenticated'    -> render the wrapped page
+//   authenticated but incomplete profile (OAuth users — see
+//                       useAuthUser.js's isProfileComplete) -> redirect to
+//                       '/complete-profile' instead of rendering the page
+//   'authenticated' + complete -> render the wrapped page
 export function ProtectedRoute({ children }) {
   const navigate = useNavigate()
-  const { status } = useAuthUser()
+  const { user, status } = useAuthUser()
+  const profileOk = status === 'authenticated' ? isProfileComplete(user) : true
 
   useEffect(() => {
     if (status === 'unauthenticated') navigate('/', { replace: true })
-  }, [status, navigate])
+    else if (status === 'authenticated' && !profileOk) navigate('/complete-profile', { replace: true })
+  }, [status, profileOk, navigate])
 
   if (status === 'checking') {
     return (
@@ -34,6 +39,7 @@ export function ProtectedRoute({ children }) {
   }
 
   if (status === 'unauthenticated') return null
+  if (status === 'authenticated' && !profileOk) return null
 
   return children
 }
