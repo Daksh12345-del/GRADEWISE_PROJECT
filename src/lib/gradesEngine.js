@@ -270,6 +270,20 @@ export function calcAllSGPAs(marksData) {
   return SEMESTERS.map((_, si) => calcSGPA(si, marksData));
 }
 
+// Real (non-averaged) total credits for one semester — sums every
+// non-audit, non-zero-credit subject in that semester. Used by the
+// future-CGPA what-if simulator so remaining semesters use their actual
+// credit load instead of an averaged estimate.
+export function getSemCredits(si) {
+  const sem = SEMESTERS[si];
+  if (!sem) return 0;
+  return sem.subjects.reduce((sum, subj) => {
+    if (subj.audit || subj.credits === 0) return sum;
+    return sum + getEffectiveCredits(subj);
+  }, 0);
+}
+
+
 export function calcCGPA(marksData) {
   // AKTU formula: CGPA = Σ(grade_points × credits) / Σ(credits), F & E# = 0 pts, full credits.
   let totalPoints = 0, totalCredits = 0;
