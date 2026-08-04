@@ -156,7 +156,15 @@ def assert_no_unexpected_console_errors(test_case, driver, extra_allowed=()):
 
 def sign_up(driver):
     """Runs the real Clerk sign-up flow end to end. Leaves the browser on
-    /dashboard when done."""
+    /dashboard when done.
+
+    NOTE: this is now a single-step, passwordless form — roll/domain/group
+    were dropped (LoginPage.jsx keeps them as blank metadata fields, but
+    there's nothing on screen to fill), and there's no separate "step-2"
+    panel or "Launch Gradewallah" button. Filling in the six visible
+    fields and clicking Continue triggers Clerk sign-up directly and swaps
+    step-1's own content over to the verification-code input in place.
+    """
     testing_token = get_clerk_testing_token()
     driver.get(f"{BASE_URL}/?__clerk_testing_token={testing_token}")
     WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "login-course")))
@@ -165,19 +173,18 @@ def sign_up(driver):
     driver.find_element(By.ID, "login-email").send_keys(TEST_EMAIL)
     Select(driver.find_element(By.ID, "login-university")).select_by_value("AKTU")
     Select(driver.find_element(By.ID, "login-course")).select_by_value("B.Tech")
+
+    # College/branch options load at runtime from the CMS — wait for them
+    # to populate before selecting, same as test_login.py.
+    college_select = Select(driver.find_element(By.ID, "login-college"))
+    WebDriverWait(driver, 10).until(lambda d: len(college_select.options) > 1)
+    college_select.select_by_index(1)
+
+    branch_select = Select(driver.find_element(By.ID, "login-branch"))
+    WebDriverWait(driver, 10).until(lambda d: len(branch_select.options) > 1)
+    branch_select.select_by_index(1)
+
     driver.find_element(By.XPATH, '//button[contains(text(),"Continue")]').click()
-    WebDriverWait(driver, 12).until(EC.visibility_of_element_located((By.ID, "step-2")))
-
-    Select(driver.find_element(By.ID, "login-college")).select_by_index(1)
-    driver.find_element(By.ID, "login-roll").send_keys(TEST_ROLL)
-    Select(driver.find_element(By.ID, "login-branch")).select_by_index(1)
-
-    group_radios = driver.find_elements(By.CSS_SELECTOR, 'input[name="batch_group"]')
-    if group_radios:
-        group_radios[0].click()
-
-    Select(driver.find_element(By.ID, "login-domain")).select_by_index(1)
-    driver.find_element(By.XPATH, '//button[contains(text(),"Launch Gradewallah")]').click()
 
     try:
         WebDriverWait(driver, 8).until(EC.visibility_of_element_located((By.ID, "login-verification")))
