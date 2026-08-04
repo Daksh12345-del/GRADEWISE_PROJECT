@@ -12,29 +12,48 @@ SETUP — read before running anything in this folder
    chromedriver as long as this machine has normal internet access.
 
 2. Environment variables (set before running):
-     GRADEWALLAH_URL          your deployed site, e.g. https://gradewallah.com
-                               (defaults to http://localhost:5173)
-     TEST_EMAIL                an email you can complete sign-up with
-     TEST_VERIFICATION_CODE    see note below
-     TEST_ROLL                 roll number to sign up with (also doubles
-                                as the password for returning sign-ins)
-     CLERK_SECRET_KEY          REQUIRED for the 7 authenticated-page test
-                                files (test_login.py / test_auth_guard.py
-                                don't need it). See note 5 below — this is
-                                sensitive, GitHub Secrets only, never commit it.
+     GRADEWALLAH_URL           your deployed site, e.g. https://gradewallah.com
+                                (defaults to http://localhost:5173)
+     TEST_EMAIL                 a real inbox you control, e.g.
+                                 "yourtestaccount@gmail.com" (see note 3 —
+                                 this suite runs against production, so
+                                 Clerk sends a genuine code to this address)
+     TEST_EMAIL_IMAP_USER       login for that inbox (usually same as
+                                 TEST_EMAIL)
+     TEST_EMAIL_IMAP_PASSWORD   an app password for that inbox — for Gmail:
+                                 Google Account -> Security -> App passwords
+                                 (2-Step Verification must be on). Never
+                                 commit this, GitHub Secrets only.
+     TEST_EMAIL_IMAP_HOST       defaults to imap.gmail.com
+     TEST_VERIFICATION_CODE     optional manual override — skips both the
+                                 "+clerk_test" shortcut and IMAP polling if set
+     TEST_ROLL                  roll number to sign up with (also doubles
+                                 as the password for returning sign-ins)
+     CLERK_SECRET_KEY           REQUIRED for the 7 authenticated-page test
+                                 files (test_login.py / test_auth_guard.py
+                                 don't need it). See note 5 below — this is
+                                 sensitive, GitHub Secrets only, never commit it.
 
-3. Email verification:
-   If your Clerk instance requires email verification on sign-up, use an
-   email containing "+clerk_test" (e.g. "jane+clerk_test@example.com") —
-   Clerk skips sending a real email and accepts the fixed code "424242"
-   automatically, so sign-up runs unattended. See:
-   https://clerk.com/docs/testing/test-emails-and-phones
-   Otherwise set TEST_VERIFICATION_CODE to a real code from that inbox.
+3. Email verification (production instance):
+   We deliberately do NOT use Clerk's "+clerk_test" / fixed-code-"424242"
+   shortcut here, because that only works with Clerk's "test mode" — and
+   enabling test mode on a PRODUCTION instance means any real user could
+   sign up with an address containing "+clerk_test" and skip real email
+   verification too. Not worth it just to make CI simpler.
+   Instead, TEST_EMAIL should be a real inbox with IMAP enabled. Each run
+   signs up with a unique address via "+tag" subaddressing (e.g.
+   "yourtestaccount+abc123@gmail.com" — most providers, including Gmail,
+   route "+tag" variants into the same physical inbox while keeping them
+   individually addressable), then fetch_verification_code() polls that
+   inbox over IMAP for the real code Clerk actually sent and reads it out.
+   (If TEST_EMAIL does contain "+clerk_test" — e.g. this ever points at a
+   dev/staging Clerk instance instead — the old shortcut still applies and
+   IMAP is skipped entirely.)
 
 4. Each page's test file signs in once per run (see AuthenticatedPageTest
    in this module) — they don't share a session across files, so running
-   all 7 files back to back does 7 sign-ins. Use a "+clerk_test" email so
-   that's fully automated rather than needing a fresh code every time.
+   all 7 files back to back does 7 sign-ins, i.e. 7 real emails sent to
+   TEST_EMAIL and 7 IMAP lookups. That's expected and by design.
 
 5. CAPTCHA / bot-detection in headless CI:
    Clerk's sign-up form runs a CAPTCHA/bot-detection check that commonly
@@ -49,10 +68,14 @@ SETUP — read before running anything in this folder
    https://clerk.com/docs/guides/development/testing/overview
 ============================================================
 """
+import email as email_lib
+import imaplib
 import os
 import random
+import re
 import time
 import unittest
+from email.utils import mktime_tz, parsedate_tz
 from pathlib import Path
 
 import requests
@@ -85,8 +108,12 @@ if "+clerk_test" in _raw_email:
     # goes into the part *before* it instead.
     TEST_EMAIL = f"{_prefix}.{_RUN_SUFFIX}+clerk_test{_rest}@{_domain}"
 else:
+    # Real inbox, no Clerk shortcut available (production instance) — use
+    # "+tag" subaddressing so this run's address is uniquely matchable by
+    # fetch_verification_code() below, while still landing in the one
+    # physical inbox TEST_EMAIL_IMAP_USER logs into.
     _local, _domain = _raw_email.split("@", 1)
-    TEST_EMAIL = f"{_local}.{_RUN_SUFFIX}@{_domain}"
+    TEST_EMAIL = f"{_local}+{_RUN_SUFFIX}@{_domain}"
 
 TEST_VERIFICATION_CODE = os.environ.get(
     "TEST_VERIFICATION_CODE",
@@ -98,6 +125,15 @@ TEST_NAME = "Test Student"
 # guarantees uniqueness.
 TEST_ROLL = (os.environ.get("TEST_ROLL", "2300100300001") + _RUN_SUFFIX)[-20:]
 CLERK_SECRET_KEY = os.environ.get("CLERK_SECRET_KEY", "")
+
+# IMAP creds for the real test inbox — only needed when TEST_EMAIL doesn't
+# contain "+clerk_test" (i.e. we're actually running against production).
+TEST_EMAIL_IMAP_HOST = os.environ.get("TEST_EMAIL_IMAP_HOST", "imap.gmail.com")
+TEST_EMAIL_IMAP_USER = os.environ.get("TEST_EMAIL_IMAP_USER", "")
+TEST_EMAIL_IMAP_PASSWORD = os.environ.get("TEST_EMAIL_IMAP_PASSWORD", "")
+TEST_EMAIL_IMAP_FOLDER = os.environ.get("TEST_EMAIL_IMAP_FOLDER", "INBOX")
+
+_SIX_DIGIT_CODE_RE = re.compile(r"\b(\d{6})\b")
 
 SCREENSHOT_DIR = Path(__file__).parent / "screenshots"
 SCREENSHOT_DIR.mkdir(exist_ok=True)
@@ -137,6 +173,104 @@ def get_clerk_testing_token():
     )
     resp.raise_for_status()
     return resp.json()["token"]
+
+
+def fetch_verification_code(to_address, since_ts, timeout=90, poll_interval=3):
+    """Polls a real mailbox over IMAP for the Clerk verification email sent
+    to `to_address` at or after `since_ts` (a time.time() timestamp), and
+    returns the 6-digit code found in its body.
+
+    This is how the test suite gets a real verification code when running
+    against production, instead of relying on Clerk's "+clerk_test" /
+    "424242" shortcut (which would require enabling test mode on the
+    production instance — see the module docstring for why we avoid that).
+
+    Requires TEST_EMAIL_IMAP_USER / TEST_EMAIL_IMAP_PASSWORD to be set to
+    an IMAP-enabled inbox (e.g. a Gmail account with an App Password).
+    """
+    if not TEST_EMAIL_IMAP_USER or not TEST_EMAIL_IMAP_PASSWORD:
+        raise RuntimeError(
+            "TEST_EMAIL_IMAP_USER / TEST_EMAIL_IMAP_PASSWORD are not set. "
+            "This suite runs against production, so verification codes "
+            "come from a real inbox over IMAP rather than Clerk's "
+            "'+clerk_test' shortcut. Point these at a dedicated test "
+            "mailbox — for Gmail: enable 2-Step Verification, then create "
+            "an App Password under Google Account -> Security -> App "
+            "passwords, and use that (not your normal password) here."
+        )
+
+    deadline = time.time() + timeout
+    last_err = None
+    while time.time() < deadline:
+        try:
+            code = _search_inbox_for_code(to_address, since_ts)
+            if code:
+                return code
+        except Exception as e:  # noqa: BLE001 - keep polling, surface at the end
+            last_err = e
+        time.sleep(poll_interval)
+
+    detail = f" (last IMAP error: {last_err})" if last_err else ""
+    raise TimeoutError(
+        f"No verification email arrived for {to_address} within {timeout}s"
+        f"{detail}. Check TEST_EMAIL_IMAP_* creds and that Clerk is "
+        f"actually configured to send to this address."
+    )
+
+
+def _search_inbox_for_code(to_address, since_ts):
+    conn = imaplib.IMAP4_SSL(TEST_EMAIL_IMAP_HOST)
+    try:
+        conn.login(TEST_EMAIL_IMAP_USER, TEST_EMAIL_IMAP_PASSWORD)
+        conn.select(TEST_EMAIL_IMAP_FOLDER)
+        # IMAP's SINCE is date-only (no time-of-day), so this is a coarse
+        # pre-filter — exact recency is re-checked per-message below using
+        # the message's actual Date header against since_ts.
+        since_date = time.strftime("%d-%b-%Y", time.gmtime(since_ts))
+        status, data = conn.search(None, f'(SINCE "{since_date}")')
+        if status != "OK" or not data or not data[0]:
+            return None
+
+        for msg_id in reversed(data[0].split()):  # newest first
+            status, msg_data = conn.fetch(msg_id, "(RFC822)")
+            if status != "OK" or not msg_data or not msg_data[0]:
+                continue
+            msg = email_lib.message_from_bytes(msg_data[0][1])
+
+            to_header = str(msg.get("To", ""))
+            if to_address.lower() not in to_header.lower():
+                continue
+
+            date_header = msg.get("Date")
+            if date_header:
+                parsed = parsedate_tz(date_header)
+                if parsed and mktime_tz(parsed) < since_ts - 5:
+                    continue  # older than this run's send — not our email
+
+            body = _extract_body_text(msg)
+            match = _SIX_DIGIT_CODE_RE.search(body)
+            if match:
+                return match.group(1)
+        return None
+    finally:
+        conn.logout()
+
+
+def _extract_body_text(msg):
+    parts = []
+    if msg.is_multipart():
+        for part in msg.walk():
+            if part.get_content_type() in ("text/plain", "text/html"):
+                payload = part.get_payload(decode=True)
+                if payload:
+                    charset = part.get_content_charset() or "utf-8"
+                    parts.append(payload.decode(charset, errors="ignore"))
+    else:
+        payload = msg.get_payload(decode=True)
+        if payload:
+            charset = msg.get_content_charset() or "utf-8"
+            parts.append(payload.decode(charset, errors="ignore"))
+    return "\n".join(parts)
 
 
 def assert_no_unexpected_console_errors(test_case, driver, extra_allowed=()):
@@ -184,6 +318,7 @@ def sign_up(driver):
     WebDriverWait(driver, 10).until(lambda d: len(branch_select.options) > 1)
     branch_select.select_by_index(1)
 
+    send_time = time.time()
     driver.find_element(By.XPATH, '//button[contains(text(),"Continue")]').click()
 
     try:
@@ -191,18 +326,11 @@ def sign_up(driver):
     except Exception:
         pass  # no verification step required by this Clerk instance — already signed in
     else:
-        # A verification step DID appear — this branch only runs if it did.
-        if not TEST_VERIFICATION_CODE:
-            driver.save_screenshot(str(SCREENSHOT_DIR / "signup_failure_no_code.png"))
-            raise RuntimeError(
-                "This Clerk instance requires email verification, but no "
-                "TEST_VERIFICATION_CODE was set/resolved. Use a '+clerk_test' "
-                "email (auto-accepts code 424242 — but only if your Clerk "
-                "project has 'test mode' enabled in the Clerk dashboard under "
-                "Configure > Email, phone, username), or supply a real code "
-                "via the TEST_VERIFICATION_CODE secret."
-            )
-        driver.find_element(By.ID, "login-verification").send_keys(TEST_VERIFICATION_CODE)
+        # A verification step DID appear. Priority: explicit manual
+        # override > "+clerk_test" fixed code > real code fetched from the
+        # actual test inbox over IMAP (the production path).
+        code = TEST_VERIFICATION_CODE or fetch_verification_code(TEST_EMAIL, send_time)
+        driver.find_element(By.ID, "login-verification").send_keys(code)
         driver.find_element(By.XPATH, '//button[contains(text(),"Confirm & Launch")]').click()
 
     try:
