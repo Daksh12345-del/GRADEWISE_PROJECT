@@ -35,7 +35,7 @@ class LoginPageTests(unittest.TestCase):
     def test_labels_are_programmatically_associated(self):
         pairs = [
             ("login-name", "Your Name"), ("login-email", "Email"),
-            ("login-university", "University"), ("login-course", "Course"),
+            ("login-university", "University"), ("login-course", "Degree"),
         ]
         for field_id, expected_text in pairs:
             label = self.driver.find_element(By.CSS_SELECTOR, f'label[for="{field_id}"]')
@@ -47,14 +47,32 @@ class LoginPageTests(unittest.TestCase):
         WebDriverWait(self.driver, 5).until(lambda d: name_err.text.strip() != "")
         self.assertNotEqual(name_err.text.strip(), "")
 
-    def test_filling_step1_advances_to_step2(self):
+    def test_filling_step1_advances_to_verification(self):
+        # This is a single-step, passwordless form now: there is no separate
+        # "step-2" panel. Submitting valid details swaps step-1's own
+        # content over to a 6-digit email-code input (#login-verification)
+        # instead of navigating to a new step element.
         self.driver.find_element(By.ID, "login-name").send_keys("Test Student")
         self.driver.find_element(By.ID, "login-email").send_keys("someone@example.com")
         Select(self.driver.find_element(By.ID, "login-university")).select_by_value("AKTU")
         Select(self.driver.find_element(By.ID, "login-course")).select_by_value("B.Tech")
+
+        # College/branch options are loaded at runtime from the CMS, so
+        # there's no fixed value to select by — just pick the first real
+        # option (index 0 is the "— Select —" placeholder) once it's populated.
+        college_select = Select(self.driver.find_element(By.ID, "login-college"))
+        WebDriverWait(self.driver, 10).until(lambda d: len(college_select.options) > 1)
+        college_select.select_by_index(1)
+
+        branch_select = Select(self.driver.find_element(By.ID, "login-branch"))
+        WebDriverWait(self.driver, 10).until(lambda d: len(branch_select.options) > 1)
+        branch_select.select_by_index(1)
+
         self.driver.find_element(By.XPATH, '//button[contains(text(),"Continue")]').click()
-        WebDriverWait(self.driver, 12).until(EC.visibility_of_element_located((By.ID, "step-2")))
-        self.assertTrue(self.driver.find_element(By.ID, "step-2").is_displayed())
+        WebDriverWait(self.driver, 12).until(
+            EC.visibility_of_element_located((By.ID, "login-verification"))
+        )
+        self.assertTrue(self.driver.find_element(By.ID, "login-verification").is_displayed())
 
     def test_mobile_viewport_renders_without_horizontal_overflow(self):
         mobile = make_driver(width=390, height=844)
