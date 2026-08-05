@@ -189,9 +189,10 @@ export default function LoginPage() {
     setVerificationErr('')
     setIsSubmitting(true)
     try {
+      let attempt
       if (verificationMode === 'signIn') {
         if (!signInLoaded) return
-        const attempt = await signIn.attemptFirstFactor({
+        attempt = await signIn.attemptFirstFactor({
           strategy: 'email_code',
           code: verificationCode.trim(),
         })
@@ -204,7 +205,7 @@ export default function LoginPage() {
         }
       } else if (verificationMode === 'signUp') {
         if (!signUpLoaded) return
-        const attempt = await signUp.attemptEmailAddressVerification({ code: verificationCode.trim() })
+        attempt = await signUp.attemptEmailAddressVerification({ code: verificationCode.trim() })
         if (attempt.status === 'complete') {
           await setActiveSignUp({ session: attempt.createdSessionId })
           setIsSubmitting(false)
@@ -213,7 +214,10 @@ export default function LoginPage() {
         }
       }
       setIsSubmitting(false)
-      setVerificationErr("That code didn't work. Please check and try again.")
+      setVerificationErr(
+        "That code didn't work. Please check and try again. " +
+        `[debug: status=${attempt?.status} missingFields=${JSON.stringify(attempt?.missingFields || attempt?.unverifiedFields || [])}]`
+      )
     } catch (e) {
       setIsSubmitting(false)
       setVerificationErr(e?.errors?.[0]?.message || e.message || 'Verification failed.')
