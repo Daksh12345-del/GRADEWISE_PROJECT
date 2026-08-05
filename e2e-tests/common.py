@@ -134,6 +134,7 @@ TEST_EMAIL_IMAP_PASSWORD = os.environ.get("TEST_EMAIL_IMAP_PASSWORD", "")
 TEST_EMAIL_IMAP_FOLDER = os.environ.get("TEST_EMAIL_IMAP_FOLDER", "INBOX")
 
 _SIX_DIGIT_CODE_RE = re.compile(r"\b(\d{6})\b")
+_HTML_TAG_RE = re.compile(r"<[^>]+>")
 
 SCREENSHOT_DIR = Path(__file__).parent / "screenshots"
 SCREENSHOT_DIR.mkdir(exist_ok=True)
@@ -199,15 +200,23 @@ def fetch_verification_code(to_address, since_ts, timeout=90, poll_interval=3):
             "passwords, and use that (not your normal password) here."
         )
 
+    print(f"[fetch_verification_code] polling {TEST_EMAIL_IMAP_HOST} inbox for "
+          f"an email to '{to_address}' sent at/after {time.strftime('%H:%M:%S', time.gmtime(since_ts))} UTC",
+          flush=True)
+
     deadline = time.time() + timeout
     last_err = None
+    attempt = 0
     while time.time() < deadline:
+        attempt += 1
         try:
-            code = _search_inbox_for_code(to_address, since_ts)
+            code = _search_inbox_for_code(to_address, since_ts, attempt)
             if code:
+                print(f"[fetch_verification_code] using code: {code}", flush=True)
                 return code
         except Exception as e:  # noqa: BLE001 - keep polling, surface at the end
             last_err = e
+            print(f"[fetch_verification_code] attempt {attempt} IMAP error: {e}", flush=True)
         time.sleep(poll_interval)
 
     detail = f" (last IMAP error: {last_err})" if last_err else ""
@@ -218,7 +227,7 @@ def fetch_verification_code(to_address, since_ts, timeout=90, poll_interval=3):
     )
 
 
-def _search_inbox_for_code(to_address, since_ts):
+def _search_inbox_for_code(to_address, since_ts, attempt=0):
     conn = imaplib.IMAP4_SSL(TEST_EMAIL_IMAP_HOST)
     try:
         conn.login(TEST_EMAIL_IMAP_USER, TEST_EMAIL_IMAP_PASSWORD)
@@ -229,9 +238,15 @@ def _search_inbox_for_code(to_address, since_ts):
         since_date = time.strftime("%d-%b-%Y", time.gmtime(since_ts))
         status, data = conn.search(None, f'(SINCE "{since_date}")')
         if status != "OK" or not data or not data[0]:
+            print(f"[fetch_verification_code] attempt {attempt}: IMAP search returned no messages at all "
+                  f"since {since_date} in '{TEST_EMAIL_IMAP_FOLDER}'", flush=True)
             return None
 
-        for msg_id in reversed(data[0].split()):  # newest first
+        msg_ids = list(reversed(data[0].split()))  # newest first
+        checked = 0
+        for msg_id in msg_ids:
+            if checked >= 5:  # don't spam the log scanning a huge inbox
+                break
             status, msg_data = conn.fetch(msg_id, "(RFC822)")
             if status != "OK" or not msg_data or not msg_data[0]:
                 continue
@@ -239,38 +254,81 @@ def _search_inbox_for_code(to_address, since_ts):
 
             to_header = str(msg.get("To", ""))
             if to_address.lower() not in to_header.lower():
-                continue
+                continue  # not one of ours — don't count against the 5-message log cap
 
+            checked += 1
+            subject = str(msg.get("Subject", ""))
+            from_header = str(msg.get("From", ""))
             date_header = msg.get("Date")
+            print(f"[fetch_verification_code] attempt {attempt}: candidate email — "
+                  f"From: {from_header!r} Subject: {subject!r} Date: {date_header!r} To: {to_header!r}",
+                  flush=True)
+
             if date_header:
                 parsed = parsedate_tz(date_header)
                 if parsed and mktime_tz(parsed) < since_ts - 5:
-                    continue  # older than this run's send — not our email
+                    print(f"[fetch_verification_code] attempt {attempt}: skipping — older than this run's send", flush=True)
+                    continue
 
             body = _extract_body_text(msg)
-            match = _SIX_DIGIT_CODE_RE.search(body)
-            if match:
-                return match.group(1)
+            candidates = [(m.group(1), body[max(0, m.start() - 30):m.start() + 30]) for m in _SIX_DIGIT_CODE_RE.finditer(body)]
+            print(f"[fetch_verification_code] attempt {attempt}: 6-digit candidates found: "
+                  f"{[(c, snippet.replace(chr(10), ' ')) for c, snippet in candidates]}", flush=True)
+
+            code = _pick_verification_code(body)
+            if code:
+                return code
         return None
     finally:
         conn.logout()
 
 
 def _extract_body_text(msg):
-    parts = []
+    """Prefers the plain-text part of the email — far less likely to
+    contain stray 6-digit sequences than HTML (tracking-pixel URLs,
+    campaign IDs in href query strings, etc.). Falls back to the HTML
+    part with all tag markup (including attributes) stripped out, so
+    matching only ever runs against genuinely visible text.
+    """
+    plain_parts = []
+    html_parts = []
+
+    def _collect(part):
+        payload = part.get_payload(decode=True)
+        if not payload:
+            return
+        charset = part.get_content_charset() or "utf-8"
+        text = payload.decode(charset, errors="ignore")
+        if part.get_content_type() == "text/plain":
+            plain_parts.append(text)
+        elif part.get_content_type() == "text/html":
+            html_parts.append(text)
+
     if msg.is_multipart():
         for part in msg.walk():
-            if part.get_content_type() in ("text/plain", "text/html"):
-                payload = part.get_payload(decode=True)
-                if payload:
-                    charset = part.get_content_charset() or "utf-8"
-                    parts.append(payload.decode(charset, errors="ignore"))
+            _collect(part)
     else:
-        payload = msg.get_payload(decode=True)
-        if payload:
-            charset = msg.get_content_charset() or "utf-8"
-            parts.append(payload.decode(charset, errors="ignore"))
-    return "\n".join(parts)
+        _collect(msg)
+
+    if plain_parts:
+        return "\n".join(plain_parts)
+    return "\n".join(_HTML_TAG_RE.sub(" ", h) for h in html_parts)
+
+
+def _pick_verification_code(text):
+    """Returns the most likely verification code from email body text.
+    If several 6-digit sequences are present, prefers one that appears
+    near the word "code" (case-insensitive) over an arbitrary match —
+    guards against picking up an unrelated 6-digit number elsewhere in
+    the email (order IDs, dates, etc.)."""
+    candidates = list(_SIX_DIGIT_CODE_RE.finditer(text))
+    if not candidates:
+        return None
+    for m in candidates:
+        window = text[max(0, m.start() - 60):m.start()].lower()
+        if "code" in window:
+            return m.group(1)
+    return candidates[0].group(1)
 
 
 def assert_no_unexpected_console_errors(test_case, driver, extra_allowed=()):
