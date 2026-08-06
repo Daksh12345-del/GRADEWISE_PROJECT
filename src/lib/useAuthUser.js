@@ -41,19 +41,21 @@ export function useAuthUser() {
   return { user, status }
 }
 
-// A profile is "complete" once every field the rest of the app relies on
-// (roll number, college, branch, domain, and batch group for AKTU) has
-// actually been filled in. The password/OTP signup flow in LoginPage.jsx
-// always sets all of these before creating the account — but the OAuth
-// (Google/GitHub) flow skips that form entirely, so an OAuth user can be
-// signed in with none of this set. ProtectedRoute uses this to redirect
-// those users to /complete-profile before they can reach any real page.
+// A profile is "complete" once the fields LoginPage.jsx's single-step
+// signup form actually collects (university, course, college, branch)
+// are filled in. Login is one page, one step — no separate onboarding
+// step after it, so this only checks what that one page can produce.
+//
+// NOTE: roll number / domain of interest / AKTU batch group are NOT
+// collected anywhere anymore and are intentionally not required here.
+// Any dashboard feature reading user.roll / user.domain / user.group
+// will see '' for every user until/unless those get collected some
+// other way — that's expected, not a bug, given this page's fields.
 export function isProfileComplete(user) {
   if (!user) return false
-  if (!user.university || !user.course || !user.college || !user.roll || !user.branch || !user.domain) {
+  if (!user.university || !user.course || !user.college || !user.branch) {
     return false
   }
-  if (user.university === 'AKTU' && !user.group) return false
   return true
 }
 
@@ -69,4 +71,3 @@ export function useLogout() {
     navigate('/')
   }, [navigate, signOut])
 }
-
