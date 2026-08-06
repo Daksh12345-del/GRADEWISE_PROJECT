@@ -8,6 +8,7 @@ import {
 import { useGrades } from '../lib/GradesContext'
 import ScanModal from './components/ScanModal'
 import RightPanel from './components/RightPanel'
+import StatsSheet from './components/StatsSheet'
 import CgpaPictograph from './components/CgpaPictograph'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
@@ -240,6 +241,7 @@ export default function AppPage() {
   const grades = useGrades()
   const [activeSem, setActiveSem] = useState(grades.currentSemIndex)
   const [scanOpen, setScanOpen] = useState(false)
+  const [statsOpen, setStatsOpen] = useState(false)
   const sidebarToggle = useSidebarToggle()
 
   const sem = SEMESTERS[activeSem]
@@ -349,6 +351,28 @@ export default function AppPage() {
         marksData={grades.marksData}
         backData={grades.backData}
         currentSemIndex={activeSem}
+      />
+
+      {/* Floating button — hidden on desktop via CSS, shown on tablet/phone
+          (≤1279px) where .right-panel is hidden. Opens the same content
+          (CGPA, Target Planner, Simulator, Export PDF…) in a bottom sheet. */}
+      <button
+        className="btn-planner-float"
+        onClick={() => setStatsOpen(true)}
+        title="View CGPA stats & planner"
+        aria-label="View CGPA stats and planner"
+      >
+        🎯 <span>Stats</span>
+      </button>
+
+      <StatsSheet
+        open={statsOpen}
+        onClose={() => setStatsOpen(false)}
+        marksData={grades.marksData}
+        backData={grades.backData}
+        currentSemIndex={activeSem}
+        semestersDone={grades.semestersDone}
+        creditsEarned={grades.creditsEarned}
       />
 
       <ScanModal open={scanOpen} onClose={() => setScanOpen(false)} />
