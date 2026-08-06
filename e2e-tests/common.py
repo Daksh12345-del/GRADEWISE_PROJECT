@@ -350,12 +350,14 @@ def sign_up(driver):
     """Runs the real Clerk sign-up flow end to end. Leaves the browser on
     /dashboard when done.
 
-    NOTE: this is now a single-step, passwordless form — roll/domain/group
-    were dropped (LoginPage.jsx keeps them as blank metadata fields, but
-    there's nothing on screen to fill), and there's no separate "step-2"
-    panel or "Launch Gradewallah" button. Filling in the six visible
-    fields and clicking Continue triggers Clerk sign-up directly and swaps
-    step-1's own content over to the verification-code input in place.
+    Login is a single-step, passwordless form — fill the six visible
+    fields (name/email/university/course/college/branch) and click
+    Continue to trigger Clerk sign-up directly, swapping step-1's own
+    content over to the verification-code input in place (no separate
+    "step-2" panel). Once that code is confirmed, ProtectedRoute sends
+    the browser straight to /dashboard — there's no additional
+    "complete your profile" step (isProfileComplete() in useAuthUser.js
+    only requires the fields this form actually collects).
     """
     testing_token = get_clerk_testing_token()
     driver.get(f"{BASE_URL}/?__clerk_testing_token={testing_token}")
