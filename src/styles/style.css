@@ -762,6 +762,48 @@ body.light-mode .h-logo-text {
 }
 @media (max-width: 479px) { .hdr-scan-btn { display: none; } }
 
+/* ── HEADER STATS / EXPORT BUTTONS ──
+   Same visual family as .hdr-scan-btn, but intentionally NOT hidden at
+   ≤479px like .hdr-scan-btn is — these open the CGPA panel and trigger the
+   PDF export, both of which used to be reachable only by scrolling all the
+   way down to the floating button, so they stay visible (icon-only) even
+   on the smallest phones. */
+.hdr-stats-btn, .hdr-export-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 10px;
+  font-family: var(--font-body); font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+  border: 1.5px solid; letter-spacing: 0.5px; white-space: nowrap;
+}
+.hdr-stats-btn {
+  background: rgba(6,182,212,0.1);
+  border-color: rgba(6,182,212,0.4);
+  color: #67e8f9;
+}
+.hdr-stats-btn:hover {
+  background: rgba(6,182,212,0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(6,182,212,0.25);
+}
+.hdr-export-btn {
+  background: rgba(16,185,129,0.1);
+  border-color: rgba(16,185,129,0.4);
+  color: #6ee7b7;
+}
+.hdr-export-btn:hover {
+  background: rgba(16,185,129,0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+}
+.hdr-export-btn:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+@media (max-width: 767px) {
+  .hdr-stats-btn span, .hdr-export-btn span { display: none; }
+  .hdr-stats-btn, .hdr-export-btn { padding: 5px 8px; font-size: 1rem; border: none; background: none; }
+}
+@media (max-width: 479px) {
+  .hdr-stats-btn, .hdr-export-btn { padding: 4px 6px; font-size: 0.95rem; }
+}
+
 /* ── SIDEBAR ── */
 .sidebar, .app-sidebar {
   background: linear-gradient(180deg, rgba(9,10,30,0.98) 0%, rgba(6,7,22,1) 100%) !important;

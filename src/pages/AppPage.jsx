@@ -7,6 +7,8 @@ import {
   isBackEligible, getBackGrade, calcSGPA,
 } from '../lib/gradesEngine'
 import { useGrades } from '../lib/GradesContext'
+import { useAuthUser } from '../lib/useAuthUser'
+import { generateAndOpenReport } from '../lib/exportReport'
 import ScanModal from './components/ScanModal'
 import RightPanel from './components/RightPanel'
 import StatsSheet from './components/StatsSheet'
@@ -240,10 +242,30 @@ function SubjectCard({ si, ji, subj, entry, backVal, electiveVal, setMarks, setB
 export default function AppPage() {
   const navigate = useNavigate()
   const grades = useGrades()
+  const { user } = useAuthUser()
   const [activeSem, setActiveSem] = useState(grades.currentSemIndex)
   const [scanOpen, setScanOpen] = useState(false)
   const [statsOpen, setStatsOpen] = useState(false)
+  const [exportBusy, setExportBusy] = useState(false)
   const sidebarToggle = useSidebarToggle()
+
+  async function handleExport() {
+    setExportBusy(true)
+    try {
+      generateAndOpenReport(grades.marksData, grades.backData, {
+        name: user?.name,
+        email: user?.email,
+        college: user?.college,
+        university: user?.university,
+        roll: user?.roll,
+      })
+    } catch (e) {
+      console.error('Export failed:', e)
+      alert('Could not generate the report. Please try again.')
+    } finally {
+      setExportBusy(false)
+    }
+  }
 
   const sem = SEMESTERS[activeSem]
   const sgpa = calcSGPA(activeSem, grades.marksData)
@@ -265,6 +287,10 @@ export default function AppPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <button className="hdr-scan-btn" title="Scan Result Sheet" onClick={() => setScanOpen(true)}>📷 <span>Scan Result</span></button>
+          <button className="hdr-stats-btn" title="View CGPA stats & planner" onClick={() => setStatsOpen(true)}>📊 <span>Stats</span></button>
+          <button className="hdr-export-btn" title="Export report as PDF" onClick={handleExport} disabled={exportBusy}>
+            {exportBusy ? '⏳' : '⬇'} <span>{exportBusy ? 'Generating…' : 'Export'}</span>
+          </button>
           <SyncBadge status={grades.syncStatus} />
         </div>
       </div>
