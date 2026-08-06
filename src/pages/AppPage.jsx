@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { SEMESTERS } from '../lib/gradesData'
 import {
@@ -353,17 +354,26 @@ export default function AppPage() {
         currentSemIndex={activeSem}
       />
 
-      {/* Floating button — hidden on desktop via CSS, shown on tablet/phone
-          (≤1279px) where .right-panel is hidden. Opens the same content
-          (CGPA, Target Planner, Simulator, Export PDF…) in a bottom sheet. */}
-      <button
-        className="btn-planner-float"
-        onClick={() => setStatsOpen(true)}
-        title="View CGPA stats & planner"
-        aria-label="View CGPA stats and planner"
-      >
-        🎯 <span>Stats</span>
-      </button>
+      {/* Floating button — rendered via portal to document.body so its
+          position:fixed is relative to the real viewport, not to
+          .page.active (which has transform: translateZ(0), and a
+          transform on an ancestor turns it into the containing block for
+          fixed descendants — that's why this used to only appear after
+          scrolling all the way to the bottom of the page). Hidden on
+          desktop via CSS, shown on tablet/phone (≤1279px) where
+          .right-panel is hidden. Opens the same content (CGPA, Target
+          Planner, Simulator, Export PDF…) in a bottom sheet. */}
+      {createPortal(
+        <button
+          className="btn-planner-float"
+          onClick={() => setStatsOpen(true)}
+          title="View CGPA stats & planner"
+          aria-label="View CGPA stats and planner"
+        >
+          🎯 <span>Stats</span>
+        </button>,
+        document.body
+      )}
 
       <StatsSheet
         open={statsOpen}
