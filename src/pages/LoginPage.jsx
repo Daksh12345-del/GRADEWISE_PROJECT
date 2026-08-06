@@ -301,19 +301,6 @@ export default function LoginPage() {
           <div
             className="step-panel active"
             id="step-1"
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter' || isSubmitting) return
-              // Only submit when Enter is pressed inside a text input
-              // (Name/Email, or the verification code field). Native
-              // <select> dropdowns and the Continue button also fire an
-              // Enter keydown that bubbles up here — treating those as a
-              // submit too is what was causing multiple OTP emails to go
-              // out from a single form fill (once per dropdown confirmed
-              // by keyboard, plus one more for the button itself).
-              if (e.target.tagName !== 'INPUT') return
-              e.preventDefault()
-              pendingVerification ? confirmVerificationCode() : doLogin()
-            }}
           >
             {pendingVerification ? (
               <div>
@@ -334,6 +321,9 @@ export default function LoginPage() {
                     maxLength={6}
                     value={verificationCode}
                     onChange={(e) => { setVerificationCode(e.target.value); setVerificationErr('') }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !isSubmitting) { e.preventDefault(); confirmVerificationCode() }
+                    }}
                     style={verificationErr ? { borderColor: '#ef4444' } : undefined}
                     aria-required="true"
                     aria-invalid={!!verificationErr}

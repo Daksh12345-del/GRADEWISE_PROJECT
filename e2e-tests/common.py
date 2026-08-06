@@ -176,7 +176,7 @@ def get_clerk_testing_token():
     return resp.json()["token"]
 
 
-def fetch_verification_code(to_address, since_ts, timeout=90, poll_interval=3):
+def fetch_verification_code(to_address, since_ts, timeout=150, poll_interval=3):
     """Polls a real mailbox over IMAP for the Clerk verification email sent
     to `to_address` at or after `since_ts` (a time.time() timestamp), and
     returns the 6-digit code found in its body.
