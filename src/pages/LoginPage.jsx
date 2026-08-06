@@ -35,6 +35,11 @@ export default function LoginPage() {
   // round trip, so confirmVerificationCode can still read them after
   // doLogin's own copy has gone out of scope.
   const profileMetaRef = useRef(null)
+  // Synchronous in-flight guard for doLogin (see doLogin above) — plain
+  // state/isSubmitting isn't enough because it only updates after a
+  // re-render, leaving a window for a second Enter keypress to call
+  // doLogin again before the UI reflects that a send is already happening.
+  const sendingRef = useRef(false)
 
   // Form fields
   const [name, setName] = useState('')
@@ -76,6 +81,21 @@ export default function LoginPage() {
   }
 
   async function doLogin() {
+    // Hard guard against duplicate/overlapping calls — e.g. Enter fired
+    // twice in quick succession (holding the key, or a native <select>'s
+    // own Enter-to-confirm bubbling up right before setIsSubmitting(true)
+    // has re-rendered). Without this, each duplicate call re-runs
+    // signIn.create()/prepareFirstFactor() and sends ANOTHER OTP email.
+    if (sendingRef.current) return
+    sendingRef.current = true
+    try {
+      await doLoginInner()
+    } finally {
+      sendingRef.current = false
+    }
+  }
+
+  async function doLoginInner() {
     // Rate limit check
     const attempt = checkAndConsumeLoginAttempt()
     if (!attempt.allowed) {
@@ -281,7 +301,19 @@ export default function LoginPage() {
           <div
             className="step-panel active"
             id="step-1"
-            onKeyDown={(e) => { if (e.key === 'Enter' && !isSubmitting) { e.preventDefault(); pendingVerification ? confirmVerificationCode() : doLogin() } }}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter' || isSubmitting) return
+              // Only submit when Enter is pressed inside a text input
+              // (Name/Email, or the verification code field). Native
+              // <select> dropdowns and the Continue button also fire an
+              // Enter keydown that bubbles up here — treating those as a
+              // submit too is what was causing multiple OTP emails to go
+              // out from a single form fill (once per dropdown confirmed
+              // by keyboard, plus one more for the button itself).
+              if (e.target.tagName !== 'INPUT') return
+              e.preventDefault()
+              pendingVerification ? confirmVerificationCode() : doLogin()
+            }}
           >
             {pendingVerification ? (
               <div>
