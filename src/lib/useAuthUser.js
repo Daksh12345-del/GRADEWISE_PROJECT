@@ -41,24 +41,6 @@ export function useAuthUser() {
   return { user, status }
 }
 
-// A profile is "complete" once the fields LoginPage.jsx's single-step
-// signup form actually collects (university, course, college, branch)
-// are filled in. Login is one page, one step — no separate onboarding
-// step after it, so this only checks what that one page can produce.
-//
-// NOTE: roll number / domain of interest / AKTU batch group are NOT
-// collected anywhere anymore and are intentionally not required here.
-// Any dashboard feature reading user.roll / user.domain / user.group
-// will see '' for every user until/unless those get collected some
-// other way — that's expected, not a bug, given this page's fields.
-export function isProfileComplete(user) {
-  if (!user) return false
-  if (!user.university || !user.course || !user.college || !user.branch) {
-    return false
-  }
-  return true
-}
-
 export function useLogout() {
   const navigate = useNavigate()
   const { signOut } = useClerk()
