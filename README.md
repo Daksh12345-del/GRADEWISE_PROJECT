@@ -2,7 +2,7 @@
 
 A full-stack SaaS platform for SGPA/CGPA calculation and semester-wise academic tracking — built for engineering students to track grades, explore placement resources, and follow a structured DSA roadmap, all in one dashboard.
 
-🔗 **Live Demo:** [gradewallah.vercel.app](https://gradewallah.vercel.app)
+🔗 **Live Demo:** [gradewallah.com](https://gradewallah.com)
 
 ---
 
@@ -62,11 +62,21 @@ npm run lint       # run oxlint
 
 ## 📸 Screenshots
 
-> Add screenshots of the Login page, Dashboard, and CGPA Calculator here.
-
-| Login | Dashboard |
+| Sign Up | Dashboard |
 |---|---|
-| ![Login](./public/screenshots/login.png) | ![Dashboard](./public/screenshots/dashboard.png) |
+| ![Sign Up](./screenshots/signup.png) | ![Dashboard](./screenshots/dashboard.png) |
+
+| Grades (SGPA/CGPA Calculator) | Study Resources |
+|---|---|
+| ![Grades](./screenshots/grades.png) | ![Study Resources](./screenshots/study-resources.png) |
+
+| Internships | Placements |
+|---|---|
+| ![Internships](./screenshots/internships.png) | ![Placements](./screenshots/placements.png) |
+
+| DSA Tracker | Stats Overview |
+|---|---|
+| ![DSA Tracker](./screenshots/dsa-tracker.png) | ![Stats](./screenshots/stats-modal.png) |
 
 ## 🚀 Live Demo
 
