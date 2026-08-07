@@ -1125,6 +1125,17 @@ body.light-mode .marks-input:focus {
   flex-shrink: 0; display: flex; align-items: center; padding: 0 3px;
 }
 .theme-toggle:hover { border-color: var(--violet); }
+
+/* Login page has no header bar, so the toggle is pinned to the corner */
+.login-theme-toggle-wrap {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 1000;
+}
+@media (max-width: 480px) {
+  .login-theme-toggle-wrap { top: 0.85rem; right: 0.85rem; }
+}
 .toggle-thumb {
   width: 16px; height: 16px; border-radius: 50%;
   background: var(--violet);

@@ -5,10 +5,13 @@ import { COLLEGES_BY_CITY, BRANCHES } from '../lib/loginFormData'
 import { loadLiveContent, getLiveContentStatus } from '../lib/liveContent'
 import { checkAndConsumeLoginAttempt } from '../lib/loginRateLimit'
 import Logo from './components/Logo'
+import ThemeToggleButton from './components/ThemeToggleButton'
+import { useTheme } from '../lib/useTheme'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function LoginPage() {
+  const { isLight, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const { signIn, setActive: setActiveSignIn, isLoaded: signInLoaded } = useSignIn()
   const { signUp, setActive: setActiveSignUp, isLoaded: signUpLoaded } = useSignUp()
@@ -280,6 +283,9 @@ export default function LoginPage() {
   return (
     <div className="page active" id="loginPage">
       <div className="login-glow"></div>
+      <div className="login-theme-toggle-wrap">
+        <ThemeToggleButton isLight={isLight} toggleTheme={toggleTheme} title="Toggle Light/Dark Mode" />
+      </div>
 
       <div className="onboard-wrap">
         {/* Hero Greeting */}
