@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { loadLiveContent, reloadLiveContent, subscribeLiveContent, getLiveContentVersion, getLiveContentStatus } from './liveContent'
+import AppLoader from '../pages/components/AppLoader'
 
 const LiveContentVersionContext = createContext(0)
 
@@ -50,15 +51,7 @@ export function LiveContentGate({ children }) {
   }
 
   // status === 'idle' | 'loading'
-  return (
-    <div style={errorWrapStyle}>
-      <div style={{ ...errorCardStyle, textAlign: 'center' }}>
-        <div style={spinnerStyle} />
-        <p style={{ margin: '16px 0 0', opacity: 0.75, fontSize: 14 }}>Loading…</p>
-      </div>
-      <style>{`@keyframes gw-spin { to { transform: rotate(360deg) } }`}</style>
-    </div>
-  )
+  return <AppLoader text="Loading…" />
 }
 
 const errorWrapStyle = {
@@ -90,16 +83,6 @@ const retryButtonStyle = {
   fontSize: 14,
   fontWeight: 600,
   cursor: 'pointer',
-}
-
-const spinnerStyle = {
-  width: 32,
-  height: 32,
-  margin: '0 auto',
-  border: '3px solid rgba(255,255,255,0.15)',
-  borderTopColor: '#7c3aed',
-  borderRadius: '50%',
-  animation: 'gw-spin 0.8s linear infinite',
 }
 
 // Use as a dependency in useMemo/useEffect for any derived data built from

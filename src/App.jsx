@@ -4,6 +4,7 @@ import { AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import { ProtectedRoute } from './lib/ProtectedRoute'
 import { ContentProtectedRoute } from './lib/ContentProtectedRoute'
 import { loadLiveContent } from './lib/liveContent'
+import PageLoader from './pages/components/AppLoader'
 import './styles/style.css'
 
 // Lazy load all pages — they'll only load when the user actually visits them,
@@ -16,42 +17,6 @@ const ResourcesPage = lazy(() => import('./pages/ResourcesPage'))
 const InternshipsPage = lazy(() => import('./pages/InternshipsPage'))
 const PlacementsPage = lazy(() => import('./pages/PlacementsPage'))
 const DsaTrackerPage = lazy(() => import('./pages/DsaTrackerPage'))
-
-// Simple full-screen loader shown while a lazy page or the SSO callback is loading.
-function PageLoader({ text = 'Loading...' }) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width: '100vw',
-        background: '#0a0a0f', // match your dark theme background
-        color: '#ffffff',
-        gap: '12px',
-      }}
-    >
-      <div
-        style={{
-          width: '36px',
-          height: '36px',
-          border: '3px solid rgba(255,255,255,0.15)',
-          borderTopColor: '#7c3aed', // adjust to your brand accent color
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-        }}
-      />
-      <p style={{ fontSize: '14px', opacity: 0.75 }}>{text}</p>
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  )
-}
 
 // Dedicated component for the SSO callback route so the message is specific.
 function SsoCallbackPage() {

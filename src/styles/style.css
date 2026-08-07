@@ -1148,6 +1148,88 @@ body.light-mode .marks-input:focus {
 body.light-mode .toggle-thumb { transform: translateX(20px); }
 body.light-mode .theme-toggle { background: rgba(109,40,217,0.1); }
 
+/* ── APP LOADER — full-screen branded loading state ── */
+.app-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-deep);
+  overflow: hidden;
+}
+body.light-mode .app-loader { background: #f8f8fc; }
+
+.app-loader-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 380px at 50% 42%, rgba(124,58,237,0.28) 0%, rgba(99,102,241,0.12) 45%, transparent 72%),
+    radial-gradient(circle 320px at 62% 60%, rgba(245,158,11,0.14) 0%, transparent 70%);
+  filter: blur(10px);
+  animation: appLoaderGlowPulse 2.6s ease-in-out infinite;
+}
+body.light-mode .app-loader-glow {
+  background:
+    radial-gradient(circle 380px at 50% 42%, rgba(124,58,237,0.14) 0%, rgba(99,102,241,0.07) 45%, transparent 72%),
+    radial-gradient(circle 320px at 62% 60%, rgba(245,158,11,0.08) 0%, transparent 70%);
+}
+@keyframes appLoaderGlowPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.08); }
+}
+
+.app-loader-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.app-loader-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: appLoaderLogoBreathe 2.6s ease-in-out infinite;
+}
+.app-loader-logo-img { height: 52px; width: auto; object-fit: contain; }
+@keyframes appLoaderLogoBreathe {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 14px rgba(124,58,237,0.35)); }
+  50%      { transform: scale(1.06); filter: drop-shadow(0 0 22px rgba(124,58,237,0.55)); }
+}
+
+.app-loader-bar {
+  width: 132px;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(124,58,237,0.14);
+  overflow: hidden;
+}
+body.light-mode .app-loader-bar { background: rgba(124,58,237,0.1); }
+.app-loader-bar-fill {
+  height: 100%;
+  width: 40%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--violet), var(--gold));
+  animation: appLoaderBarSlide 1.3s cubic-bezier(0.4,0,0.2,1) infinite;
+}
+@keyframes appLoaderBarSlide {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(360%); }
+}
+
+.app-loader-text {
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--text-dim, rgba(255,255,255,0.6));
+  opacity: 0.8;
+}
+body.light-mode .app-loader-text { color: rgba(30,30,50,0.6); }
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
