@@ -4,6 +4,7 @@ import { useSignIn, useSignUp, useUser } from '@clerk/clerk-react'
 import { COLLEGES_BY_CITY, BRANCHES } from '../lib/loginFormData'
 import { loadLiveContent, getLiveContentStatus } from '../lib/liveContent'
 import { checkAndConsumeLoginAttempt } from '../lib/loginRateLimit'
+import Logo from './components/Logo'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -284,7 +285,7 @@ export default function LoginPage() {
         {/* Hero Greeting */}
         <div className="hero-greet">
           <div className="hero-emoji" style={{ fontSize: 'unset', display: 'flex', justifyContent: 'center' }}>
-            <img src="/images/img_3.png" width="80" height="80" alt="Gradewallah Logo" style={{ borderRadius: '50%' }} />
+            <Logo imgClassName="hero-logo-img" />
           </div>
           <div className="hero-title">Gradewallah</div>
           <div className="hero-tagline">Your Complete Student Problem Solver · v7.1 (GPA fix)</div>

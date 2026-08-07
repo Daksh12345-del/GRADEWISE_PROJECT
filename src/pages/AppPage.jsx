@@ -14,6 +14,7 @@ import RightPanel from './components/RightPanel'
 import StatsSheet from './components/StatsSheet'
 import CgpaPictograph from './components/CgpaPictograph'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
+import Logo from './components/Logo'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 
 const TYPE_BADGE = { Theory: 'badge-theory', Practical: 'badge-practical', Elective: 'badge-elective', Audit: 'badge-audit' }
@@ -281,7 +282,7 @@ export default function AppPage() {
         <div className="header-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <SidebarToggleButton open={sidebarToggle.open} mobileOpen={sidebarToggle.mobileOpen} toggle={sidebarToggle.toggle} />
           <div className="h-logo-icon" style={{ background: 'none', padding: 0, width: 36, height: 36, display: 'flex', alignItems: 'center' }}>
-            <img src="/images/img_3.png" width="34" height="34" alt="GW Logo" style={{ borderRadius: '50%', objectFit: 'cover' }} />
+            <Logo />
           </div>
           <span style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>Grades</span>
         </div>

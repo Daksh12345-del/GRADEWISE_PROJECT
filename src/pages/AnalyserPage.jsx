@@ -7,6 +7,7 @@ import { VIDEO_DATA } from '../lib/resourcesData'
 import { getKB } from '../lib/subjectKB'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
+import Logo from './components/Logo'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { useLiveContentVersion } from '../lib/LiveContentGate'
@@ -310,7 +311,7 @@ export default function AnalyserPage() {
         <div className="header-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <SidebarToggleButton {...sidebarToggle} />
           <div className="h-logo-icon" style={{ background: 'none', padding: 0, width: 36, height: 36, display: 'flex', alignItems: 'center' }}>
-            <img src="/images/img_3.png" width="34" height="34" alt="GW Logo" style={{ borderRadius: '50%', objectFit: 'cover' }} />
+            <Logo />
           </div>
           <div>
             <div className="h-logo-text">RESULT ANALYSER</div>

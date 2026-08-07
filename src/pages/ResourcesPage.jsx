@@ -9,6 +9,7 @@ import { useTheme } from '../lib/useTheme'
 import { useAuthUser, useLogout } from '../lib/useAuthUser'
 import { useLiveContentVersion } from '../lib/LiveContentGate'
 import ScanModal from './components/ScanModal'
+import Logo from './components/Logo'
 
 const VIDEO_COLORS = ['#06b6d4','#8b5cf6','#10b981','#f59e0b','#3b82f6','#ec4899','#22d3ee','#a78bfa']
 
@@ -930,7 +931,7 @@ export default function ResourcesPage() {
         <div className="header-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <SidebarToggleButton {...sidebarToggle} />
           <div className="h-logo-icon" style={{ background: 'none', padding: 0, width: 36, height: 36, display: 'flex', alignItems: 'center' }}>
-            <img src="/images/img_3.png" width="34" height="34" alt="GW Logo" style={{ borderRadius: '50%', objectFit: 'cover' }} />
+            <Logo />
           </div>
           <div className="h-logo-text">Gradewallah</div>
         </div>

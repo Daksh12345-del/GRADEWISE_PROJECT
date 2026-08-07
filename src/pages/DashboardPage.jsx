@@ -8,6 +8,7 @@ import { SORTERS } from '../lib/jobStats'
 import ScanModal from './components/ScanModal'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
+import Logo from './components/Logo'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 
 function timeAgo(iso) {
@@ -104,7 +105,7 @@ export default function DashboardPage() {
         <div className="header-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <SidebarToggleButton open={sidebarToggle.open} mobileOpen={sidebarToggle.mobileOpen} toggle={sidebarToggle.toggle} />
           <div className="h-logo-icon" style={{ background: 'none', padding: 0, width: 36, height: 36, display: 'flex', alignItems: 'center' }}>
-            <img src="/images/img_3.png" width="34" height="34" alt="GW Logo" style={{ borderRadius: '50%', objectFit: 'cover' }} />
+            <Logo />
           </div>
           <div className="h-logo-text">Gradewallah</div>
         </div>

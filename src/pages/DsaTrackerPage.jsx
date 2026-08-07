@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
+import Logo from './components/Logo'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { fetchCodingProfile, DSA_PLATFORMS } from '../lib/api'
@@ -161,7 +162,7 @@ export default function DsaTrackerPage() {
         <div className="header-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <SidebarToggleButton {...sidebarToggle} />
           <div className="h-logo-icon" style={{ background: 'none', padding: 0, width: 36, height: 36, display: 'flex', alignItems: 'center' }}>
-            <img src="/images/img_3.png" width="34" height="34" alt="GW Logo" style={{ borderRadius: '50%', objectFit: 'cover' }} />
+            <Logo />
           </div>
           <div>
             <span style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>DSA Tracker</span>
