@@ -64,19 +64,19 @@ npm run lint       # run oxlint
 
 | Sign Up | Dashboard |
 |---|---|
-| ![Sign Up](./screenshots/signup.png) | ![Dashboard](./screenshots/dashboard.png) |
+| ![Sign Up](./Screenshots/signup.png) | ![Dashboard](./Screenshots/dashboard.png) |
 
 | Grades (SGPA/CGPA Calculator) | Study Resources |
 |---|---|
-| ![Grades](./screenshots/grades.png) | ![Study Resources](./screenshots/study-resources.png) |
+| ![Grades](./Screenshots/grades.png) | ![Study Resources](./Screenshots/study-resources.png) |
 
 | Internships | Placements |
 |---|---|
-| ![Internships](./screenshots/internships.png) | ![Placements](./screenshots/placements.png) |
+| ![Internships](./Screenshots/internships.png) | ![Placements](./Screenshots/placements.png) |
 
 | DSA Tracker | Stats Overview |
 |---|---|
-| ![DSA Tracker](./screenshots/dsa-tracker.png) | ![Stats](./screenshots/stats-modal.png) |
+| ![DSA Tracker](./Screenshots/dsa-tracker.png) | ![Stats](./Screenshots/stats-modal.png) |
 
 ## 🚀 Live Demo
 
