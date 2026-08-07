@@ -80,7 +80,7 @@ npm run lint       # run oxlint
 
 ## 🚀 Live Demo
 
-👉 [https://gradewallah.vercel.app](https://gradewallah.vercel.app)
+👉 [https://gradewallah.com](https://gradewallah.com)
 
 ## 🧑‍💻 Author
 
