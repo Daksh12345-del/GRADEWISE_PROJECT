@@ -5,6 +5,7 @@ import ThemeToggleButton from './components/ThemeToggleButton'
 import JobStatsBar from './components/JobStatsBar'
 import JobFilterControls from './components/JobFilterControls'
 import Logo from './components/Logo'
+import { StaggerGroup, StaggerItem, HoverCard } from './components/motionKit'
 import { useAuthUser } from '../lib/useAuthUser'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
@@ -270,9 +271,15 @@ export default function PlacementsPage() {
           )}
 
           {status === 'ready' && filtered.length > 0 && (
-            <div className="job-grid">
-              {filtered.map(item => <PlacementCard key={item.unique_id || `${item.source}-${item.title}-${item.company}`} item={item} />)}
-            </div>
+            <StaggerGroup className="job-grid">
+              {filtered.map(item => (
+                <StaggerItem key={item.unique_id || `${item.source}-${item.title}-${item.company}`}>
+                  <HoverCard>
+                    <PlacementCard item={item} />
+                  </HoverCard>
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
           )}
         </div>
       </div>
