@@ -10,6 +10,7 @@ import { useAuthUser, useLogout } from '../lib/useAuthUser'
 import { useLiveContentVersion } from '../lib/LiveContentGate'
 import ScanModal from './components/ScanModal'
 import Logo from './components/Logo'
+import { RevealOnScroll } from './components/motionKit'
 
 const VIDEO_COLORS = ['#06b6d4','#8b5cf6','#10b981','#f59e0b','#3b82f6','#ec4899','#22d3ee','#a78bfa']
 
@@ -1059,10 +1060,12 @@ export default function ResourcesPage() {
         ) : !isElectiveTab ? (
           filteredSubjects.length === 0
             ? <div style={{ color: 'var(--text-dim)', padding: '2rem', textAlign: 'center' }}>No subjects in this semester</div>
-            : filteredSubjects.map(subj => (
-                subj.type === 'Elective' && subj.options
-                  ? <ElectiveSubjectCard key={subj.code} subj={subj} />
-                  : <SubjectCard key={subj.code} subj={subj} />
+            : filteredSubjects.map((subj, i) => (
+                <RevealOnScroll key={subj.code} delay={Math.min(i, 5) * 0.05}>
+                  {subj.type === 'Elective' && subj.options
+                    ? <ElectiveSubjectCard subj={subj} />
+                    : <SubjectCard subj={subj} />}
+                </RevealOnScroll>
               ))
         ) : (
           <>
