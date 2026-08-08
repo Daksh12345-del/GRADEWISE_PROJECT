@@ -73,11 +73,41 @@ async function upsertMarksToSupabase(marksData, backData, electiveChoices) {
   if (error) console.error('Supabase upsert error:', error)
 }
 
+// Memoized per signed-in user for the browser session. GradesProvider (and
+// this hook) remounts FRESH on every route navigation — Dashboard, Grades,
+// Analyser, and Resources each wrap their own separate <ContentProtectedRoute>
+// in App.jsx, so React unmounts/remounts the whole provider tree on every
+// nav. Without this cache, every single navigation re-fetched from Supabase
+// from scratch and rendered only the localStorage snapshot in the meantime
+// — which is exactly the "Dashboard looks empty/stale on first visit, but
+// fine after I go to Grades and come back" bug: Dashboard just happened to
+// be whichever page rendered before that page's own fetch resolved.
+// Caching the in-flight/completed promise means only the very first mount
+// this session actually waits on the network; every page after that reuses
+// the already-resolved data immediately, with no flash.
+let remoteFetchPromise = null
+let remoteFetchUserId = null
+
+// Called after a successful save so the NEXT page navigation's hydration
+// fetches fresh (including what was just saved) instead of merging in a
+// stale pre-save snapshot from the cache above.
+function invalidateMarksCache() {
+  remoteFetchPromise = null
+}
+
 async function loadMarksFromSupabase() {
   const userId = getClerkUserId()
   if (!userId) return null
-  const { data, error } = await supabase.from('marks').select('*').eq('user_id', userId)
-  if (error || !data || data.length === 0) return null
+
+  if (remoteFetchUserId !== userId) {
+    remoteFetchUserId = userId
+    remoteFetchPromise = null
+  }
+  if (remoteFetchPromise) return remoteFetchPromise
+
+  remoteFetchPromise = (async () => {
+    const { data, error } = await supabase.from('marks').select('*').eq('user_id', userId)
+    if (error || !data || data.length === 0) return null
 
   const marksData = {}
   const backData = {}
@@ -102,6 +132,9 @@ async function loadMarksFromSupabase() {
     }
   })
   return { marksData, backData, electiveChoices }
+  })()
+
+  return remoteFetchPromise
 }
 
 // Used by useLogout() — clears only the signed-in user's own cached marks
@@ -193,6 +226,7 @@ export function useMarksData() {
         .catch(() => {}) // a previous save's failure shouldn't block this one
         .then(() => upsertMarksToSupabase(nextMarks, nextBack, nextElectives))
         .then(() => {
+          invalidateMarksCache()
           if (isMounted.current) setSyncStatus('saved')
         })
         .catch((e) => {
