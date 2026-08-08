@@ -1,4 +1,5 @@
 import { WORK_MODE_META } from '../../lib/jobStats'
+import { StaggerGroup, StaggerItem, AnimatedNumber } from './motionKit'
 
 /**
  * Top-of-page overview strip for Internships & Placements.
@@ -34,18 +35,18 @@ export default function JobStatsBar({ stats, moneyLabel, avgMoney, loading }) {
 
   return (
     <div className="job-stats-wrap">
-      <div className="job-stats-bar">
+      <StaggerGroup className="job-stats-bar">
         {cards.map(c => (
-          <div key={c.key} className="job-stat-card">
+          <StaggerItem key={c.key} className="job-stat-card">
             <div className="job-stat-top">
               <span className="job-stat-emoji" style={{ background: c.color + '1a', color: c.color }}>{c.emoji}</span>
               <span className="job-stat-lbl">{c.label}</span>
             </div>
-            <div className="job-stat-val" style={{ color: c.color }}>{c.value}</div>
+            <div className="job-stat-val" style={{ color: c.color }}><AnimatedNumber value={c.value} /></div>
             <div className="job-stat-sub">{c.sub}</div>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
 
       {total > 0 && (
         <div className="job-mode-bar" title={`${remote} remote · ${hybrid} hybrid · ${onsite} on-site`}>
