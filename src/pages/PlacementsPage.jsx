@@ -21,6 +21,12 @@ function initials(company) {
 
 const LOGO_COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#14b8a6']
 const CACHE_KEY = 'placements'
+// With 2000+ live listings, mounting every card (each with its own
+// hover/stagger motion component) at once froze the tab entirely
+// ("Not Responding"). Rendering PAGE_SIZE at a time, with a "See more"
+// button, keeps the DOM + active animations bounded no matter how many
+// results match the current filters.
+const PAGE_SIZE = 250
 function logoColor(company) {
   const c = company || 'Co'
   return LOGO_COLORS[Math.abs((c.charCodeAt(0) || 0) + (c.charCodeAt(1) || 0)) % LOGO_COLORS.length]
@@ -128,6 +134,7 @@ export default function PlacementsPage() {
   const [domain, setDomain] = useState('all')
   const [workMode, setWorkMode] = useState('all') // all | remote | hybrid | onsite
   const [sortBy, setSortBy] = useState('newest') // newest | stipend_high
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [refreshing, setRefreshing] = useState(false)
 
   async function load(forceRefresh = false) {
@@ -177,6 +184,14 @@ export default function PlacementsPage() {
     }
     return [...out].sort(SORTERS[sortBy])
   }, [items, domain, workMode, search, sortBy])
+
+  // Any filter/sort change means a new result set — start back at page 1
+  // instead of keeping a stale "load more" position from the last filter.
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [domain, workMode, search, sortBy])
+
+  const visibleItems = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount])
 
   // Stats reflect domain + search but not the work-mode filter itself,
   // otherwise selecting "Remote" would always show a 100% remote split.
@@ -271,15 +286,28 @@ export default function PlacementsPage() {
           )}
 
           {status === 'ready' && filtered.length > 0 && (
-            <StaggerGroup className="job-grid">
-              {filtered.map(item => (
-                <StaggerItem key={item.unique_id || `${item.source}-${item.title}-${item.company}`}>
-                  <HoverCard>
-                    <PlacementCard item={item} />
-                  </HoverCard>
-                </StaggerItem>
-              ))}
-            </StaggerGroup>
+            <>
+              <StaggerGroup className="job-grid" staggerChildren={Math.min(0.07, 1.2 / Math.max(visibleItems.length, 1))}>
+                {visibleItems.map(item => (
+                  <StaggerItem key={item.unique_id || `${item.source}-${item.title}-${item.company}`}>
+                    <HoverCard>
+                      <PlacementCard item={item} />
+                    </HoverCard>
+                  </StaggerItem>
+                ))}
+              </StaggerGroup>
+
+              {visibleCount < filtered.length && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+                  <button
+                    className="job-refresh-btn"
+                    onClick={() => setVisibleCount(v => v + PAGE_SIZE)}
+                  >
+                    See more ({filtered.length - visibleCount} remaining)
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
