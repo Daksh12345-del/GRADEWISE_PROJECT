@@ -1,10 +1,12 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
 import { AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import { ProtectedRoute } from './lib/ProtectedRoute'
 import { ContentProtectedRoute } from './lib/ContentProtectedRoute'
 import { loadLiveContent } from './lib/liveContent'
 import PageLoader from './pages/components/AppLoader'
+import PageTransition from './pages/components/PageTransition'
 import './styles/style.css'
 
 // Lazy load all pages — they'll only load when the user actually visits them,
@@ -28,6 +30,29 @@ function SsoCallbackPage() {
   )
 }
 
+// Separate component so useLocation() has Router context, and so the
+// AnimatePresence + location-keyed Routes below re-run their enter/exit
+// animation on every navigation, not just on first mount.
+function AnimatedRoutes() {
+  const location = useLocation()
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><LoginPage /></PageTransition>} />
+        <Route path="/sso-callback" element={<PageTransition><SsoCallbackPage /></PageTransition>} />
+        <Route path="/dashboard" element={<PageTransition><ContentProtectedRoute><DashboardPage /></ContentProtectedRoute></PageTransition>} />
+        <Route path="/app" element={<PageTransition><ContentProtectedRoute><AppPage /></ContentProtectedRoute></PageTransition>} />
+        <Route path="/analyser" element={<PageTransition><ContentProtectedRoute><AnalyserPage /></ContentProtectedRoute></PageTransition>} />
+        <Route path="/resources" element={<PageTransition><ContentProtectedRoute><ResourcesPage /></ContentProtectedRoute></PageTransition>} />
+        <Route path="/internships" element={<PageTransition><ProtectedRoute><InternshipsPage /></ProtectedRoute></PageTransition>} />
+        <Route path="/placements" element={<PageTransition><ProtectedRoute><PlacementsPage /></ProtectedRoute></PageTransition>} />
+        <Route path="/dsa-tracker" element={<PageTransition><ProtectedRoute><DsaTrackerPage /></ProtectedRoute></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  )
+}
+
 function App() {
   // Kick off the CMS content fetch as soon as the app mounts, in parallel
   // with everything else — it's memoized, so this is the same fetch that
@@ -41,17 +66,7 @@ function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/sso-callback" element={<SsoCallbackPage />} />
-          <Route path="/dashboard" element={<ContentProtectedRoute><DashboardPage /></ContentProtectedRoute>} />
-          <Route path="/app" element={<ContentProtectedRoute><AppPage /></ContentProtectedRoute>} />
-          <Route path="/analyser" element={<ContentProtectedRoute><AnalyserPage /></ContentProtectedRoute>} />
-          <Route path="/resources" element={<ContentProtectedRoute><ResourcesPage /></ContentProtectedRoute>} />
-          <Route path="/internships" element={<ProtectedRoute><InternshipsPage /></ProtectedRoute>} />
-          <Route path="/placements" element={<ProtectedRoute><PlacementsPage /></ProtectedRoute>} />
-          <Route path="/dsa-tracker" element={<ProtectedRoute><DsaTrackerPage /></ProtectedRoute>} />
-        </Routes>
+        <AnimatedRoutes />
       </Suspense>
     </BrowserRouter>
   )
