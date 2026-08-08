@@ -21,6 +21,10 @@ function initials(company) {
 
 const LOGO_COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#14b8a6']
 const CACHE_KEY = 'internships'
+// Same reasoning as PlacementsPage: rendering every listing at once (each
+// with its own hover/stagger motion component) can freeze the tab when the
+// list is large. Page in PAGE_SIZE-sized batches instead.
+const PAGE_SIZE = 250
 function logoColor(company) {
   const c = company || 'Co'
   return LOGO_COLORS[Math.abs((c.charCodeAt(0) || 0) + (c.charCodeAt(1) || 0)) % LOGO_COLORS.length]
@@ -125,6 +129,7 @@ export default function InternshipsPage() {
   const [domain, setDomain] = useState('all')
   const [workMode, setWorkMode] = useState('all') // all | remote | hybrid | onsite
   const [sortBy, setSortBy] = useState('newest') // newest | stipend_high
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [refreshing, setRefreshing] = useState(false)
 
   async function load(forceRefresh = false) {
@@ -174,6 +179,12 @@ export default function InternshipsPage() {
     }
     return [...out].sort(SORTERS[sortBy])
   }, [items, domain, workMode, search, sortBy])
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [domain, workMode, search, sortBy])
+
+  const visibleItems = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount])
 
   // Stats reflect the domain + search filters (so "Total" matches what's on
   // screen) but ignore the work-mode filter itself, otherwise picking
@@ -269,15 +280,28 @@ export default function InternshipsPage() {
           )}
 
           {status === 'ready' && filtered.length > 0 && (
-            <StaggerGroup className="job-grid">
-              {filtered.map(item => (
-                <StaggerItem key={item.unique_id || `${item.source}-${item.title}-${item.company}`}>
-                  <HoverCard>
-                    <InternshipCard item={item} />
-                  </HoverCard>
-                </StaggerItem>
-              ))}
-            </StaggerGroup>
+            <>
+              <StaggerGroup className="job-grid" staggerChildren={Math.min(0.07, 1.2 / Math.max(visibleItems.length, 1))}>
+                {visibleItems.map(item => (
+                  <StaggerItem key={item.unique_id || `${item.source}-${item.title}-${item.company}`}>
+                    <HoverCard>
+                      <InternshipCard item={item} />
+                    </HoverCard>
+                  </StaggerItem>
+                ))}
+              </StaggerGroup>
+
+              {visibleCount < filtered.length && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+                  <button
+                    className="job-refresh-btn"
+                    onClick={() => setVisibleCount(v => v + PAGE_SIZE)}
+                  >
+                    See more ({filtered.length - visibleCount} remaining)
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
