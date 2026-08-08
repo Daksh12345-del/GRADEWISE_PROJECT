@@ -172,6 +172,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
 <head>
 <meta charset="UTF-8">
 <title>AKTU CGPA Report – ${profile.name || 'Student'}</title>
+<link rel="icon" type="image/png" href="https://gradewallah.com/android-chrome-512x512.png">
 <style>
   @media print {
     .no-print { display: none !important; }
@@ -190,7 +191,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
 
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 4px;margin-bottom:18px;border-bottom:1px solid #cbd5e1;">
     <a href="https://gradewallah.com" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
-      <span style="width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#06b6d4,#8b5cf6);display:inline-block;"></span>
+      <img src="https://gradewallah.com/android-chrome-512x512.png" alt="Gradewallah" style="width:22px;height:22px;border-radius:6px;object-fit:contain;">
       <span style="font-family:'Courier New',monospace;font-size:13px;font-weight:800;color:#0f172a;letter-spacing:1px;">Gradewallah</span>
     </a>
     <a href="https://gradewallah.com" style="font-size:12px;color:#0284c7;text-decoration:none;font-weight:600;">gradewallah.com</a>
@@ -201,11 +202,8 @@ export function generateAndOpenReport(marksData, backData, profile) {
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px;">
       <div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-          <div style="width:48px;height:48px;background:linear-gradient(135deg,rgba(6,182,212,0.15),rgba(139,92,246,0.15));border:2px solid #06b6d4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 3L1 8.5L12 14L21 9.7V16.5H23V8.5L12 3Z" fill="#06b6d4"/>
-              <path d="M5 11.5V16.5C5 16.5 5 20 12 20C19 20 19 16.5 19 16.5V11.5L12 15L5 11.5Z" fill="#8b5cf6"/>
-            </svg>
+          <div style="width:48px;height:48px;background:#fff;border:2px solid #06b6d4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+            <img src="https://gradewallah.com/android-chrome-512x512.png" alt="Gradewallah" style="width:36px;height:36px;object-fit:contain;">
           </div>
           <div>
             <div style="font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:#06b6d4;letter-spacing:3px;">AKTU CSE CGPA REPORT</div>
@@ -251,7 +249,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
 
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;margin-top:8px;border-top:1px solid #cbd5e1;">
     <a href="https://gradewallah.com" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
-      <span style="width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#06b6d4,#8b5cf6);display:inline-block;"></span>
+      <img src="https://gradewallah.com/android-chrome-512x512.png" alt="Gradewallah" style="width:18px;height:18px;border-radius:5px;object-fit:contain;">
       <span style="font-family:'Courier New',monospace;font-size:12px;font-weight:800;color:#0f172a;letter-spacing:1px;">Gradewallah</span>
     </a>
     <a href="https://gradewallah.com" style="font-size:11px;color:#0284c7;text-decoration:none;font-weight:600;">gradewallah.com</a>
