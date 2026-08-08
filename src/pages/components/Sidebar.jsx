@@ -1,4 +1,5 @@
 import { SEMESTERS } from '../../lib/gradesData'
+import { StaggerGroup, StaggerItem, PressButton } from './motionKit'
 
 const NAV_ITEMS = [
   { icon: '📊', label: 'My Dashboard', path: '/dashboard' },
@@ -56,15 +57,18 @@ export default function Sidebar({ activePath, navigate, open, mobileOpen, closeM
 
       <nav className={`app-sidebar ${!open ? 'collapsed' : ''} ${mobileOpen ? 'mob-open' : ''}`}>
         <div className="app-nav-title">Main Menu</div>
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.path}
-            className={`app-nav-btn ${activePath === item.path ? 'active' : ''}`}
-            onClick={() => go(item.path)}
-          >
-            <span>{item.icon}</span> {item.label}
-          </button>
-        ))}
+        <StaggerGroup>
+          {NAV_ITEMS.map((item) => (
+            <StaggerItem key={item.path}>
+              <PressButton
+                className={`app-nav-btn ${activePath === item.path ? 'active' : ''}`}
+                onClick={() => go(item.path)}
+              >
+                <span>{item.icon}</span> {item.label}
+              </PressButton>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
         <hr className="app-nav-divider" />
         <button
           className={`app-nav-btn ${activePath === '/analyser' ? 'active' : ''}`}
