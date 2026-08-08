@@ -4533,6 +4533,34 @@ body.light-mode #dash-cgpa-hero {
   z-index: 2;
 }
 
+/* On wide viewports, stop wasting the extra horizontal space: put the
+   hero/branding side-by-side with the form instead of stacking them, so
+   the whole thing fits in one screen without scrolling. */
+@media (min-width: 900px) {
+  .onboard-wrap {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3.5rem;
+    max-width: 1180px;
+  }
+  .hero-greet {
+    flex: 0 0 380px;
+    margin-bottom: 0;
+    text-align: left;
+  }
+  .hero-features { justify-content: flex-start; }
+  .onboard-card {
+    flex: 1 1 660px;
+    max-width: 660px;
+  }
+}
+@media (min-width: 1200px) {
+  .onboard-wrap { max-width: 1280px; gap: 4.5rem; }
+  .hero-greet { flex-basis: 420px; }
+  .onboard-card { flex-basis: 700px; max-width: 700px; }
+}
+
 /* Hero greeting card */
 .hero-greet {
   text-align: center;

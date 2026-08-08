@@ -434,48 +434,50 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <div className="compact-group">
-                  <label className="compact-label" htmlFor="login-college">College Name <span className="req">*</span></label>
-                  <select
-                    id="login-college"
-                    className="compact-input form-select"
-                    value={college}
-                    onChange={(e) => { setCollege(e.target.value); clearFieldErr('college') }}
-                    style={errors.college ? { borderColor: '#ef4444' } : undefined}
-                    aria-required="true"
-                    aria-invalid={!!errors.college}
-                    aria-describedby="login-college-err"
-                  >
-                    <option value="">— Select College —</option>
-                    {COLLEGES_BY_CITY.map(({ city, colleges }) => (
-                      <optgroup label={city} key={city}>
-                        {colleges.map((c) => (
-                          <option value={c} key={c}>{c}</option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  <div className="field-err" id="login-college-err">{errors.college}</div>
-                </div>
+                <div className="compact-row-2">
+                  <div className="compact-group">
+                    <label className="compact-label" htmlFor="login-college">College Name <span className="req">*</span></label>
+                    <select
+                      id="login-college"
+                      className="compact-input form-select"
+                      value={college}
+                      onChange={(e) => { setCollege(e.target.value); clearFieldErr('college') }}
+                      style={errors.college ? { borderColor: '#ef4444' } : undefined}
+                      aria-required="true"
+                      aria-invalid={!!errors.college}
+                      aria-describedby="login-college-err"
+                    >
+                      <option value="">— Select College —</option>
+                      {COLLEGES_BY_CITY.map(({ city, colleges }) => (
+                        <optgroup label={city} key={city}>
+                          {colleges.map((c) => (
+                            <option value={c} key={c}>{c}</option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <div className="field-err" id="login-college-err">{errors.college}</div>
+                  </div>
 
-                <div className="compact-group">
-                  <label className="compact-label" htmlFor="login-branch">Branch <span className="req">*</span></label>
-                  <select
-                    id="login-branch"
-                    className="compact-input form-select"
-                    value={branch}
-                    onChange={(e) => { setBranch(e.target.value); clearFieldErr('branch') }}
-                    style={errors.branch ? { borderColor: '#ef4444' } : undefined}
-                    aria-required="true"
-                    aria-invalid={!!errors.branch}
-                    aria-describedby="login-branch-err"
-                  >
-                    <option value="">— Select Branch —</option>
-                    {branchOptions.map((b) => (
-                      <option value={b} key={b}>{b}</option>
-                    ))}
-                  </select>
-                  <div className="field-err" id="login-branch-err">{errors.branch}</div>
+                  <div className="compact-group">
+                    <label className="compact-label" htmlFor="login-branch">Branch <span className="req">*</span></label>
+                    <select
+                      id="login-branch"
+                      className="compact-input form-select"
+                      value={branch}
+                      onChange={(e) => { setBranch(e.target.value); clearFieldErr('branch') }}
+                      style={errors.branch ? { borderColor: '#ef4444' } : undefined}
+                      aria-required="true"
+                      aria-invalid={!!errors.branch}
+                      aria-describedby="login-branch-err"
+                    >
+                      <option value="">— Select Branch —</option>
+                      {branchOptions.map((b) => (
+                        <option value={b} key={b}>{b}</option>
+                      ))}
+                    </select>
+                    <div className="field-err" id="login-branch-err">{errors.branch}</div>
+                  </div>
                 </div>
 
                 {banner.text && <div className="err-msg" style={{ display: 'block', color: banner.color || undefined }}>{banner.text}</div>}
