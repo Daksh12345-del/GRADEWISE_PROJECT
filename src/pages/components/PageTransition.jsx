@@ -1,14 +1,22 @@
 import { motion } from 'framer-motion'
 
 // Shared enter animation for every page. Wrap a route's element in this so
-// pages fade + slide in on mount instead of appearing abruptly. Deliberately
-// has no `exit` variant and isn't paired with AnimatePresence — that combo
-// can hang mid-transition with lazy(Suspense)-loaded routes, leaving the
-// screen blank until the exit-complete signal eventually fires (or doesn't).
-// This just animates in independently every time a page mounts.
+// pages slide in gently on mount.
+//
+// Deliberately does NOT touch opacity. Two previous versions animated from
+// opacity:0 -> 1, and on a page that loads in a background/unfocused tab,
+// Chrome throttles requestAnimationFrame — so the animation (and the
+// content, stuck at opacity:0) never runs until the user clicks into the
+// tab or opens DevTools. That made the whole page appear blank for
+// however long the tab stayed unfocused.
+//
+// Content must always be visible the instant it mounts, animation or not.
+// So opacity stays at 1 the whole time, and only a small vertical offset
+// animates — if the animation frame never fires for any reason, the page
+// is still fully visible, just without the slide.
 const variants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
+  initial: { y: 12 },
+  animate: { y: 0 },
 }
 
 export default function PageTransition({ children }) {
