@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Terms & Conditions — Gradewallah</title>
-<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="icon" type="image/png" href="/android-chrome-512x512.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -400,6 +400,47 @@
     font-size: 0.78rem; color: var(--text-dim); font-style: italic;
   }
 
+  /* ── LIGHT MODE ── */
+  html.light-mode {
+    --bg-deep: #f4f6fb;
+    --bg-card: #ffffff;
+    --bg-card2: #eef1f8;
+    --border: rgba(8,145,178,0.25);
+    --cyan: #0891b2;
+    --cyan-bright: #0e7490;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --purple: #7c3aed;
+    --purple-glow: rgba(139,92,246,0.12);
+    --green: #059669;
+    --green-glow: rgba(16,185,129,0.12);
+    --yellow: #b45309;
+    --text: #1a2233;
+    --text-dim: #5b6478;
+    --text-muted: #475066;
+    background: var(--bg-deep);
+  }
+  html.light-mode body { background: var(--bg-deep); }
+  html.light-mode body::before { opacity: 0.5; }
+  html.light-mode .top-bar { background: rgba(255,255,255,0.92); }
+  html.light-mode .highlight-box strong { color: #6d28d9; }
+  html.light-mode .info-box-green strong { color: #047857; }
+
+  .theme-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    border-radius:20px;
+    padding:6px 14px;
+    font-size:0.82rem;
+    cursor:pointer;
+    font-family:var(--font-body);
+    margin-left:12px;
+  }
+  .theme-toggle:hover{color:var(--text);}
+
   /* ── RESPONSIVE ── */
   @media (max-width: 640px) {
     .page-wrapper { padding: 2rem 1.2rem 4rem; }
@@ -423,9 +464,14 @@
     <div class="brand-logo" style="background:none;padding:0;overflow:hidden;"><img src="/android-chrome-512x512.png" width="32" height="32" alt="Gradewallah" style="border-radius:50%;object-fit:cover;display:block;"></div>
     <span class="brand-name">Gradewallah</span>
   </a>
-  <button onclick="history.back()" class="top-bar-back">
-    ← <span>Back to App</span>
-  </button>
+  <div style="display:flex;align-items:center;">
+    <button onclick="history.back()" class="top-bar-back">
+      ← <span>Back to App</span>
+    </button>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle light and dark theme">
+      <span id="themeIcon">🌙</span> <span id="themeLabel">Dark</span>
+    </button>
+  </div>
 </nav>
 
 <!-- MAIN DOCUMENT -->
@@ -878,6 +924,28 @@
     const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
     document.getElementById('readingBar').style.width = progress + '%';
   });
+
+  // Mirrors the app's useTheme() hook: same 'aktu_theme' localStorage key,
+  // so switching here stays in sync with the app and the privacy policy page.
+  (function () {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+
+    function apply(isLight) {
+      root.classList.toggle('light-mode', isLight);
+      icon.textContent = isLight ? '☀️' : '🌙';
+      label.textContent = isLight ? 'Light' : 'Dark';
+    }
+
+    apply(localStorage.getItem('aktu_theme') === 'light');
+
+    document.getElementById('themeToggle').addEventListener('click', function () {
+      var next = !root.classList.contains('light-mode');
+      localStorage.setItem('aktu_theme', next ? 'light' : 'dark');
+      apply(next);
+    });
+  })();
 </script>
 
 </body>
