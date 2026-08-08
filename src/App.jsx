@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import { ProtectedRoute } from './lib/ProtectedRoute'
 import { ContentProtectedRoute } from './lib/ContentProtectedRoute'
@@ -30,26 +29,24 @@ function SsoCallbackPage() {
   )
 }
 
-// Separate component so useLocation() has Router context, and so the
-// AnimatePresence + location-keyed Routes below re-run their enter/exit
-// animation on every navigation, not just on first mount.
-function AnimatedRoutes() {
-  const location = useLocation()
-
+// Separate component just to keep the route list readable — no AnimatePresence
+// / location-keyed remounting here. That combo can hang mid-transition with
+// lazy(Suspense)-loaded pages (the exit-complete signal doesn't always fire
+// cleanly), so each page instead animates itself in on mount via
+// PageTransition below, with no coordination with the previous page's exit.
+function AppRoutes() {
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageTransition><LoginPage /></PageTransition>} />
-        <Route path="/sso-callback" element={<PageTransition><SsoCallbackPage /></PageTransition>} />
-        <Route path="/dashboard" element={<PageTransition><ContentProtectedRoute><DashboardPage /></ContentProtectedRoute></PageTransition>} />
-        <Route path="/app" element={<PageTransition><ContentProtectedRoute><AppPage /></ContentProtectedRoute></PageTransition>} />
-        <Route path="/analyser" element={<PageTransition><ContentProtectedRoute><AnalyserPage /></ContentProtectedRoute></PageTransition>} />
-        <Route path="/resources" element={<PageTransition><ContentProtectedRoute><ResourcesPage /></ContentProtectedRoute></PageTransition>} />
-        <Route path="/internships" element={<PageTransition><ProtectedRoute><InternshipsPage /></ProtectedRoute></PageTransition>} />
-        <Route path="/placements" element={<PageTransition><ProtectedRoute><PlacementsPage /></ProtectedRoute></PageTransition>} />
-        <Route path="/dsa-tracker" element={<PageTransition><ProtectedRoute><DsaTrackerPage /></ProtectedRoute></PageTransition>} />
-      </Routes>
-    </AnimatePresence>
+    <Routes>
+      <Route path="/" element={<PageTransition><LoginPage /></PageTransition>} />
+      <Route path="/sso-callback" element={<PageTransition><SsoCallbackPage /></PageTransition>} />
+      <Route path="/dashboard" element={<PageTransition><ContentProtectedRoute><DashboardPage /></ContentProtectedRoute></PageTransition>} />
+      <Route path="/app" element={<PageTransition><ContentProtectedRoute><AppPage /></ContentProtectedRoute></PageTransition>} />
+      <Route path="/analyser" element={<PageTransition><ContentProtectedRoute><AnalyserPage /></ContentProtectedRoute></PageTransition>} />
+      <Route path="/resources" element={<PageTransition><ContentProtectedRoute><ResourcesPage /></ContentProtectedRoute></PageTransition>} />
+      <Route path="/internships" element={<PageTransition><ProtectedRoute><InternshipsPage /></ProtectedRoute></PageTransition>} />
+      <Route path="/placements" element={<PageTransition><ProtectedRoute><PlacementsPage /></ProtectedRoute></PageTransition>} />
+      <Route path="/dsa-tracker" element={<PageTransition><ProtectedRoute><DsaTrackerPage /></ProtectedRoute></PageTransition>} />
+    </Routes>
   )
 }
 
@@ -66,7 +63,7 @@ function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
-        <AnimatedRoutes />
+        <AppRoutes />
       </Suspense>
     </BrowserRouter>
   )
