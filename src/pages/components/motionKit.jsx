@@ -16,7 +16,7 @@ import { useState, useEffect } from 'react'
 //   <StaggerGroup>
 //     {items.map(item => <StaggerItem key={item.id}><Card .../></StaggerItem>)}
 //   </StaggerGroup>
-export function StaggerGroup({ children, className, style }) {
+export function StaggerGroup({ children, className, style, staggerChildren = 0.07 }) {
   return (
     <motion.div
       className={className}
@@ -25,7 +25,7 @@ export function StaggerGroup({ children, className, style }) {
       animate="show"
       variants={{
         hidden: {},
-        show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+        show: { transition: { staggerChildren, delayChildren: 0.05 } },
       }}
     >
       {children}
