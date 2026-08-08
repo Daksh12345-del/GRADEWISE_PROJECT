@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Privacy Policy — Gradewallah</title>
-<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="icon" type="image/png" href="/android-chrome-512x512.png">
 <style>
   :root{
     --bg:#0d0f14;
@@ -152,12 +152,52 @@
   }
   .footer a{color:var(--accent);text-decoration:none;}
   a{color:var(--accent);}
+
+  body.light-mode{
+    --bg:#f5f6fa;
+    --bg-card:#ffffff;
+    --bg-card-alt:#eef0f6;
+    --border:#dde1ec;
+    --text:#1b1d27;
+    --text-dim:#666c80;
+    --accent:#3560e0;
+    --accent-soft:#e3eaff;
+    --warn-bg:#fff6e0;
+    --warn-border:#f0d998;
+    --warn-text:#8a6b12;
+  }
+  body.light-mode p, body.light-mode ul, body.light-mode td{color:#3a3f4d;}
+  body.light-mode .callout, body.light-mode .warn{color:#3a3f4d;}
+
+  .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text-dim);font-weight:600;}
+  .brand img{width:26px;height:26px;border-radius:50%;object-fit:cover;display:block;}
+  .theme-toggle{
+    margin-left:auto;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    border-radius:20px;
+    padding:6px 14px;
+    font-size:13px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .theme-toggle:hover{color:var(--text);}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <a href="javascript:history.back()">← Back to App</a>
+  <a class="brand" href="javascript:history.back()">
+    <img src="/android-chrome-512x512.png" alt="Gradewallah">
+    ← Back to App
+  </a>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle light and dark theme">
+    <span id="themeIcon">🌙</span> <span id="themeLabel">Dark</span>
+  </button>
 </div>
 
 <div class="wrap">
@@ -218,14 +258,15 @@
       <li><b>University, college, course, and branch</b> — used to show you the correct grading scheme, study resources, and eligibility criteria relevant to your institution.</li>
       <li><b>Roll number</b> — used only for your own record-keeping inside the app; it is not shared with any third party.</li>
     </ul>
-    <div class="callout"><b>Note:</b> As stated in-app, your basic profile info stays on your device unless you choose to sign in, in which case it is securely synced via Supabase Auth (see § 09).</div>
+    <div class="callout"><b>Note:</b> As stated in-app, your basic profile info stays on your device unless you choose to sign in, in which case your account is created and authenticated via Clerk, and your profile data is then securely synced via Supabase (see § 09).</div>
   </section>
 
   <section id="s2">
     <div class="sec-label">§ 02</div>
-    <h2>Sign-In via Google &amp; GitHub</h2>
-    <p>Gradewallah offers the option to sign in using your Google or GitHub account, powered by Supabase Auth. When you choose this option, we receive only the basic profile information made available by that provider — typically your name, email address, and profile picture. We do not request access to your contacts, files, repositories, or any other data beyond what is needed to identify your account.</p>
-    <p>We never receive or store your Google or GitHub password. Authentication is handled entirely by the respective provider and Supabase's secure authentication infrastructure.</p>
+    <h2>Account Sign-In</h2>
+    <p>Gradewallah's login is fully passwordless and is powered by Clerk. There is no password field anywhere in the app — every sign-up and sign-in goes through a 6-digit verification code sent to your email address.</p>
+    <p>You can also choose to sign in using your Google or GitHub account. When you choose this option, we receive only the basic profile information made available by that provider — typically your name, email address, and profile picture. We do not request access to your contacts, files, repositories, or any other data beyond what is needed to identify your account.</p>
+    <p>We never receive or store a password for your Google or GitHub account, nor do we store a password for your Gradewallah account. Authentication is handled entirely by Clerk and, for OAuth sign-in, the respective provider.</p>
   </section>
 
   <section id="s3">
@@ -290,7 +331,7 @@
   <section id="s9">
     <div class="sec-label">§ 09</div>
     <h2>Data Storage &amp; Security</h2>
-    <p>Account and profile data synced through sign-in is securely stored using Supabase, which provides encrypted data storage and industry-standard security practices. While we take reasonable measures to protect your information, no method of electronic storage or transmission is completely secure, and we cannot guarantee absolute security.</p>
+    <p>Authentication (your sign-in identity, email verification, and OAuth connections) is managed by Clerk. Your profile and academic data synced through sign-in is separately stored in our Supabase database, which provides encrypted data storage and industry-standard security practices. While we take reasonable measures to protect your information, no method of electronic storage or transmission is completely secure, and we cannot guarantee absolute security.</p>
   </section>
 
   <section id="s10">
@@ -356,5 +397,29 @@
   </div>
 
 </div>
+
+<script>
+  // Mirrors the app's useTheme() hook: same 'aktu_theme' localStorage key,
+  // same 'light-mode' class, so switching here stays in sync with the app.
+  (function () {
+    var body = document.body;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+
+    function apply(isLight) {
+      body.classList.toggle('light-mode', isLight);
+      icon.textContent = isLight ? '☀️' : '🌙';
+      label.textContent = isLight ? 'Light' : 'Dark';
+    }
+
+    apply(localStorage.getItem('aktu_theme') === 'light');
+
+    document.getElementById('themeToggle').addEventListener('click', function () {
+      var next = !body.classList.contains('light-mode');
+      localStorage.setItem('aktu_theme', next ? 'light' : 'dark');
+      apply(next);
+    });
+  })();
+</script>
 </body>
 </html>
