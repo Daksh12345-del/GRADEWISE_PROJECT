@@ -39,7 +39,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<PageTransition><LoginPage /></PageTransition>} />
       <Route path="/sso-callback" element={<PageTransition><SsoCallbackPage /></PageTransition>} />
-      <Route path="/dashboard" element={<PageTransition><ContentProtectedRoute><DashboardPage /></ContentProtectedRoute></PageTransition>} />
+      <Route path="/dashboard" element={<ContentProtectedRoute><DashboardPage /></ContentProtectedRoute>} />
       <Route path="/app" element={<PageTransition><ContentProtectedRoute><AppPage /></ContentProtectedRoute></PageTransition>} />
       <Route path="/analyser" element={<PageTransition><ContentProtectedRoute><AnalyserPage /></ContentProtectedRoute></PageTransition>} />
       <Route path="/resources" element={<PageTransition><ContentProtectedRoute><ResourcesPage /></ContentProtectedRoute></PageTransition>} />
