@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
 import Logo from './components/Logo'
+import { AnimatedNumber } from './components/motionKit'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { fetchCodingProfile, DSA_PLATFORMS } from '../lib/api'
@@ -57,6 +59,8 @@ function PlatformResult({ platform, state }) {
               <Stat label="Hard" value={state.data.hardSolved} />
               <Stat label="Rank" value={state.data.ranking} />
               <Stat label="Contest Rating" value={state.data.contestRating} />
+              <Stat label="🔥 Current Streak" value={state.data.streak ? `${state.data.streak} days` : undefined} />
+              <Stat label="Total Active Days" value={state.data.totalActiveDays} />
             </>
           )}
           {platform === 'codeforces' && (
@@ -111,6 +115,87 @@ function PlatformResult({ platform, state }) {
 
       {state.status === 'idle' && (
         <div className="dsa-idle">Enter a username above and fetch to see stats.</div>
+      )}
+    </div>
+  )
+}
+
+const GOAL_STORAGE_KEY = 'gw_dsa_weekly_goal'
+
+// Streak + weekly-goal card. Backed by LeetCode's own userCalendar data
+// (streak, totalActiveDays, solvedThisWeek — computed server-side in
+// app/dsa/leetcode.py from LeetCode's real submission calendar), since
+// that's the one platform among the six that actually exposes day-by-day
+// activity data through a public endpoint. Codeforces/CodeChef/GFG/
+// HackerRank/GitHub don't expose an equivalent daily-activity calendar, so
+// this card is intentionally LeetCode-specific rather than pretending to
+// aggregate a "streak" across platforms that don't have the data for it.
+function StreakGoalCard({ leetcodeState }) {
+  const [goal, setGoal] = useState(() => {
+    const saved = Number(localStorage.getItem(GOAL_STORAGE_KEY))
+    return saved > 0 ? saved : 10
+  })
+
+  useEffect(() => {
+    try { localStorage.setItem(GOAL_STORAGE_KEY, String(goal)) } catch { /* ignore */ }
+  }, [goal])
+
+  const ready = leetcodeState?.status === 'ready' && leetcodeState.data
+  const streak = ready ? (leetcodeState.data.streak || 0) : null
+  const solvedThisWeek = ready ? (leetcodeState.data.solvedThisWeek || 0) : 0
+  const pct = Math.max(0, Math.min(100, Math.round((solvedThisWeek / Math.max(goal, 1)) * 100)))
+  const metGoal = solvedThisWeek >= goal
+
+  return (
+    <div className="dsa-card" style={{ borderColor: '#f59e0b33', gridColumn: '1 / -1' }}>
+      <div className="dsa-card-head" style={{ color: '#f59e0b' }}>
+        <span>🔥</span> Streak &amp; Weekly Goal
+        <span style={{ fontSize: '0.68rem', fontWeight: 400, color: 'var(--text-dim)', marginLeft: 8 }}>
+          (based on your LeetCode activity)
+        </span>
+      </div>
+
+      {!ready ? (
+        <div className="dsa-idle">Fetch your LeetCode profile above to see your streak and weekly progress.</div>
+      ) : (
+        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center', padding: '4px 2px' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#f59e0b', lineHeight: 1 }}>
+              🔥 <AnimatedNumber value={streak} />
+            </div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: 4, letterSpacing: 1 }}>
+              DAY STREAK
+            </div>
+          </div>
+
+          <div style={{ flex: '1 1 260px', minWidth: 220 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 12, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text)', fontWeight: 600 }}>
+                {solvedThisWeek} / {goal} solved this week {metGoal && '🎉'}
+              </span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                Weekly goal:
+                <input
+                  type="number"
+                  min={1}
+                  max={200}
+                  value={goal}
+                  onChange={e => setGoal(Math.max(1, Number(e.target.value) || 1))}
+                  className="dsa-username-input"
+                  style={{ width: 60, padding: '4px 8px' }}
+                />
+              </label>
+            </div>
+            <div style={{ height: 10, borderRadius: 6, background: 'var(--bg-card-alt, rgba(148,163,184,0.15))', overflow: 'hidden' }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${pct}%` }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                style={{ height: '100%', borderRadius: 6, background: metGoal ? '#10b981' : 'linear-gradient(90deg,#f59e0b,#fbbf24)' }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
@@ -215,6 +300,7 @@ export default function DsaTrackerPage() {
           </div>
 
           <div className="dsa-results-grid">
+            <StreakGoalCard leetcodeState={results.leetcode} />
             {DSA_PLATFORMS.map(p => <PlatformResult key={p} platform={p} state={results[p]} />)}
           </div>
         </div>
