@@ -42,7 +42,9 @@ export default function JobStatsBar({ stats, moneyLabel, avgMoney, loading }) {
               <span className="job-stat-emoji" style={{ background: c.color + '1a', color: c.color }}>{c.emoji}</span>
               <span className="job-stat-lbl">{c.label}</span>
             </div>
-            <div className="job-stat-val" style={{ color: c.color }}><AnimatedNumber value={c.value} /></div>
+            <div className="job-stat-val" style={{ color: c.color }}>
+              {c.key === 'money' ? c.value : <AnimatedNumber value={c.value} />}
+            </div>
             <div className="job-stat-sub">{c.sub}</div>
           </StaggerItem>
         ))}
