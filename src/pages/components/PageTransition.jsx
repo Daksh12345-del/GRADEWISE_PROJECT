@@ -1,18 +1,23 @@
 import { motion } from 'framer-motion'
 
 // Shared enter animation for every page. Wrap a route's element in this so
-// pages ease in on mount with a slide + slight scale + soft fade.
+// pages ease in on mount with a slide + soft fade.
 //
-// Opacity is deliberately kept in a SAFE range (0.6 -> 1), never 0 -> 1.
-// Two earlier versions started fully transparent, and on a page that loads
-// in a background/unfocused tab, Chrome throttles requestAnimationFrame —
-// so the animation (and the content stuck at opacity:0) never ran until the
-// user clicked into the tab. Starting at 0.6 means even in the worst case
-// where the animation frame never fires, the page is still clearly visible
-// and readable, just slightly softer — never a blank screen.
+// Deliberately NO `scale` transform. A scale animation (0.98 -> 1) was
+// tried here for a "premium" feel, but if the transition doesn't fully
+// complete by the time content paints (e.g. right after a hard refresh,
+// while the page is still busy fetching/hydrating), the page gets stuck
+// mid-scale — and a non-1 scale on text renders visibly blurry until
+// something forces a re-render (navigating away and back). Slide + opacity
+// don't have this problem: at any intermediate value they still look sharp.
+//
+// Opacity is also kept in a SAFE range (0.6 -> 1), never 0 -> 1, so a page
+// that loads in a background/unfocused tab (where the browser throttles
+// requestAnimationFrame) is never fully invisible even if the animation
+// frame never fires.
 const variants = {
-  initial: { opacity: 0.6, y: 18, scale: 0.98 },
-  animate: { opacity: 1, y: 0, scale: 1 },
+  initial: { opacity: 0.6, y: 16 },
+  animate: { opacity: 1, y: 0 },
 }
 
 export default function PageTransition({ children }) {
@@ -21,7 +26,7 @@ export default function PageTransition({ children }) {
       variants={variants}
       initial="initial"
       animate="animate"
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       style={{ minHeight: '100%' }}
     >
       {children}
