@@ -59,7 +59,7 @@ function PlatformResult({ platform, state }) {
               <Stat label="Hard" value={state.data.hardSolved} />
               <Stat label="Rank" value={state.data.ranking} />
               <Stat label="Contest Rating" value={state.data.contestRating} />
-              <Stat label="🔥 Current Streak" value={state.data.streak ? `${state.data.streak} days` : undefined} />
+              <Stat label="🔥 Current Streak" value={state.data.streak !== undefined ? `${state.data.streak} days` : undefined} />
               <Stat label="Total Active Days" value={state.data.totalActiveDays} />
             </>
           )}
@@ -93,8 +93,8 @@ function PlatformResult({ platform, state }) {
               <Stat label="Hard" value={state.data.hardSolved} />
               <Stat label="Coding Score" value={state.data.totalScore} />
               <Stat label="Institute Rank" value={state.data.rank} />
-              <Stat label="🔥 Current Streak" value={state.data.streak ? `${state.data.streak} days` : undefined} />
-              <Stat label="Max Streak" value={state.data.maxStreak ? `${state.data.maxStreak} days` : undefined} />
+              <Stat label="🔥 Current Streak" value={state.data.streak !== undefined ? `${state.data.streak} days` : undefined} />
+              <Stat label="Max Streak" value={state.data.maxStreak !== undefined ? `${state.data.maxStreak} days` : undefined} />
             </>
           )}
           {platform === 'hackerrank' && (
@@ -110,7 +110,7 @@ function PlatformResult({ platform, state }) {
               <Stat label="Total Stars" value={state.data.totalStars} />
               <Stat label="Total Forks" value={state.data.totalForks} />
               <Stat label="Contributions (yr)" value={state.data.contributions} />
-              <Stat label="🔥 Current Streak" value={state.data.streak ? `${state.data.streak} days` : undefined} />
+              <Stat label="🔥 Current Streak" value={state.data.streak !== undefined ? `${state.data.streak} days` : undefined} />
               <Stat label="Active Days This Week" value={state.data.activeDaysThisWeek} />
             </>
           )}
