@@ -93,6 +93,8 @@ function PlatformResult({ platform, state }) {
               <Stat label="Hard" value={state.data.hardSolved} />
               <Stat label="Coding Score" value={state.data.totalScore} />
               <Stat label="Institute Rank" value={state.data.rank} />
+              <Stat label="🔥 Current Streak" value={state.data.streak ? `${state.data.streak} days` : undefined} />
+              <Stat label="Max Streak" value={state.data.maxStreak ? `${state.data.maxStreak} days` : undefined} />
             </>
           )}
           {platform === 'hackerrank' && (
@@ -108,6 +110,8 @@ function PlatformResult({ platform, state }) {
               <Stat label="Total Stars" value={state.data.totalStars} />
               <Stat label="Total Forks" value={state.data.totalForks} />
               <Stat label="Contributions (yr)" value={state.data.contributions} />
+              <Stat label="🔥 Current Streak" value={state.data.streak ? `${state.data.streak} days` : undefined} />
+              <Stat label="Active Days This Week" value={state.data.activeDaysThisWeek} />
             </>
           )}
         </div>
@@ -122,14 +126,13 @@ function PlatformResult({ platform, state }) {
 
 const GOAL_STORAGE_KEY = 'gw_dsa_weekly_goal'
 
-// Streak + weekly-goal card. Backed by LeetCode's own userCalendar data
-// (streak, totalActiveDays, solvedThisWeek — computed server-side in
-// app/dsa/leetcode.py from LeetCode's real submission calendar), since
-// that's the one platform among the six that actually exposes day-by-day
-// activity data through a public endpoint. Codeforces/CodeChef/GFG/
-// HackerRank/GitHub don't expose an equivalent daily-activity calendar, so
-// this card is intentionally LeetCode-specific rather than pretending to
-// aggregate a "streak" across platforms that don't have the data for it.
+// Weekly-goal progress bar is LeetCode-specific because a "goal of N
+// problems" needs a per-day *count of problems solved*, and only
+// LeetCode's calendar gives that. GFG (currentStreak/maxStreak) and GitHub
+// (derived from recent event history) also show real streaks — see their
+// own cards in the results grid — but neither exposes enough to drive a
+// "problems this week" counter. CodeChef/HackerRank don't expose any
+// day-by-day activity data through the endpoints this backend uses.
 function StreakGoalCard({ leetcodeState }) {
   const [goal, setGoal] = useState(() => {
     const saved = Number(localStorage.getItem(GOAL_STORAGE_KEY))
@@ -151,7 +154,7 @@ function StreakGoalCard({ leetcodeState }) {
       <div className="dsa-card-head" style={{ color: '#f59e0b' }}>
         <span>🔥</span> Streak &amp; Weekly Goal
         <span style={{ fontSize: '0.68rem', fontWeight: 400, color: 'var(--text-dim)', marginLeft: 8 }}>
-          (based on your LeetCode activity)
+          (weekly problems-solved goal — LeetCode; GFG &amp; GitHub streaks shown on their own cards below)
         </span>
       </div>
 
