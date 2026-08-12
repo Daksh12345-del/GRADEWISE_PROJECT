@@ -7,6 +7,7 @@
 // ============================================================
 
 import { SEMESTERS } from './gradesData'
+import { CODE_TO_GROUP } from './batchGroups'
 
 let pdfJsReady = false
 function loadPdfJs() {
@@ -273,6 +274,32 @@ function parseMarksFromPages(pages) {
   return [...bestResult.values()].sort((a, b) => (a.si !== b.si ? a.si - b.si : a.ji - b.ji))
 }
 
+// ── Batch-group auto-detection ───────────────────────────────
+// A student's scanned result sheet already contains hard evidence of which
+// batch group they're in — the specific subject codes on it (e.g. BAS101
+// "Engineering Physics" only exists for group A, BAS102 "Engineering
+// Chemistry" only for group B). No need to ask, and no reason to trust
+// whatever's already stored on the account (which may be blank — the
+// sign-up form stopped collecting it — or stale from a previous scan).
+// Every group-swap subject code found in THIS scan casts one vote; if every
+// vote agrees, that's the detected group. If the sheet has no group-swap
+// subjects on it (e.g. scanning only semester V-VIII), or — which should
+// never legitimately happen — codes from both groups both appear, detection
+// is left undecided rather than guessed.
+export function detectBatchGroup(scanned) {
+  let votesA = 0
+  let votesB = 0
+  scanned.forEach((item) => {
+    const g = CODE_TO_GROUP[item.subjectCode]
+    if (g === 'A') votesA++
+    else if (g === 'B') votesB++
+  })
+  if (votesA > 0 && votesB === 0) return { group: 'A', votes: votesA }
+  if (votesB > 0 && votesA === 0) return { group: 'B', votes: votesB }
+  if (votesA > 0 && votesB > 0) return { group: null, conflict: true, votesA, votesB }
+  return { group: null }
+}
+
 // ── Public API ────────────────────────────────────────────────
 export async function scanResultPdf(file, semFilter = -1) {
   if (!file) throw new Error('Please choose a result-sheet PDF first.')
@@ -295,12 +322,33 @@ export async function scanResultPdf(file, semFilter = -1) {
 
 // Applies scanned results into the marksData/backData/electiveChoices shape
 // used by useMarksData. Returns { nextMarksData, nextBackData, nextElectiveChoices, affectedSems }.
-export function applyScannedResults(scanned, marksData, backData, electiveChoices = {}) {
+//
+// `fullScan` should be true when the user scanned with the "All Semesters"
+// filter (the default/recommended option). A One View PDF scanned that way
+// is the complete, authoritative record up to that point — a student who's
+// only completed 4 semesters simply won't have rows for 5-8 in it. Any data
+// already sitting in this account for a semester the PDF has no rows for is
+// therefore stale (leftover from an earlier scan/manual entry on this same
+// account, or from before this student's PDF was uploaded here), not a
+// legitimate other semester to preserve — so those semesters get cleared
+// instead of silently carried over. A single-semester filtered scan is a
+// deliberate partial/targeted update, so it never touches other semesters.
+export function applyScannedResults(scanned, marksData, backData, electiveChoices = {}, fullScan = false) {
   const nextMarksData = { ...marksData }
   const nextBackData = { ...backData }
   const nextElectiveChoices = { ...electiveChoices }
 
   const affectedSems = new Set(scanned.map((r) => r.si))
+
+  if (fullScan) {
+    SEMESTERS.forEach((_, si) => {
+      if (affectedSems.has(si)) return
+      delete nextMarksData[si]
+      delete nextBackData[si]
+      delete nextElectiveChoices[si]
+    })
+  }
+
   affectedSems.forEach((si) => {
     nextBackData[si] = { ...(nextBackData[si] || {}) }
     SEMESTERS[si].subjects.forEach((_, ji) => {

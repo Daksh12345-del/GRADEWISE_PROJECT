@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SEMESTERS } from '../lib/gradesData'
 import { VIDEO_DATA, PYQ_LINKS, SUBJECT_NOTES } from '../lib/resourcesData'
+import { BATCH_SWAP_COMBINED_CODES, BATCH_SWAP_OVERRIDE } from '../lib/batchGroups'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
@@ -14,79 +15,11 @@ import { RevealOnScroll } from './components/motionKit'
 
 const VIDEO_COLORS = ['#06b6d4','#8b5cf6','#10b981','#f59e0b','#3b82f6','#ec4899','#22d3ee','#a78bfa']
 
-// Batch-group subject swap. Every AKTU subject pair that officially alternates
-// between the two halves of a batch (same two subjects, opposite order in the
-// paired semester) swaps together based on the student's Sem I choice:
-// Physics-first (A): Sem I -> Physics, Electrical, Programming, Environment | Sem III -> Cyber Security, UHV
-// Chemistry-first (B): Sem I -> Chemistry, Electronics, Mechanical, Soft Skills | Sem III -> Python, Tech. Communication
-// ...and each one's mirror in the paired semester (II<->I, IV<->III).
-// NOT touched: BAS303/BAS404 (same Maths-IV content either way, no alternation),
-// and the BCS.../BCDS..., BCS701/BAI701 pairs — those are CSE vs CSE-DS branch
-// variants, an entirely different axis from the Physics/Chemistry batch choice.
-const BATCH_SWAP_COMBINED_CODES = {
-  0: ['BAS101/BAS102', 'BEE101/BEC101', 'BCS101/BME101', 'BAS104/BAS105'],
-  1: ['BAS202/BAS201', 'BEC201/BEE201', 'BME201/BCS201', 'BAS205/BAS204'],
-  2: ['BVE301/BAS301', 'BCC301/BCC302'],
-  3: ['BAS401/BVE401', 'BCC402/BCC401'],
-}
-const BATCH_SWAP_OVERRIDE = {
-  0: {
-    'BAS101/BAS102': {
-      A: { code: 'BAS101', name: 'Engineering Physics' },
-      B: { code: 'BAS102', name: 'Engineering Chemistry' },
-    },
-    'BEE101/BEC101': {
-      A: { code: 'BEE101', name: 'Fundamentals of Electrical Engineering' },
-      B: { code: 'BEC101', name: 'Fundamentals of Electronics Engineering' },
-    },
-    'BCS101/BME101': {
-      A: { code: 'BCS101', name: 'Programming for Problem Solving' },
-      B: { code: 'BME101', name: 'Fundamentals of Mechanical Engineering' },
-    },
-    'BAS104/BAS105': {
-      A: { code: 'BAS104', name: 'Environment and Ecology' },
-      B: { code: 'BAS105', name: 'Soft Skills' },
-    },
-  },
-  1: {
-    'BAS202/BAS201': {
-      A: { code: 'BAS202', name: 'Engineering Chemistry' },
-      B: { code: 'BAS201', name: 'Engineering Physics' },
-    },
-    'BEC201/BEE201': {
-      A: { code: 'BEC201', name: 'Fundamentals of Electronics Engineering' },
-      B: { code: 'BEE201', name: 'Fundamentals of Electrical Engineering' },
-    },
-    'BME201/BCS201': {
-      A: { code: 'BME201', name: 'Fundamentals of Mechanical Engineering' },
-      B: { code: 'BCS201', name: 'Programming for Problem Solving' },
-    },
-    'BAS205/BAS204': {
-      A: { code: 'BAS205', name: 'Soft Skills' },
-      B: { code: 'BAS204', name: 'Environment and Ecology' },
-    },
-  },
-  2: {
-    'BVE301/BAS301': {
-      A: { code: 'BAS301', name: 'Technical Communication' },
-      B: { code: 'BVE301', name: 'Universal Human Values' },
-    },
-    'BCC301/BCC302': {
-      A: { code: 'BCC301', name: 'Cyber Security' },
-      B: { code: 'BCC302', name: 'Python Programming' },
-    },
-  },
-  3: {
-    'BAS401/BVE401': {
-      A: { code: 'BVE401', name: 'Universal Human Values' },
-      B: { code: 'BAS401', name: 'Technical Communication' },
-    },
-    'BCC402/BCC401': {
-      A: { code: 'BCC402', name: 'Python Programming' },
-      B: { code: 'BCC401', name: 'Cyber Security' },
-    },
-  },
-}
+// Batch-group swap tables now live in ../lib/batchGroups.js — shared with
+// the PDF scanner, which uses the same data to auto-detect a student's
+// group straight from their result sheet. See that file for the full
+// Physics-first/Chemistry-first explanation.
+
 
 // Some of the swapped subjects genuinely have different content per half
 // (Physics vs Chemistry, Electrical vs Electronics) — those need real,

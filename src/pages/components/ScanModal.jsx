@@ -1,18 +1,23 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { SEMESTERS } from '../../lib/gradesData'
-import { scanResultPdf, applyScannedResults } from '../../lib/pdfScan'
+import { scanResultPdf, applyScannedResults, detectBatchGroup } from '../../lib/pdfScan'
 import { useGrades } from '../../lib/GradesContext'
+import { useAuthUser, useSetUserGroup } from '../../lib/useAuthUser'
 
 const SEM_ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+const GROUP_LABEL = { A: 'Physics-first (Group A)', B: 'Chemistry-first (Group B)' }
 
 export default function ScanModal({ open, onClose }) {
   const grades = useGrades()
+  const { user } = useAuthUser()
+  const setUserGroup = useSetUserGroup()
   const fileInputRef = useRef(null)
   const [file, setFile] = useState(null)
   const [semFilter, setSemFilter] = useState(-1)
   const [status, setStatus] = useState(null) // { type: 'loading'|'success'|'error', msg }
   const [results, setResults] = useState(null)
+  const [detectedGroup, setDetectedGroup] = useState(null)
   const [busy, setBusy] = useState(false)
   const [dragOver, setDragOver] = useState(false)
 
@@ -22,6 +27,7 @@ export default function ScanModal({ open, onClose }) {
     setFile(null)
     setStatus(null)
     setResults(null)
+    setDetectedGroup(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -49,11 +55,21 @@ export default function ScanModal({ open, onClose }) {
       setStatus({ type: 'loading', msg: '🔍 Scanning result table for marks…' })
       const semsFound = [...new Set(extracted.map((r) => r.si + 1))]
       const semLabel = semsFound.length > 1 ? `Semesters ${semsFound.join(', ')}` : `Semester ${semsFound[0]}`
+
+      // Detect batch group straight from the codes actually found on this
+      // sheet — never trusted from the account, always re-verified per scan.
+      const detection = detectBatchGroup(extracted)
+      setDetectedGroup(detection.group)
+
       setResults(extracted)
-      setStatus({
-        type: 'success',
-        msg: `✅ Found ${extracted.length} subject(s) across ${semLabel}! Review below and click "Fill All Marks".`,
-      })
+      let msg = `✅ Found ${extracted.length} subject(s) across ${semLabel}!`
+      if (detection.group) {
+        msg += ` Detected ${GROUP_LABEL[detection.group]}.`
+      } else if (detection.conflict) {
+        msg += ' ⚠️ Codes from both batch groups appeared — skipping group update, please double check this PDF.'
+      }
+      msg += ' Review below and click "Fill All Marks".'
+      setStatus({ type: 'success', msg })
     } catch (err) {
       setStatus({ type: 'error', msg: '❌ ' + (err.message || 'Something went wrong. Please try again.') })
     } finally {
@@ -63,10 +79,21 @@ export default function ScanModal({ open, onClose }) {
 
   function fillAllScannedMarks() {
     if (!results || results.length === 0) return
+    // semFilter === -1 means "All Semesters" was scanned — treat the PDF as
+    // the complete record and clear any semester it has no rows for, instead
+    // of leaving old/stale data from before sitting in the account.
     const { nextMarksData, nextBackData, nextElectiveChoices } = applyScannedResults(
-      results, grades.marksData, grades.backData, grades.electiveChoices
+      results, grades.marksData, grades.backData, grades.electiveChoices, semFilter === -1
     )
     grades.bulkApply(nextMarksData, nextBackData, nextElectiveChoices)
+
+    // Only overwrite the stored group when this scan gave an unambiguous
+    // answer AND it actually differs from what's stored — avoids a pointless
+    // write, and never touches it on a conflicting/undetected scan.
+    if (detectedGroup && detectedGroup !== user?.group) {
+      setUserGroup(detectedGroup)
+    }
+
     setStatus({ type: 'success', msg: `✅ Filled ${results.length} subject(s). You can review them on the Grades tabs.` })
     setTimeout(handleClose, 900)
   }

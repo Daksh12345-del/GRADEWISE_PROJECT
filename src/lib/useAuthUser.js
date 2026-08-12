@@ -53,3 +53,22 @@ export function useLogout() {
     navigate('/')
   }, [navigate, signOut])
 }
+
+// Lets the PDF scanner set/correct the student's batch group (A/B) from
+// hard evidence found on their own result sheet, instead of relying on
+// whatever's stored (which may be blank, since sign-up no longer asks).
+// Always overwrites — a freshly-scanned, unambiguous detection is more
+// trustworthy than a stale or missing stored value.
+export function useSetUserGroup() {
+  const { user: clerkUser } = useUser()
+  return useCallback(async (group) => {
+    if (!clerkUser || (group !== 'A' && group !== 'B')) return
+    try {
+      await clerkUser.update({
+        unsafeMetadata: { ...(clerkUser.unsafeMetadata || {}), group },
+      })
+    } catch (e) {
+      console.error('Failed to update batch group:', e)
+    }
+  }, [clerkUser])
+}
