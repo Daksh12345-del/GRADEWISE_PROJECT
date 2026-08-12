@@ -81,10 +81,30 @@ function buildCodeIndex() {
       const parts = raw.split('/')
       const base = parts[0].trim()
       reg(base, si, ji, subj)
+
+      // AKTU prints the Sports/Yoga/NSS audit courses under a "BVA" code,
+      // but curriculum data for these has sometimes been entered as "BVE"
+      // (mixed up with the unrelated BVE Human Values subjects). A code
+      // typo here means the scanner silently skips the row — the subject
+      // still renders fine for manual entry, so this is easy to miss.
+      // Registering both prefixes for audit subjects only (never for
+      // regular theory/practical subjects) makes scanning resilient to
+      // that specific, known mismatch without risking false matches
+      // elsewhere.
+      if (subj.audit) {
+        if (base.startsWith('BVA')) reg('BVE' + base.slice(3), si, ji, subj)
+        else if (base.startsWith('BVE')) reg('BVA' + base.slice(3), si, ji, subj)
+      }
+
       if (parts[1]) {
         const sec = parts[1].trim()
         if (/^\d+$/.test(sec)) {
-          reg(base.replace(/\d+$/, '') + sec, si, ji, subj)
+          const secCode = base.replace(/\d+$/, '') + sec
+          reg(secCode, si, ji, subj)
+          if (subj.audit) {
+            if (secCode.startsWith('BVA')) reg('BVE' + secCode.slice(3), si, ji, subj)
+            else if (secCode.startsWith('BVE')) reg('BVA' + secCode.slice(3), si, ji, subj)
+          }
         } else {
           reg(sec, si, ji, subj)
         }
