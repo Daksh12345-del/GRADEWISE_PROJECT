@@ -9,10 +9,29 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Google Fonts: preconnect early to cut the DNS+TLS handshake off the
+         critical path, then load the actual stylesheet as non-render-blocking
+         (preload + swap rel on load). Previously this was a plain blocking
+         <link rel="stylesheet">, which meant the browser couldn't paint
+         *anything* until it finished a full round trip to a third-party
+         domain — often the single biggest chunk of "blank white screen" time,
+         especially on slower mobile connections. The <noscript> fallback
+         keeps fonts working the same way for the rare case JS is disabled. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap"
+      />
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

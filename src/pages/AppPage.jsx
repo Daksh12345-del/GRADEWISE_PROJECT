@@ -258,7 +258,6 @@ export default function AppPage() {
         email: user?.email,
         college: user?.college,
         university: user?.university,
-        roll: user?.roll,
       })
     } catch (e) {
       console.error('Export failed:', e)

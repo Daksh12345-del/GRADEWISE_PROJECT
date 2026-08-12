@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion'
-
 // Shared enter animation for every page. Wrap a route's element in this so
 // pages ease in on mount with a slide + soft fade.
 //
@@ -15,21 +13,18 @@ import { motion } from 'framer-motion'
 // that loads in a background/unfocused tab (where the browser throttles
 // requestAnimationFrame) is never fully invisible even if the animation
 // frame never fires.
-const variants = {
-  initial: { opacity: 0.6, y: 16 },
-  animate: { opacity: 1, y: 0 },
-}
-
+//
+// This used to be done with framer-motion, but that pulled the whole
+// ~70KB(gzip) animation library into the *eager* load path — App.jsx wraps
+// nearly every route in this component, and App.jsx is never lazy, so
+// framer-motion was being downloaded and parsed before any page-specific
+// code even started, on every single first visit. A plain CSS keyframe
+// animation (defined in style.css as `.page-transition-in`) produces the
+// same fade + slide with zero extra JS, so the whole app loads faster.
 export default function PageTransition({ children }) {
   return (
-    <motion.div
-      variants={variants}
-      initial="initial"
-      animate="animate"
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      style={{ minHeight: '100%' }}
-    >
+    <div className="page-transition-in" style={{ minHeight: '100%' }}>
       {children}
-    </motion.div>
+    </div>
   )
 }

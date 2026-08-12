@@ -3,6 +3,7 @@ import {
   getTotal, getGrade, getGradeNoGrace, getGradeForInternalOnly,
   calcSGPA, calcSGPAWithBack, calcCGPAWithBack, calcCGPA,
 } from './gradesEngine'
+import { REPORT_FAVICON_DATA_URI, REPORT_LOGO_DATA_URI } from './exportAssets'
 
 const GRADE_COLORS = { 'A+': '#0284c7', 'A': '#7c3aed', 'B+': '#4f46e5', 'B': '#059669', 'C': '#d97706', 'D': '#ea580c', 'E#': '#c2410c', 'F': '#dc2626' }
 
@@ -172,7 +173,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
 <head>
 <meta charset="UTF-8">
 <title>AKTU CGPA Report – ${profile.name || 'Student'}</title>
-<link rel="icon" type="image/png" href="https://gradewallah.com/android-chrome-512x512.png">
+<link rel="icon" type="image/png" href="${REPORT_FAVICON_DATA_URI}">
 <style>
   @media print {
     .no-print { display: none !important; }
@@ -191,7 +192,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
 
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 4px;margin-bottom:18px;border-bottom:1px solid #cbd5e1;">
     <a href="https://gradewallah.com" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
-      <img src="https://gradewallah.com/android-chrome-512x512.png" alt="Gradewallah" style="width:22px;height:22px;border-radius:6px;object-fit:contain;">
+      <img src="${REPORT_LOGO_DATA_URI}" alt="Gradewallah" style="width:22px;height:22px;border-radius:6px;object-fit:contain;">
       <span style="font-family:'Courier New',monospace;font-size:13px;font-weight:800;color:#0f172a;letter-spacing:1px;">Gradewallah</span>
     </a>
     <a href="https://gradewallah.com" style="font-size:12px;color:#0284c7;text-decoration:none;font-weight:600;">gradewallah.com</a>
@@ -203,7 +204,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
       <div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
           <div style="width:48px;height:48px;background:#fff;border:2px solid #06b6d4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
-            <img src="https://gradewallah.com/android-chrome-512x512.png" alt="Gradewallah" style="width:36px;height:36px;object-fit:contain;">
+            <img src="${REPORT_LOGO_DATA_URI}" alt="Gradewallah" style="width:36px;height:36px;object-fit:contain;">
           </div>
           <div>
             <div style="font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:#06b6d4;letter-spacing:3px;">AKTU CSE CGPA REPORT</div>
@@ -248,7 +249,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
 
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;margin-top:8px;border-top:1px solid #cbd5e1;">
     <a href="https://gradewallah.com" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
-      <img src="https://gradewallah.com/android-chrome-512x512.png" alt="Gradewallah" style="width:18px;height:18px;border-radius:5px;object-fit:contain;">
+      <img src="${REPORT_LOGO_DATA_URI}" alt="Gradewallah" style="width:18px;height:18px;border-radius:5px;object-fit:contain;">
       <span style="font-family:'Courier New',monospace;font-size:12px;font-weight:800;color:#0f172a;letter-spacing:1px;">Gradewallah</span>
     </a>
     <a href="https://gradewallah.com" style="font-size:11px;color:#0284c7;text-decoration:none;font-weight:600;">gradewallah.com</a>

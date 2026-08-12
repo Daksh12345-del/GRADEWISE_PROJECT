@@ -260,7 +260,6 @@ export default function RightPanel({ marksData, backData, currentSemIndex, semes
         email: user?.email,
         college: user?.college,
         university: user?.university,
-        roll: user?.roll,
       })
     } catch (e) {
       console.error('Export failed:', e)
