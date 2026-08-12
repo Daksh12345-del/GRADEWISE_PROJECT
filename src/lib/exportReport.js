@@ -259,11 +259,28 @@ export function generateAndOpenReport(marksData, backData, profile) {
 </body>
 </html>`
 
-  const win = window.open('', '_blank')
+  // Open the report as a real Blob URL rather than window.open('', ...) +
+  // document.write(). The latter leaves the tab's address at "about:blank"
+  // forever — and Chrome (and other browsers) only resolve <link rel="icon">
+  // favicons for actual navigated documents, not for content injected into
+  // an about:blank page via document.write(). That's why the favicon fix
+  // never showed up: the tab was always stuck on about:blank under the
+  // hood, so Chrome fell back to its own generic icon for blank pages no
+  // matter what we put in the HTML. A Blob URL (blob:https://…) is a real,
+  // navigable URL, so the favicon (and everything else in <head>) resolves
+  // normally.
+  const blob = new Blob([html], { type: 'text/html' })
+  const blobUrl = URL.createObjectURL(blob)
+  const win = window.open(blobUrl, '_blank')
   if (!win) {
+    URL.revokeObjectURL(blobUrl)
     alert('Please allow popups for this site to export the report.')
     return
   }
-  win.document.write(html)
-  win.document.close()
+  // Revoke once the popup has loaded the blob (it's already been read into
+  // the new document by then) — freeing the memory without racing the load.
+  win.addEventListener('load', () => URL.revokeObjectURL(blobUrl))
+  // Fallback in case the load event is missed (e.g. popup blocked mid-way,
+  // or the browser doesn't fire it reliably for blob: documents).
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000)
 }
