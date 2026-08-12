@@ -212,7 +212,6 @@ export function generateAndOpenReport(marksData, backData, profile) {
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;">
           <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Student</span><br><span style="font-size:16px;font-weight:800;color:#111827;">${profile.name || '–'}</span></div>
-          <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Roll Number</span><br><span style="font-size:16px;font-weight:800;color:#111827;font-family:'Courier New',monospace;">${profile.roll || '–'}</span></div>
           <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">College</span><br><span style="font-size:14px;color:#1f2937;font-weight:600;">${profile.college || '–'}</span></div>
           <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">University</span><br><span style="font-size:14px;color:#1f2937;font-weight:600;">${profile.university || 'AKTU'}</span></div>
           <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Email</span><br><span style="font-size:13px;color:#1f2937;font-weight:600;">${profile.email || '–'}</span></div>
