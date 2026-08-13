@@ -3060,7 +3060,9 @@ body.light-mode #dash-cgpa-hero {
     color: var(--text-dim);
     margin-bottom: 1.1rem;
   }
-  /* Floating planner button for mobile/tablet */
+  /* Floating planner button — mobile/tablet only. On desktop the header's
+     "📊 Stats" button already covers this, so the floating one stays
+     hidden there to avoid duplicate UI. */
   .btn-planner-float {
     display: none;
     position: fixed;
@@ -3084,6 +3086,47 @@ body.light-mode #dash-cgpa-hero {
   }
   .btn-planner-float:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(139,92,246,0.55); }
   @media (max-width: 1279px) { .btn-planner-float { display: flex; } }
+
+  /* Future CGPA Simulator: Remaining-sems / All-8-semesters mode toggle */
+  .sim-mode-toggle {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.7rem;
+  }
+  .sim-mode-btn {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card2);
+    color: var(--text-dim);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sim-mode-btn:hover { color: var(--text-main); }
+  .sim-mode-btn.active {
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    border-color: transparent;
+    color: white;
+  }
+  .sim-reset-btn {
+    display: block;
+    margin: 0 0 0.7rem auto;
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sim-reset-btn:hover { color: var(--text-main); border-color: var(--purple); }
 
   /* Mobile "Stats" bottom sheet — wraps RightPanel (CGPA, Target Planner,
      Simulator, Grading System, Export PDF, etc.) so it's reachable on

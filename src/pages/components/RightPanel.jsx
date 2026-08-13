@@ -147,15 +147,29 @@ function TargetPlanner({ marksData, backData, semestersDone, creditsEarned, curr
   )
 }
 
-// Lets the user type a hypothetical/expected SGPA for each semester that
-// isn't complete yet (result not out, or exam not given), and shows what
-// the final overall CGPA would come out to once all of those semesters
-// actually finish — using each semester's real credit load, not an
-// average. Completed semesters keep contributing their actual SGPA.
+// Lets the user type a hypothetical/expected SGPA for each semester and
+// shows what the final overall CGPA would come out to — using each
+// semester's real credit load, not an average.
+//
+// Two modes:
+//  - "Remaining sems": only semesters that aren't complete yet (result not
+//    out, or exam not given) get an input box. Completed semesters keep
+//    contributing their actual SGPA. (Old default behaviour.)
+//  - "All 8 semesters": every semester gets an input box, including ones
+//    already completed. Leaving a completed semester's box empty falls
+//    back to its actual recorded SGPA, so you only need to type the ones
+//    you want to experiment with.
 function FutureCgpaSimulator({ marksData, currentCGPA, creditsEarned }) {
   const remaining = SEMESTERS
     .map((sem, si) => ({ si, sem }))
     .filter(({ si }) => !isSemComplete(si, marksData))
+
+  const allSems = SEMESTERS.map((sem, si) => ({ si, sem }))
+  const hasRemaining = remaining.length > 0
+
+  const [mode, setMode] = useState(hasRemaining ? 'remaining' : 'all')
+  const effectiveMode = hasRemaining ? mode : 'all'
+  const activeSems = effectiveMode === 'all' ? allSems : remaining
 
   const [guesses, setGuesses] = useState({}) // { [si]: '9.00' }
 
@@ -163,20 +177,54 @@ function FutureCgpaSimulator({ marksData, currentCGPA, creditsEarned }) {
     setGuesses((prev) => ({ ...prev, [si]: val }))
   }
 
+  function resetGuesses() {
+    setGuesses({})
+  }
+
   const completedPoints = currentCGPA * creditsEarned
 
   const result = useMemo(() => {
-    if (remaining.length === 0) return null
+    if (effectiveMode === 'remaining') {
+      if (remaining.length === 0) return null
 
-    let points = completedPoints
-    let credits = creditsEarned
+      let points = completedPoints
+      let credits = creditsEarned
+      let filledCount = 0
+
+      for (const { si } of remaining) {
+        const raw = parseFloat(guesses[si])
+        const semCredits = getSemCredits(si)
+        if (!isNaN(raw) && raw >= 0 && raw <= 10) {
+          points += raw * semCredits
+          credits += semCredits
+          filledCount++
+        }
+      }
+
+      if (filledCount === 0) return null
+      const finalCGPA = credits > 0 ? points / credits : 0
+      return { finalCGPA, allFilled: filledCount === remaining.length }
+    }
+
+    // "all" mode: every semester contributes either the typed guess, or
+    // (if it's already complete and nothing was typed) its actual SGPA.
+    let points = 0
+    let credits = 0
     let filledCount = 0
 
-    for (const { si } of remaining) {
-      const raw = parseFloat(guesses[si])
+    for (const { si } of allSems) {
       const semCredits = getSemCredits(si)
+      const raw = parseFloat(guesses[si])
+      let sgpaToUse = null
+
       if (!isNaN(raw) && raw >= 0 && raw <= 10) {
-        points += raw * semCredits
+        sgpaToUse = raw
+      } else if (isSemComplete(si, marksData)) {
+        sgpaToUse = calcSGPA(si, marksData)
+      }
+
+      if (sgpaToUse !== null) {
+        points += sgpaToUse * semCredits
         credits += semCredits
         filledCount++
       }
@@ -184,13 +232,8 @@ function FutureCgpaSimulator({ marksData, currentCGPA, creditsEarned }) {
 
     if (filledCount === 0) return null
     const finalCGPA = credits > 0 ? points / credits : 0
-    return {
-      finalCGPA,
-      allFilled: filledCount === remaining.length,
-    }
-  }, [guesses, remaining, completedPoints, creditsEarned])
-
-  if (remaining.length === 0) return null
+    return { finalCGPA, allFilled: filledCount === allSems.length }
+  }, [guesses, effectiveMode, remaining, allSems, completedPoints, creditsEarned, marksData])
 
   return (
     <div className="panel-section planner-section" id="future-cgpa-panel">
@@ -198,28 +241,60 @@ function FutureCgpaSimulator({ marksData, currentCGPA, creditsEarned }) {
         <div className="planner-title-icon">🔮</div>
         <div className="planner-title-text">Future CGPA Simulator</div>
       </div>
+
+      {hasRemaining && (
+        <div className="sim-mode-toggle">
+          <button
+            type="button"
+            className={`sim-mode-btn ${effectiveMode === 'remaining' ? 'active' : ''}`}
+            onClick={() => setMode('remaining')}
+          >
+            Remaining sems
+          </button>
+          <button
+            type="button"
+            className={`sim-mode-btn ${effectiveMode === 'all' ? 'active' : ''}`}
+            onClick={() => setMode('all')}
+          >
+            All 8 semesters
+          </button>
+        </div>
+      )}
+
       <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '0.7rem', lineHeight: 1.4 }}>
-        Result not out yet, or haven't given the paper? Enter what SGPA you expect in each remaining semester and see your final CGPA.
+        {effectiveMode === 'remaining'
+          ? "Result not out yet, or haven't given the paper? Enter what SGPA you expect in each remaining semester and see your final CGPA."
+          : 'Type a hypothetical SGPA for any semester — even completed ones — and see how the final CGPA changes. Leave a box empty to keep that semester\u2019s actual recorded SGPA.'}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.6rem', marginBottom: '0.8rem' }}>
-        {remaining.map(({ si }) => (
-          <div key={si} className="compact-group" style={{ marginBottom: 0 }}>
-            <label className="compact-label" htmlFor={`future-sem-${si}`} style={{ fontSize: '0.68rem' }}>
-              Sem {si + 1}
-            </label>
-            <input
-              id={`future-sem-${si}`}
-              type="number"
-              className="target-planner-input"
-              placeholder="e.g. 8.5"
-              min="0" max="10" step="0.01"
-              value={guesses[si] ?? ''}
-              onChange={(e) => setGuess(si, e.target.value)}
-            />
-          </div>
-        ))}
+        {activeSems.map(({ si }) => {
+          const complete = isSemComplete(si, marksData)
+          const actual = complete ? calcSGPA(si, marksData) : null
+          return (
+            <div key={si} className="compact-group" style={{ marginBottom: 0 }}>
+              <label className="compact-label" htmlFor={`future-sem-${si}`} style={{ fontSize: '0.68rem' }}>
+                Sem {si + 1}{effectiveMode === 'all' && complete ? ` · actual ${actual.toFixed(2)}` : ''}
+              </label>
+              <input
+                id={`future-sem-${si}`}
+                type="number"
+                className="target-planner-input"
+                placeholder={effectiveMode === 'all' && complete ? actual.toFixed(2) : 'e.g. 8.5'}
+                min="0" max="10" step="0.01"
+                value={guesses[si] ?? ''}
+                onChange={(e) => setGuess(si, e.target.value)}
+              />
+            </div>
+          )
+        })}
       </div>
+
+      {effectiveMode === 'all' && Object.keys(guesses).length > 0 && (
+        <button type="button" className="sim-reset-btn" onClick={resetGuesses}>
+          ↺ Reset all to actual
+        </button>
+      )}
 
       <div className={`target-result-box ${result ? 'show achievable' : ''}`}>
         {result && (
@@ -231,13 +306,19 @@ function FutureCgpaSimulator({ marksData, currentCGPA, creditsEarned }) {
               </div>
               <div className="trb-right">
                 <div className="trb-status-icon">{result.allFilled ? '🎓' : '🔮'}</div>
-                <div className="trb-sems-info">{result.allFilled ? 'All remaining sems filled' : 'Based on filled fields so far'}</div>
+                <div className="trb-sems-info">
+                  {effectiveMode === 'all'
+                    ? (result.allFilled ? 'All 8 semesters accounted for' : 'Based on filled/completed sems so far')
+                    : (result.allFilled ? 'All remaining sems filled' : 'Based on filled fields so far')}
+                </div>
               </div>
             </div>
             <div className="trb-msg-bar">
               {result.allFilled
                 ? `If you score exactly these SGPAs, your overall CGPA will be ${result.finalCGPA.toFixed(2)}.`
-                : `Fill in every remaining semester above for the full 8-semester projection.`}
+                : effectiveMode === 'all'
+                  ? 'Fill in the remaining empty semesters above for the full 8-semester projection.'
+                  : 'Fill in every remaining semester above for the full 8-semester projection.'}
             </div>
           </>
         )}
