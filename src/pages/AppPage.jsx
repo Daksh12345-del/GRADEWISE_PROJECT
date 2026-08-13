@@ -15,7 +15,9 @@ import StatsSheet from './components/StatsSheet'
 import CgpaPictograph from './components/CgpaPictograph'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import Logo from './components/Logo'
+import ThemeToggleButton from './components/ThemeToggleButton'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
+import { useTheme } from '../lib/useTheme'
 
 const TYPE_BADGE = { Theory: 'badge-theory', Practical: 'badge-practical', Elective: 'badge-elective', Audit: 'badge-audit' }
 const SEM_ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
@@ -249,6 +251,7 @@ export default function AppPage() {
   const [statsOpen, setStatsOpen] = useState(false)
   const [exportBusy, setExportBusy] = useState(false)
   const sidebarToggle = useSidebarToggle()
+  const { isLight, toggleTheme } = useTheme()
 
   async function handleExport() {
     setExportBusy(true)
@@ -286,6 +289,7 @@ export default function AppPage() {
           <span style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>Grades</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <ThemeToggleButton isLight={isLight} toggleTheme={toggleTheme} title="Toggle Light/Dark Mode" />
           <button className="hdr-scan-btn" title="Scan Result Sheet" onClick={() => setScanOpen(true)}>📷 <span>Scan Result</span></button>
           <button className="hdr-stats-btn" title="View CGPA stats & planner" onClick={() => setStatsOpen(true)}>📊 <span>Stats</span></button>
           <button className="hdr-export-btn" title="Export report as PDF" onClick={handleExport} disabled={exportBusy}>
