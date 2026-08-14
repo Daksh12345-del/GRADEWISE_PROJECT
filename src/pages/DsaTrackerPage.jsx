@@ -8,6 +8,7 @@ import { AnimatedNumber } from './components/motionKit'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { fetchCodingProfile, DSA_PLATFORMS } from '../lib/api'
+import { DifficultyBarChart, CombinedHeatmap, ConsistencyRadar, WeakTopicsList, UpcomingContestsList } from './components/DsaInsights'
 
 const PLATFORM_META = {
   leetcode:   { label: 'LeetCode',   icon: '🟧', color: '#f59e0b' },
@@ -204,6 +205,18 @@ function StreakGoalCard({ leetcodeState }) {
   )
 }
 
+function InsightCard({ icon, color, title, subtitle, wide, children }) {
+  return (
+    <div className="dsa-card" style={{ borderColor: color + '33', ...(wide ? { gridColumn: '1 / -1' } : {}) }}>
+      <div className="dsa-card-head" style={{ color }}>
+        <span>{icon}</span> {title}
+        {subtitle && <span style={{ fontSize: '0.68rem', fontWeight: 400, color: 'var(--text-dim)', marginLeft: 8 }}>{subtitle}</span>}
+      </div>
+      {children}
+    </div>
+  )
+}
+
 export default function DsaTrackerPage() {
   const navigate = useNavigate()
   const { isLight, toggleTheme } = useTheme()
@@ -304,7 +317,32 @@ export default function DsaTrackerPage() {
 
           <div className="dsa-results-grid">
             <StreakGoalCard leetcodeState={results.leetcode} />
+
+            <InsightCard icon="📅" color="#39d353" title="Combined Activity Heatmap"
+              subtitle="LeetCode + Codeforces + GitHub, merged by day" wide>
+              <CombinedHeatmap results={results} />
+            </InsightCard>
+
             {DSA_PLATFORMS.map(p => <PlatformResult key={p} platform={p} state={results[p]} />)}
+
+            <InsightCard icon="📊" color="#f59e0b" title="Difficulty Breakdown"
+              subtitle="Easy / Medium / Hard, per platform">
+              <DifficultyBarChart results={results} />
+            </InsightCard>
+
+            <InsightCard icon="🎯" color="var(--cyan)" title="Consistency Score">
+              <ConsistencyRadar results={results} />
+            </InsightCard>
+
+            <InsightCard icon="🧩" color="#ef4444" title="Weak Topics"
+              subtitle="Least-practiced LeetCode tags">
+              <WeakTopicsList results={results} />
+            </InsightCard>
+
+            <InsightCard icon="🏆" color="#818cf8" title="Upcoming Contests"
+              subtitle="Live from Codeforces + LeetCode">
+              <UpcomingContestsList />
+            </InsightCard>
           </div>
         </div>
       </div>

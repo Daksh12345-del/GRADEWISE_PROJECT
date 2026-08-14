@@ -108,3 +108,10 @@ export async function fetchCodingProfile(platform, username) {
 }
 
 export { DSA_PLATFORMS }
+
+/** GET /api/contests/upcoming — real upcoming Codeforces + LeetCode contests */
+export async function fetchUpcomingContests() {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const url = `${PYTHON_BACKEND_URL}/api/contests/upcoming`
+  return getJson(url, { timeoutMs: 20000 })
+}
