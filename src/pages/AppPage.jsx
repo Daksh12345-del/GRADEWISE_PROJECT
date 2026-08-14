@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { SEMESTERS } from '../lib/gradesData'
 import {
   getTotal, isFilled, getMaxMarks, getGrade, getGradeForInternalOnly,
-  isBackEligible, getBackGrade, calcSGPA,
+  isBackEligible, getBackGrade, calcSGPA, calcCGPAWithBack,
 } from '../lib/gradesEngine'
 import { useGrades } from '../lib/GradesContext'
 import { useAuthUser } from '../lib/useAuthUser'
@@ -13,6 +13,7 @@ import ScanModal from './components/ScanModal'
 import RightPanel from './components/RightPanel'
 import StatsSheet from './components/StatsSheet'
 import CgpaPictograph from './components/CgpaPictograph'
+import CgpaLeaderboard from './components/CgpaLeaderboard'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import Logo from './components/Logo'
 import ThemeToggleButton from './components/ThemeToggleButton'
@@ -249,6 +250,7 @@ export default function AppPage() {
   const [activeSem, setActiveSem] = useState(grades.currentSemIndex)
   const [scanOpen, setScanOpen] = useState(false)
   const [statsOpen, setStatsOpen] = useState(false)
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
   const [exportBusy, setExportBusy] = useState(false)
   const sidebarToggle = useSidebarToggle()
   const { isLight, toggleTheme } = useTheme()
@@ -272,6 +274,7 @@ export default function AppPage() {
 
   const sem = SEMESTERS[activeSem]
   const sgpa = calcSGPA(activeSem, grades.marksData)
+  const { cgpa: overallCgpa } = calcCGPAWithBack(grades.marksData, grades.backData)
   const filledCount = sem.subjects.filter((subj, ji) => {
     if (subj.audit || subj.credits === 0) return false
     return isFilled(grades.marksData[activeSem]?.[ji])
@@ -292,6 +295,7 @@ export default function AppPage() {
           <ThemeToggleButton isLight={isLight} toggleTheme={toggleTheme} title="Toggle Light/Dark Mode" />
           <button className="hdr-scan-btn" title="Scan Result Sheet" onClick={() => setScanOpen(true)}>📷 <span>Scan Result</span></button>
           <button className="hdr-stats-btn" title="View CGPA stats & planner" onClick={() => setStatsOpen(true)}>📊 <span>Stats</span></button>
+          <button className="hdr-stats-btn" title="Compare your CGPA with others (opt-in)" onClick={() => setLeaderboardOpen(true)}>🏆 <span>Leaderboard</span></button>
           <button className="hdr-export-btn" title="Export report as PDF" onClick={handleExport} disabled={exportBusy}>
             {exportBusy ? '⏳' : '⬇'} <span>{exportBusy ? 'Generating…' : 'Export'}</span>
           </button>
@@ -416,6 +420,14 @@ export default function AppPage() {
       />
 
       <ScanModal open={scanOpen} onClose={() => setScanOpen(false)} />
+
+      <CgpaLeaderboard
+        open={leaderboardOpen}
+        onClose={() => setLeaderboardOpen(false)}
+        myCgpa={overallCgpa}
+        myCreditsCompleted={grades.creditsEarned}
+        mySemestersDone={grades.semestersDone}
+      />
     </div>
   )
 }

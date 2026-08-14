@@ -8,7 +8,11 @@ import { AnimatedNumber } from './components/motionKit'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { fetchCodingProfile, DSA_PLATFORMS } from '../lib/api'
-import { DifficultyBarChart, CombinedHeatmap, ConsistencyRadar, WeakTopicsList, UpcomingContestsList } from './components/DsaInsights'
+import {
+  DifficultyBarChart, CombinedHeatmap, ConsistencyRadar, WeakTopicsList, UpcomingContestsList,
+  RatingHistoryChart, GithubLanguagesPie, TotalSolvedSummaryCard, RatingBucketHistogram,
+  AchievementBadges, ProgressDeltaCard, DsaLeaderboard, recordDsaSnapshot,
+} from './components/DsaInsights'
 
 const PLATFORM_META = {
   leetcode:   { label: 'LeetCode',   icon: '🟧', color: '#f59e0b' },
@@ -257,6 +261,15 @@ export default function DsaTrackerPage() {
     setFetchingAll(false)
   }
 
+  // Save a real DB snapshot after each full fetch so ProgressDeltaCard can
+  // show a genuine "vs N days ago" comparison later — see DsaInsights.jsx.
+  useEffect(() => {
+    if (fetchingAll) return
+    const anyReady = DSA_PLATFORMS.some(p => results[p]?.status === 'ready')
+    if (anyReady) recordDsaSnapshot(results)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchingAll])
+
   return (
     <div className="page active" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} id="dsaTrackerPage">
       <header className="header">
@@ -325,9 +338,27 @@ export default function DsaTrackerPage() {
 
             {DSA_PLATFORMS.map(p => <PlatformResult key={p} platform={p} state={results[p]} />)}
 
+            <InsightCard icon="🎯" color="var(--cyan)" title="Total Solved">
+              <TotalSolvedSummaryCard results={results} />
+            </InsightCard>
+
+            <InsightCard icon="📈" color="#3b82f6" title="Codeforces Rating History"
+              subtitle="Last 10 rated contests">
+              <RatingHistoryChart results={results} />
+            </InsightCard>
+
+            <InsightCard icon="🥧" color="#818cf8" title="GitHub Top Languages">
+              <GithubLanguagesPie results={results} />
+            </InsightCard>
+
             <InsightCard icon="📊" color="#f59e0b" title="Difficulty Breakdown"
               subtitle="Easy / Medium / Hard, per platform">
               <DifficultyBarChart results={results} />
+            </InsightCard>
+
+            <InsightCard icon="📐" color="#3b82f6" title="Codeforces Rating-wise Solves"
+              subtitle="Which difficulty bands you actually solve">
+              <RatingBucketHistogram results={results} />
             </InsightCard>
 
             <InsightCard icon="🎯" color="var(--cyan)" title="Consistency Score">
@@ -339,9 +370,28 @@ export default function DsaTrackerPage() {
               <WeakTopicsList results={results} />
             </InsightCard>
 
+            <InsightCard icon="🏅" color="#f59e0b" title="Achievement Badges" wide>
+              <AchievementBadges results={results} />
+            </InsightCard>
+
+            <InsightCard icon="📉" color="#22c55e" title="Progress vs Last Week"
+              subtitle="Real DB history, saved on every 'Fetch all profiles'" wide>
+              <ProgressDeltaCard results={results} />
+            </InsightCard>
+
             <InsightCard icon="🏆" color="#818cf8" title="Upcoming Contests"
               subtitle="Live from Codeforces + LeetCode">
               <UpcomingContestsList />
+            </InsightCard>
+
+            <InsightCard icon="🏆" color="var(--cyan)" title="Leaderboard — Consistency Score"
+              subtitle="Opt-in — ranked by the score above">
+              <DsaLeaderboard results={results} sortBy="consistency_score" />
+            </InsightCard>
+
+            <InsightCard icon="🏆" color="#22c55e" title="Leaderboard — Total Solved"
+              subtitle="Opt-in — ranked by total problems solved">
+              <DsaLeaderboard results={results} sortBy="total_solved" />
             </InsightCard>
           </div>
         </div>
