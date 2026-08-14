@@ -6,9 +6,10 @@ import {
 } from 'recharts'
 import { fetchUpcomingContests } from '../../lib/api'
 import { getClerkUserId } from '../../lib/clerkUser'
+import { useAuthUser } from '../../lib/useAuthUser'
 import {
   fetchDsaLeaderboard, upsertDsaLeaderboardEntry, leaveDsaLeaderboard,
-  isOptedIntoDsaLeaderboard, getSavedDisplayName, saveDisplayName,
+  isOptedIntoDsaLeaderboard,
   saveDsaSnapshot, fetchDsaSnapshotFromDaysAgo,
 } from '../../lib/leaderboard'
 
@@ -532,10 +533,11 @@ export function recordDsaSnapshot(results) {
 //     over the same opt-in Supabase table.
 // ─────────────────────────────────────────────────────────────────────────
 export function DsaLeaderboard({ results, sortBy }) {
+  const { user } = useAuthUser()
+  const displayName = user?.name || 'Student'
   const [entries, setEntries] = useState([])
   const [status, setStatus] = useState('idle')
   const [optedIn, setOptedIn] = useState(isOptedIntoDsaLeaderboard())
-  const [displayName, setDisplayName] = useState(getSavedDisplayName())
   const [saving, setSaving] = useState(false)
   const myUserId = getClerkUserId()
   const metrics = computeDsaMetrics(results)
@@ -555,7 +557,6 @@ export function DsaLeaderboard({ results, sortBy }) {
   useEffect(() => { load() }, [load])
 
   async function handleJoin() {
-    if (!displayName.trim()) return
     setSaving(true)
     try {
       await upsertDsaLeaderboardEntry({
@@ -565,7 +566,6 @@ export function DsaLeaderboard({ results, sortBy }) {
         bestStreak: metrics.bestStreak,
         platformsLinked: metrics.platformsFetched.length,
       })
-      saveDisplayName(displayName)
       setOptedIn(true)
       await load()
     } catch (e) {
@@ -599,16 +599,9 @@ export function DsaLeaderboard({ results, sortBy }) {
           {!canJoin ? (
             <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>Fetch at least one profile above to join.</div>
           ) : (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <input
-                value={displayName}
-                onChange={e => setDisplayName(e.target.value)}
-                placeholder="Display name"
-                className="dsa-username-input"
-                style={{ flex: 1, minWidth: 140 }}
-                maxLength={40}
-              />
-              <button className="job-apply-btn" onClick={handleJoin} disabled={saving || !displayName.trim()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text)' }}>Join as <strong>{displayName}</strong></span>
+              <button className="job-apply-btn" onClick={handleJoin} disabled={saving}>
                 {saving ? 'Joining…' : 'Join'}
               </button>
             </div>

@@ -1,16 +1,18 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { getClerkUserId } from '../../lib/clerkUser'
+import { useAuthUser } from '../../lib/useAuthUser'
 import {
   fetchCgpaLeaderboard, upsertCgpaLeaderboardEntry, leaveCgpaLeaderboard,
-  isOptedIntoCgpaLeaderboard, getSavedDisplayName, saveDisplayName,
+  isOptedIntoCgpaLeaderboard,
 } from '../../lib/leaderboard'
 
 export default function CgpaLeaderboard({ open, onClose, myCgpa, myCreditsCompleted, mySemestersDone }) {
+  const { user } = useAuthUser()
+  const displayName = user?.name || 'Student'
   const [entries, setEntries] = useState([])
   const [status, setStatus] = useState('idle') // idle | loading | ready | error
   const [optedIn, setOptedIn] = useState(isOptedIntoCgpaLeaderboard())
-  const [displayName, setDisplayName] = useState(getSavedDisplayName())
   const [saving, setSaving] = useState(false)
   const myUserId = getClerkUserId()
 
@@ -31,13 +33,11 @@ export default function CgpaLeaderboard({ open, onClose, myCgpa, myCreditsComple
   if (!open) return null
 
   async function handleJoin() {
-    if (!displayName.trim()) return
     setSaving(true)
     try {
       await upsertCgpaLeaderboardEntry({
         displayName, cgpa: myCgpa, creditsCompleted: myCreditsCompleted, semestersDone: mySemestersDone,
       })
-      saveDisplayName(displayName)
       setOptedIn(true)
       await load()
     } catch (e) {
@@ -89,21 +89,11 @@ export default function CgpaLeaderboard({ open, onClose, myCgpa, myCreditsComple
               ) : (
                 <>
                   <div style={{ fontSize: '0.82rem', color: 'var(--text)', marginBottom: 8 }}>
-                    Join with your current CGPA: <strong>{myCgpa.toFixed(2)}</strong> ({mySemestersDone} sem completed)
+                    Join as <strong>{displayName}</strong> with your current CGPA: <strong>{myCgpa.toFixed(2)}</strong> ({mySemestersDone} sem completed)
                   </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <input
-                      value={displayName}
-                      onChange={e => setDisplayName(e.target.value)}
-                      placeholder="Display name (not your real name required)"
-                      className="dsa-username-input"
-                      style={{ flex: 1 }}
-                      maxLength={40}
-                    />
-                    <button className="job-apply-btn" onClick={handleJoin} disabled={saving || !displayName.trim()}>
-                      {saving ? 'Joining…' : 'Join'}
-                    </button>
-                  </div>
+                  <button className="job-apply-btn" onClick={handleJoin} disabled={saving}>
+                    {saving ? 'Joining…' : 'Join Leaderboard'}
+                  </button>
                 </>
               )}
             </div>

@@ -3,14 +3,7 @@ import { getClerkUserId } from './clerkUser'
 
 const OPT_IN_KEY_CGPA = 'gw_leaderboard_opted_in_cgpa'
 const OPT_IN_KEY_DSA = 'gw_leaderboard_opted_in_dsa'
-const DISPLAY_NAME_KEY = 'gw_leaderboard_display_name'
 
-export function getSavedDisplayName() {
-  try { return localStorage.getItem(DISPLAY_NAME_KEY) || '' } catch { return '' }
-}
-export function saveDisplayName(name) {
-  try { localStorage.setItem(DISPLAY_NAME_KEY, name) } catch { /* ignore */ }
-}
 export function isOptedIntoCgpaLeaderboard() {
   try { return localStorage.getItem(OPT_IN_KEY_CGPA) === '1' } catch { return false }
 }

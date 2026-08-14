@@ -70,7 +70,13 @@ async function upsertMarksToSupabase(marksData, backData, electiveChoices) {
   const { error } = await supabase
     .from('marks')
     .upsert(rows, { onConflict: 'user_id,subject_code' })
-  if (error) console.error('Supabase upsert error:', error)
+  if (error) {
+    console.error('Supabase upsert error:', error)
+    throw error   // was previously swallowed — the "Saved ✓" badge showed
+                   // success even on a failed write, since callers never
+                   // learned the upsert had failed. Now it actually
+                   // reflects real save status.
+  }
 }
 
 // Memoized per signed-in user for the browser session. GradesProvider (and
