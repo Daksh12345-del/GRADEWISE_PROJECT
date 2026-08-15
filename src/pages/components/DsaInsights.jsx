@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
@@ -8,8 +9,7 @@ import { fetchUpcomingContests } from '../../lib/api'
 import { getClerkUserId } from '../../lib/clerkUser'
 import { useAuthUser } from '../../lib/useAuthUser'
 import {
-  fetchDsaLeaderboard, upsertDsaLeaderboardEntry, leaveDsaLeaderboard,
-  isOptedIntoDsaLeaderboard,
+  fetchDsaLeaderboard, upsertDsaLeaderboardEntry,
   saveDsaSnapshot, fetchDsaSnapshotFromDaysAgo,
 } from '../../lib/leaderboard'
 
@@ -532,15 +532,17 @@ export function recordDsaSnapshot(results) {
 // 12. DSA leaderboard — two ranked views (Consistency Score, Total Solved)
 //     over the same opt-in Supabase table.
 // ─────────────────────────────────────────────────────────────────────────
-export function DsaLeaderboard({ results, sortBy }) {
+// Auto-syncs this user's DSA leaderboard row whenever their metrics change
+// (no join button), and renders one ranked list for the given sort order.
+// Used inside DsaLeaderboardModal below (once per tab).
+function DsaLeaderboardList({ results, sortBy }) {
   const { user } = useAuthUser()
   const displayName = user?.name || 'Student'
   const [entries, setEntries] = useState([])
   const [status, setStatus] = useState('idle')
-  const [optedIn, setOptedIn] = useState(isOptedIntoDsaLeaderboard())
-  const [saving, setSaving] = useState(false)
   const myUserId = getClerkUserId()
   const metrics = computeDsaMetrics(results)
+  const lastSynced = useRef(null)
 
   const load = useCallback(async () => {
     setStatus('loading')
@@ -556,72 +558,46 @@ export function DsaLeaderboard({ results, sortBy }) {
 
   useEffect(() => { load() }, [load])
 
-  async function handleJoin() {
-    setSaving(true)
-    try {
-      await upsertDsaLeaderboardEntry({
-        displayName,
-        consistencyScore: metrics.overall,
-        totalSolved: metrics.totalSolved,
-        bestStreak: metrics.bestStreak,
-        platformsLinked: metrics.platformsFetched.length,
-      })
-      setOptedIn(true)
-      await load()
-    } catch (e) {
-      console.error('Failed to join DSA leaderboard:', e)
-      alert('Could not join the leaderboard — please try again.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function handleLeave() {
-    setSaving(true)
-    try {
-      await leaveDsaLeaderboard()
-      setOptedIn(false)
-      await load()
-    } catch (e) {
-      console.error('Failed to leave DSA leaderboard:', e)
-    } finally {
-      setSaving(false)
-    }
-  }
+  // Auto-sync: fires once per meaningfully-changed metric set, regardless
+  // of which tab is open — no manual join, no way to leave from the UI.
+  useEffect(() => {
+    if (!myUserId || metrics.platformsFetched.length === 0) return
+    const key = `${displayName}|${metrics.overall}|${metrics.totalSolved}|${metrics.bestStreak}|${metrics.platformsFetched.length}`
+    if (lastSynced.current === key) return
+    lastSynced.current = key
+    upsertDsaLeaderboardEntry({
+      displayName,
+      consistencyScore: metrics.overall,
+      totalSolved: metrics.totalSolved,
+      bestStreak: metrics.bestStreak,
+      platformsLinked: metrics.platformsFetched.length,
+    }).then(load)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myUserId, displayName, metrics.overall, metrics.totalSolved, metrics.bestStreak, metrics.platformsFetched.length])
 
   const valueKey = sortBy === 'total_solved' ? 'total_solved' : 'consistency_score'
-  const canJoin = metrics.platformsFetched.length > 0
+  const avg = entries.length > 0 ? entries.reduce((s, e) => s + Number(e[valueKey]), 0) / entries.length : null
 
   return (
     <div>
-      {!optedIn && (
-        <div style={{ marginBottom: 14, padding: 12, borderRadius: 10, border: '1px dashed var(--border)' }}>
-          {!canJoin ? (
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>Fetch at least one profile above to join.</div>
-          ) : (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text)' }}>Join as <strong>{displayName}</strong></span>
-              <button className="job-apply-btn" onClick={handleJoin} disabled={saving}>
-                {saving ? 'Joining…' : 'Join'}
-              </button>
-            </div>
-          )}
+      {metrics.platformsFetched.length === 0 && (
+        <div style={{ marginBottom: 14, padding: 12, borderRadius: 10, border: '1px dashed var(--border)', fontSize: '0.78rem', color: 'var(--text-dim)' }}>
+          Fetch at least one coding profile above to appear here automatically.
         </div>
       )}
-      {optedIn && (
-        <div style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderRadius: 8, background: 'var(--bg-card2)' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text)' }}>✅ On leaderboard as <strong>{displayName}</strong></span>
-          <button onClick={handleLeave} disabled={saving} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 6, padding: '3px 8px', fontSize: '0.68rem', color: 'var(--text-dim)', cursor: 'pointer' }}>
-            {saving ? '…' : 'Leave'}
-          </button>
+
+      {avg !== null && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, padding: 10, borderRadius: 8, background: 'var(--bg-card2)' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Average · {entries.length} student{entries.length > 1 ? 's' : ''}</span>
+          <span style={{ fontWeight: 800, color: 'var(--cyan)' }}>{avg % 1 === 0 ? avg.toFixed(0) : avg.toFixed(1)}</span>
         </div>
       )}
 
       {status === 'loading' && <div className="dsa-idle">Loading…</div>}
       {status === 'error' && <div className="dsa-error">⚠️ Could not load leaderboard.</div>}
-      {status === 'ready' && entries.length === 0 && <div className="dsa-idle">No one's joined yet.</div>}
+      {status === 'ready' && entries.length === 0 && <div className="dsa-idle">No results yet.</div>}
       {status === 'ready' && entries.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, maxHeight: 240, overflowY: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, maxHeight: 300, overflowY: 'auto' }}>
           {entries.map((e, i) => {
             const isMe = e.user_id === myUserId
             return (
@@ -645,3 +621,57 @@ export function DsaLeaderboard({ results, sortBy }) {
     </div>
   )
 }
+
+// Header-triggered modal — two tabs (Consistency Score / Total Solved) over
+// the same auto-synced DSA leaderboard table.
+export function DsaLeaderboardModal({ open, onClose, results }) {
+  const [tab, setTab] = useState('consistency_score')
+  if (!open) return null
+
+  return createPortal(
+    <div
+      id="dsaLeaderboardSheet"
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      onClick={(e) => { if (e.target.id === 'dsaLeaderboardSheet') onClose() }}
+    >
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, width: '100%', maxWidth: 520, maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>🏆 DSA Leaderboard</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>Everyone who's fetched a profile appears here automatically</div>
+          </div>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-dim)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, padding: '12px 20px 0' }}>
+          <button
+            onClick={() => setTab('consistency_score')}
+            style={{
+              flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', cursor: 'pointer',
+              background: tab === 'consistency_score' ? 'var(--cyan)' : 'var(--bg-card2)',
+              color: tab === 'consistency_score' ? '#04202a' : 'var(--text)', fontWeight: 700, fontSize: '0.78rem',
+            }}
+          >
+            Consistency Score
+          </button>
+          <button
+            onClick={() => setTab('total_solved')}
+            style={{
+              flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', cursor: 'pointer',
+              background: tab === 'total_solved' ? 'var(--cyan)' : 'var(--bg-card2)',
+              color: tab === 'total_solved' ? '#04202a' : 'var(--text)', fontWeight: 700, fontSize: '0.78rem',
+            }}
+          >
+            Total Solved
+          </button>
+        </div>
+
+        <div style={{ padding: 20, overflowY: 'auto' }}>
+          <DsaLeaderboardList results={results} sortBy={tab} />
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+}
+

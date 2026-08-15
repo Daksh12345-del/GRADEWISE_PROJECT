@@ -11,7 +11,7 @@ import { fetchCodingProfile, DSA_PLATFORMS } from '../lib/api'
 import {
   DifficultyBarChart, CombinedHeatmap, ConsistencyRadar, WeakTopicsList, UpcomingContestsList,
   RatingHistoryChart, GithubLanguagesPie, TotalSolvedSummaryCard, RatingBucketHistogram,
-  AchievementBadges, ProgressDeltaCard, DsaLeaderboard, recordDsaSnapshot,
+  AchievementBadges, ProgressDeltaCard, DsaLeaderboardModal, recordDsaSnapshot,
 } from './components/DsaInsights'
 
 const PLATFORM_META = {
@@ -238,6 +238,7 @@ export default function DsaTrackerPage() {
     return init
   })
   const [fetchingAll, setFetchingAll] = useState(false)
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(usernames)) } catch { /* ignore */ }
@@ -287,6 +288,7 @@ export default function DsaTrackerPage() {
         </div>
         <div className="header-user">
           <ThemeToggleButton isLight={isLight} toggleTheme={toggleTheme} title="Toggle theme" />
+          <button className="hdr-stats-btn" title="Compare your DSA progress with others" onClick={() => setLeaderboardOpen(true)} style={{ marginLeft: 10 }}>🏆 <span>Leaderboard</span></button>
         </div>
       </header>
 
@@ -383,19 +385,11 @@ export default function DsaTrackerPage() {
               subtitle="Live from Codeforces + LeetCode">
               <UpcomingContestsList />
             </InsightCard>
-
-            <InsightCard icon="🏆" color="var(--cyan)" title="Leaderboard — Consistency Score"
-              subtitle="Opt-in — ranked by the score above">
-              <DsaLeaderboard results={results} sortBy="consistency_score" />
-            </InsightCard>
-
-            <InsightCard icon="🏆" color="#22c55e" title="Leaderboard — Total Solved"
-              subtitle="Opt-in — ranked by total problems solved">
-              <DsaLeaderboard results={results} sortBy="total_solved" />
-            </InsightCard>
           </div>
         </div>
       </div>
+
+      <DsaLeaderboardModal open={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} results={results} />
     </div>
   )
 }

@@ -1,84 +1,60 @@
 import { supabase } from './supabase'
 import { getClerkUserId } from './clerkUser'
 
-const OPT_IN_KEY_CGPA = 'gw_leaderboard_opted_in_cgpa'
-const OPT_IN_KEY_DSA = 'gw_leaderboard_opted_in_dsa'
-
-export function isOptedIntoCgpaLeaderboard() {
-  try { return localStorage.getItem(OPT_IN_KEY_CGPA) === '1' } catch { return false }
-}
-export function isOptedIntoDsaLeaderboard() {
-  try { return localStorage.getItem(OPT_IN_KEY_DSA) === '1' } catch { return false }
-}
-
-// ── CGPA leaderboard ───────────────────────────────────────────────────
+// ── CGPA leaderboard — auto-synced, always-on. Once a user's CGPA is
+// computed (semestersDone > 0), their row is upserted automatically; there
+// is no opt-in step and no way to remove the row from the UI (by design,
+// per product decision — every real result becomes a visible entry).
 export async function fetchCgpaLeaderboard() {
   const { data, error } = await supabase
     .from('cgpa_leaderboard_entries')
     .select('user_id, display_name, cgpa, credits_completed, semesters_done, updated_at')
     .order('cgpa', { ascending: false })
-    .limit(100)
+    .limit(200)
   if (error) throw error
   return data || []
 }
 
 export async function upsertCgpaLeaderboardEntry({ displayName, cgpa, creditsCompleted, semestersDone }) {
   const userId = getClerkUserId()
-  if (!userId) throw new Error('Not signed in')
+  if (!userId) return
   const { error } = await supabase.from('cgpa_leaderboard_entries').upsert({
     user_id: userId,
-    display_name: displayName.trim().slice(0, 40) || 'Anonymous Student',
+    display_name: (displayName || 'Student').trim().slice(0, 40) || 'Student',
     cgpa: Math.round(cgpa * 100) / 100,
     credits_completed: creditsCompleted,
     semesters_done: semestersDone,
     updated_at: new Date().toISOString(),
   }, { onConflict: 'user_id' })
-  if (error) throw error
-  try { localStorage.setItem(OPT_IN_KEY_CGPA, '1') } catch { /* ignore */ }
+  if (error) console.error('Failed to sync CGPA leaderboard entry:', error)
 }
 
-export async function leaveCgpaLeaderboard() {
-  const userId = getClerkUserId()
-  if (!userId) return
-  const { error } = await supabase.from('cgpa_leaderboard_entries').delete().eq('user_id', userId)
-  if (error) throw error
-  try { localStorage.setItem(OPT_IN_KEY_CGPA, '0') } catch { /* ignore */ }
-}
-
-// ── DSA leaderboard (same table, two sort orders used by the UI) ──────
+// ── DSA leaderboard (same table, two sort orders used by the UI) — also
+// auto-synced, same always-on model as above.
 export async function fetchDsaLeaderboard(sortBy = 'consistency_score') {
   const col = sortBy === 'total_solved' ? 'total_solved' : 'consistency_score'
   const { data, error } = await supabase
     .from('dsa_leaderboard_entries')
     .select('user_id, display_name, consistency_score, total_solved, best_streak, platforms_linked, updated_at')
     .order(col, { ascending: false })
-    .limit(100)
+    .limit(200)
   if (error) throw error
   return data || []
 }
 
 export async function upsertDsaLeaderboardEntry({ displayName, consistencyScore, totalSolved, bestStreak, platformsLinked }) {
   const userId = getClerkUserId()
-  if (!userId) throw new Error('Not signed in')
+  if (!userId) return
   const { error } = await supabase.from('dsa_leaderboard_entries').upsert({
     user_id: userId,
-    display_name: displayName.trim().slice(0, 40) || 'Anonymous Student',
+    display_name: (displayName || 'Student').trim().slice(0, 40) || 'Student',
     consistency_score: Math.round(consistencyScore),
     total_solved: Math.round(totalSolved),
     best_streak: Math.round(bestStreak),
     platforms_linked: Math.round(platformsLinked),
     updated_at: new Date().toISOString(),
   }, { onConflict: 'user_id' })
-  if (error) throw error
-  try { localStorage.setItem(OPT_IN_KEY_DSA, '1') } catch { /* ignore */ }
-}
-
-export async function leaveDsaLeaderboard() {
-  const userId = getClerkUserId()
-  if (!userId) return
-  const { error } = await supabase.from('dsa_leaderboard_entries').delete().eq('user_id', userId)
-  if (error) throw error
-  try { localStorage.setItem(OPT_IN_KEY_DSA, '0') } catch { /* ignore */ }
+  if (error) console.error('Failed to sync DSA leaderboard entry:', error)
 }
 
 // ── DSA snapshots (private history, not a leaderboard) ─────────────────

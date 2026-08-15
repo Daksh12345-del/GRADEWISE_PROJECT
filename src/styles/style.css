@@ -2236,7 +2236,6 @@ body.light-mode #dash-cgpa-hero {
     min-height: calc(100vh - 70px);
     transition: grid-template-columns 0.3s cubic-bezier(0.16,1,0.3,1);
     box-sizing: border-box;
-    overflow: hidden;
   }
 
   /* SIDEBAR */

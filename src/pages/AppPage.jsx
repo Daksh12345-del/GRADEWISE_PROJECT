@@ -295,7 +295,7 @@ export default function AppPage() {
           <ThemeToggleButton isLight={isLight} toggleTheme={toggleTheme} title="Toggle Light/Dark Mode" />
           <button className="hdr-scan-btn" title="Scan Result Sheet" onClick={() => setScanOpen(true)}>📷 <span>Scan Result</span></button>
           <button className="hdr-stats-btn" title="View CGPA stats & planner" onClick={() => setStatsOpen(true)}>📊 <span>Stats</span></button>
-          <button className="hdr-stats-btn" title="Compare your CGPA with others (opt-in)" onClick={() => setLeaderboardOpen(true)}>🏆 <span>Leaderboard</span></button>
+          <button className="hdr-stats-btn" title="Compare your CGPA with others" onClick={() => setLeaderboardOpen(true)}>🏆 <span>Leaderboard</span></button>
           <button className="hdr-export-btn" title="Export report as PDF" onClick={handleExport} disabled={exportBusy}>
             {exportBusy ? '⏳' : '⬇'} <span>{exportBusy ? 'Generating…' : 'Export'}</span>
           </button>
