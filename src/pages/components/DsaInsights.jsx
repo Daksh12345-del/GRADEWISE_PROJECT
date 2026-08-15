@@ -286,7 +286,7 @@ export function UpcomingContestsList() {
   if (contests.length === 0) return <div className="dsa-idle">No upcoming contests found right now — check back later.</div>
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 260, overflowY: 'auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 400, overflowY: 'auto' }}>
       {contests.map((c, i) => {
         const meta = CONTEST_META[c.platform] || { label: c.platform, color: 'var(--text-dim)', icon: '🏁' }
         return (
@@ -675,3 +675,32 @@ export function DsaLeaderboardModal({ open, onClose, results }) {
   )
 }
 
+
+// Header-triggered modal wrapping UpcomingContestsList — same pattern as
+// DsaLeaderboardModal, so both live contest info and the leaderboard are
+// one tap away from the top of the page instead of buried in the grid.
+export function UpcomingContestsModal({ open, onClose }) {
+  if (!open) return null
+
+  return createPortal(
+    <div
+      id="upcomingContestsSheet"
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      onClick={(e) => { if (e.target.id === 'upcomingContestsSheet') onClose() }}
+    >
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, width: '100%', maxWidth: 520, maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>🏆 Upcoming Contests</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>Live from Codeforces + LeetCode</div>
+          </div>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-dim)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+        </div>
+        <div style={{ padding: 20, overflowY: 'auto' }}>
+          <UpcomingContestsList />
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+}

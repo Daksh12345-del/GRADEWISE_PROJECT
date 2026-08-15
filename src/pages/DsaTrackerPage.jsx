@@ -9,11 +9,10 @@ import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { fetchCodingProfile, DSA_PLATFORMS } from '../lib/api'
 import {
-  DifficultyBarChart, CombinedHeatmap, ConsistencyRadar, WeakTopicsList, UpcomingContestsList,
+  DifficultyBarChart, CombinedHeatmap, ConsistencyRadar, WeakTopicsList,
   RatingHistoryChart, GithubLanguagesPie, TotalSolvedSummaryCard, RatingBucketHistogram,
-  AchievementBadges, ProgressDeltaCard, DsaLeaderboardModal, recordDsaSnapshot,
+  AchievementBadges, ProgressDeltaCard, DsaLeaderboardModal, UpcomingContestsModal, recordDsaSnapshot,
 } from './components/DsaInsights'
-
 const PLATFORM_META = {
   leetcode:   { label: 'LeetCode',   icon: '🟧', color: '#f59e0b' },
   codeforces: { label: 'Codeforces', icon: '🔷', color: '#3b82f6' },
@@ -239,6 +238,7 @@ export default function DsaTrackerPage() {
   })
   const [fetchingAll, setFetchingAll] = useState(false)
   const [leaderboardOpen, setLeaderboardOpen] = useState(false)
+  const [contestsOpen, setContestsOpen] = useState(false)
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(usernames)) } catch { /* ignore */ }
@@ -288,6 +288,7 @@ export default function DsaTrackerPage() {
         </div>
         <div className="header-user">
           <ThemeToggleButton isLight={isLight} toggleTheme={toggleTheme} title="Toggle theme" />
+          <button className="hdr-stats-btn" title="Live upcoming contests" onClick={() => setContestsOpen(true)} style={{ marginLeft: 10 }}>🏁 <span>Contests</span></button>
           <button className="hdr-stats-btn" title="Compare your DSA progress with others" onClick={() => setLeaderboardOpen(true)} style={{ marginLeft: 10 }}>🏆 <span>Leaderboard</span></button>
         </div>
       </header>
@@ -380,16 +381,12 @@ export default function DsaTrackerPage() {
               subtitle="Real DB history, saved on every 'Fetch all profiles'" wide>
               <ProgressDeltaCard results={results} />
             </InsightCard>
-
-            <InsightCard icon="🏆" color="#818cf8" title="Upcoming Contests"
-              subtitle="Live from Codeforces + LeetCode">
-              <UpcomingContestsList />
-            </InsightCard>
           </div>
         </div>
       </div>
 
       <DsaLeaderboardModal open={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} results={results} />
+      <UpcomingContestsModal open={contestsOpen} onClose={() => setContestsOpen(false)} />
     </div>
   )
 }
