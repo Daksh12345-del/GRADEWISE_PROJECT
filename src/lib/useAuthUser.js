@@ -33,6 +33,7 @@ export function useAuthUser() {
       branch: meta.branch || '',
       domain: meta.domain || '',
       group: meta.group || '',
+      targetRole: meta.targetRole || '',
     }
   }, [isSignedIn, clerkUser])
 
@@ -52,6 +53,24 @@ export function useLogout() {
     await signOut()
     navigate('/')
   }, [navigate, signOut])
+}
+
+// Lets a student set/update their target career role (e.g. "SDE",
+// "Data Analyst") from the "Ask GradeWallah AI" widget — stored in Clerk
+// so it's remembered across sessions and feeds into the AI Coach's
+// student-context, same pattern as useSetUserGroup above.
+export function useSetTargetRole() {
+  const { user: clerkUser } = useUser()
+  return useCallback(async (targetRole) => {
+    if (!clerkUser) return
+    try {
+      await clerkUser.update({
+        unsafeMetadata: { ...(clerkUser.unsafeMetadata || {}), targetRole: (targetRole || '').trim().slice(0, 80) },
+      })
+    } catch (e) {
+      console.error('Failed to update target role:', e)
+    }
+  }, [clerkUser])
 }
 
 // Lets the PDF scanner set/correct the student's batch group (A/B) from

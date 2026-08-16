@@ -57,6 +57,23 @@ export async function upsertDsaLeaderboardEntry({ displayName, consistencyScore,
   if (error) console.error('Failed to sync DSA leaderboard entry:', error)
 }
 
+// Reads back just this student's own already-synced rows — used by the
+// "Ask GradeWallah AI" context builder so it can ground answers in real
+// DSA numbers without re-fetching all 6 coding platforms from scratch.
+// Returns null if the student hasn't fetched any DSA profile yet (their
+// leaderboard row won't exist), not a fabricated zero.
+export async function fetchMyDsaStats() {
+  const userId = getClerkUserId()
+  if (!userId) return null
+  const { data, error } = await supabase
+    .from('dsa_leaderboard_entries')
+    .select('total_solved, consistency_score, best_streak')
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (error) { console.error('Failed to read own DSA stats:', error); return null }
+  return data
+}
+
 // ── DSA snapshots (private history, not a leaderboard) ─────────────────
 export async function saveDsaSnapshot({ totalSolved, bestStreak, consistencyScore }) {
   const userId = getClerkUserId()

@@ -133,3 +133,13 @@ export async function fetchAiDsaRoadmap(level, weakTopics = []) {
   const data = await postJson(url, { level, weakTopics }, { timeoutMs: 30000 })
   return data.roadmap
 }
+
+/** POST /api/ai/ask — "Ask GradeWallah AI": a free-form question, answered
+ * grounded in the student's real, already-known data (context). context
+ * fields are all optional — omit any the caller doesn't have. */
+export async function fetchAskCoach(question, context = {}) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const url = `${PYTHON_BACKEND_URL}/api/ai/ask`
+  const data = await postJson(url, { question, context }, { timeoutMs: 30000 })
+  return data.answer
+}

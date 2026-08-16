@@ -10,6 +10,7 @@ import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
 import Logo from './components/Logo'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
+import AskAiWidget from './components/AskAiWidget'
 
 function timeAgo(iso) {
   if (!iso) return ''
@@ -239,7 +240,15 @@ export default function DashboardPage() {
               <div className="dash-action-desc">Track LeetCode, Codeforces, CodeChef & GitHub stats in one place.</div>
               <span className="dash-action-arrow">→</span>
             </button>
+            <button className="dash-action-card" onClick={() => navigate('/ai-coach')} style={{ '--card-accent': 'linear-gradient(90deg, #818cf8, #06b6d4)' }}>
+              <div className="dash-action-icon">🤖</div>
+              <div className="dash-action-name">🤖 AI Career Coach</div>
+              <div className="dash-action-desc">Personalized study plans, DSA roadmaps & career guidance based on your real progress.</div>
+              <span className="dash-action-arrow">→</span>
+            </button>
           </div>
+
+          <AskAiWidget />
 
           {/* Semester progress */}
           <div className="dash-sem-strip-title">🗓️ My Academic Journey</div>

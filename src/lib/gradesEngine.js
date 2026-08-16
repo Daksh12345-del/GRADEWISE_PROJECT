@@ -301,3 +301,34 @@ export function calcCGPA(marksData) {
   });
   return totalCredits > 0 ? totalPoints / totalCredits : 0;
 }
+
+// Fixed AKTU-style minimum-marks thresholds, same rule used on the
+// Analyse Marks page — kept here so any feature (e.g. the AI Coach's
+// student-context builder) can reuse the exact same definition instead of
+// re-implementing/duplicating it and risking drift.
+export function getThreshold(credits) {
+  if (credits >= 4) return 70
+  if (credits === 3) return 65
+  return 60
+}
+
+// Simplified weak-subject list — real subject names below their minimum
+// threshold, sorted worst-first. Used to give the AI Coach real context
+// instead of guessing. Deliberately lightweight (no elective-name
+// resolution) since the AI only needs a short list of names, not the full
+// UI-grade breakdown that AnalyserPage.jsx computes for its own display.
+export function getWeakSubjectNames(marksData, limit = 5) {
+  const weak = []
+  SEMESTERS.forEach((sem, si) => {
+    sem.subjects.forEach((subj, ji) => {
+      if (subj.audit || subj.credits === 0) return
+      const entry = marksData[si]?.[ji]
+      const m = getTotal(entry)
+      if (m === null || m === undefined || isNaN(m)) return
+      const gap = m - getThreshold(subj.credits)
+      if (gap < 0) weak.push({ name: subj.name.split('/')[0].trim(), gap })
+    })
+  })
+  weak.sort((a, b) => a.gap - b.gap)
+  return weak.slice(0, limit).map(w => w.name)
+}
