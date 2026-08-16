@@ -293,7 +293,7 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          <AskAiWidget />
+          <AskAiWidget dsaStats={dsaStats} />
 
           {/* Semester progress */}
           <div className="dash-sem-strip-title">🗓️ My Academic Journey</div>

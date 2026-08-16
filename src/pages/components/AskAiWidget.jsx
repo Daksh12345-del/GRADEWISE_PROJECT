@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { useGrades } from '../../lib/GradesContext'
 import { useAuthUser, useSetTargetRole } from '../../lib/useAuthUser'
 import { getWeakSubjectNames } from '../../lib/gradesEngine'
-import { fetchMyDsaStats } from '../../lib/leaderboard'
 import { fetchAskCoach } from '../../lib/api'
 import FormattedAiText from './FormattedAiText'
 
@@ -14,21 +13,19 @@ const QUICK_PROMPTS = [
   { label: '🎤 Interview Prep', build: () => 'Mere target role ke liye interview prep kaise karu?' },
 ]
 
-export default function AskAiWidget() {
+// dsaStats comes from the parent (DashboardPage), which already fetches it
+// once for its own "DSA Progress" cards — passed down here instead of
+// firing a second, redundant Supabase query for the same row.
+export default function AskAiWidget({ dsaStats }) {
   const grades = useGrades()
   const { user } = useAuthUser()
   const setTargetRole = useSetTargetRole()
 
-  const [dsaStats, setDsaStats] = useState(null) // null while loading/unavailable
   const [roleInput, setRoleInput] = useState(user?.targetRole || '')
   const [editingRole, setEditingRole] = useState(false)
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([])
   const [busy, setBusy] = useState(false)
-
-  useEffect(() => {
-    fetchMyDsaStats().then(setDsaStats).catch(() => setDsaStats(null))
-  }, [])
 
   useEffect(() => { setRoleInput(user?.targetRole || '') }, [user?.targetRole])
 
