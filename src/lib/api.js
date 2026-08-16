@@ -115,3 +115,21 @@ export async function fetchUpcomingContests() {
   const url = `${PYTHON_BACKEND_URL}/api/contests/upcoming`
   return getJson(url, { timeoutMs: 20000 })
 }
+
+// ── AI Career Coach (real Groq completions, see app/ai/coach.py) ────────
+/** POST /api/ai/explain — 2-3 line explanation of a subject/topic */
+export async function fetchAiExplain(topic) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const url = `${PYTHON_BACKEND_URL}/api/ai/explain`
+  const data = await postJson(url, { topic }, { timeoutMs: 30000 })
+  return data.explanation
+}
+
+/** POST /api/ai/dsa-roadmap — short prioritized DSA roadmap, optionally
+ * personalized with the student's own weak-topic list. */
+export async function fetchAiDsaRoadmap(level, weakTopics = []) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const url = `${PYTHON_BACKEND_URL}/api/ai/dsa-roadmap`
+  const data = await postJson(url, { level, weakTopics }, { timeoutMs: 30000 })
+  return data.roadmap
+}

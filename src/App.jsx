@@ -18,6 +18,7 @@ const ResourcesPage = lazy(() => import('./pages/ResourcesPage'))
 const InternshipsPage = lazy(() => import('./pages/InternshipsPage'))
 const PlacementsPage = lazy(() => import('./pages/PlacementsPage'))
 const DsaTrackerPage = lazy(() => import('./pages/DsaTrackerPage'))
+const AiCoachPage = lazy(() => import('./pages/AiCoachPage'))
 
 // Dedicated component for the SSO callback route so the message is specific.
 function SsoCallbackPage() {
@@ -46,6 +47,7 @@ function AppRoutes() {
       <Route path="/internships" element={<PageTransition><ProtectedRoute><InternshipsPage /></ProtectedRoute></PageTransition>} />
       <Route path="/placements" element={<PageTransition><ProtectedRoute><PlacementsPage /></ProtectedRoute></PageTransition>} />
       <Route path="/dsa-tracker" element={<PageTransition><ProtectedRoute><DsaTrackerPage /></ProtectedRoute></PageTransition>} />
+      <Route path="/ai-coach" element={<PageTransition><ProtectedRoute><AiCoachPage /></ProtectedRoute></PageTransition>} />
     </Routes>
   )
 }

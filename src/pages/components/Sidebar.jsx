@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { icon: '💼', label: 'Internships', path: '/internships' },
   { icon: '🏢', label: 'Placements', path: '/placements' },
   { icon: '🧩', label: 'DSA Tracker', path: '/dsa-tracker' },
+  { icon: '🤖', label: 'AI Career Coach', path: '/ai-coach' },
 ]
 
 const isMobile = () => window.innerWidth <= 767

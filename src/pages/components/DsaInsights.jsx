@@ -6,6 +6,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell,
 } from 'recharts'
 import { fetchUpcomingContests } from '../../lib/api'
+import { fetchAiDsaRoadmap } from '../../lib/api'
 import { getClerkUserId } from '../../lib/clerkUser'
 import { useAuthUser } from '../../lib/useAuthUser'
 import {
@@ -698,6 +699,86 @@ export function UpcomingContestsModal({ open, onClose }) {
         </div>
         <div style={{ padding: 20, overflowY: 'auto' }}>
           <UpcomingContestsList />
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// AI Roadmap modal — a real Groq completion (see app/ai/coach.py),
+// automatically personalized with the student's REAL weakest LeetCode
+// tags (same data WeakTopicsList uses above) when available, so the
+// roadmap reflects their actual gaps rather than being generic.
+// ─────────────────────────────────────────────────────────────────────────
+export function AiRoadmapModal({ open, onClose, results }) {
+  const [level, setLevel] = useState('beginner')
+  const [state, setState] = useState({ status: 'idle' })
+
+  const lc = results.leetcode?.status === 'ready' ? results.leetcode.data : null
+  const tc = lc?.tagCounts || {}
+  const allTags = [...(tc.fundamental || []), ...(tc.intermediate || []), ...(tc.advanced || [])]
+  const weakest = [...allTags].sort((a, b) => a.solved - b.solved).slice(0, 5).map(t => t.tag)
+
+  async function generate() {
+    setState({ status: 'loading' })
+    try {
+      const roadmap = await fetchAiDsaRoadmap(level, weakest)
+      setState({ status: 'ready', roadmap })
+    } catch (e) {
+      setState({ status: 'error', error: e.message || 'Failed to generate roadmap' })
+    }
+  }
+
+  if (!open) return null
+
+  return createPortal(
+    <div
+      id="aiRoadmapSheet"
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      onClick={(e) => { if (e.target.id === 'aiRoadmapSheet') onClose() }}
+    >
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, width: '100%', maxWidth: 520, maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>🗺️ AI DSA Roadmap</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
+              {weakest.length > 0 ? 'Personalized using your real weak LeetCode topics' : 'Fetch LeetCode above for a personalized roadmap'}
+            </div>
+          </div>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-dim)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+        </div>
+
+        <div style={{ padding: 20, overflowY: 'auto' }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <select
+              value={level}
+              onChange={e => setLevel(e.target.value)}
+              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-card2)', color: 'var(--text)', fontSize: '0.82rem' }}
+            >
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+            <button className="job-apply-btn" onClick={generate} disabled={state.status === 'loading'}>
+              {state.status === 'loading' ? 'Generating…' : 'Generate'}
+            </button>
+          </div>
+
+          {weakest.length > 0 && (
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginBottom: 14 }}>
+              Using your weak topics: {weakest.join(', ')}
+            </div>
+          )}
+
+          {state.status === 'idle' && <div className="dsa-idle">Click "Generate" for a prioritized roadmap.</div>}
+          {state.status === 'error' && <div className="dsa-error">⚠️ {state.error}</div>}
+          {state.status === 'ready' && (
+            <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.7 }}>
+              {state.roadmap}
+            </div>
+          )}
         </div>
       </div>
     </div>,

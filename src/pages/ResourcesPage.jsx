@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { SEMESTERS } from '../lib/gradesData'
 import { VIDEO_DATA, PYQ_LINKS, SUBJECT_NOTES } from '../lib/resourcesData'
 import { BATCH_SWAP_COMBINED_CODES, BATCH_SWAP_OVERRIDE } from '../lib/batchGroups'
+import { fetchAiExplain } from '../lib/api'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
@@ -137,7 +138,22 @@ function tileStyle(color, active, disabled) {
 // resource — Videos/Notes expand inline, PYQ opens straight in a new tab.
 function AllSubjectCard({ subj }) {
   const [open, setOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState(null) // null | 'videos' | 'notes' | 'pyq'
+  const [activeTab, setActiveTab] = useState(null) // null | 'videos' | 'notes' | 'pyq' | 'explain'
+  const [explainState, setExplainState] = useState({ status: 'idle' }) // idle | loading | ready | error
+
+  async function handleExplainClick() {
+    const willOpen = activeTab !== 'explain'
+    setActiveTab(willOpen ? 'explain' : null)
+    if (willOpen && explainState.status === 'idle') {
+      setExplainState({ status: 'loading' })
+      try {
+        const explanation = await fetchAiExplain(subj.name)
+        setExplainState({ status: 'ready', text: explanation })
+      } catch (e) {
+        setExplainState({ status: 'error', error: e.message || 'Failed to get explanation' })
+      }
+    }
+  }
   const vd = getVideoData(subj.code)
   const pyq = getPYQ(subj.code)
   const fullNotes = getSubjectNotes(subj.code)
@@ -192,7 +208,24 @@ function AllSubjectCard({ subj }) {
                 >
                   📄<div style={{ fontSize: '0.7rem', marginTop: 2 }}>PYQ</div>
                 </button>
+                <button
+                  onClick={handleExplainClick}
+                  style={tileStyle('#06b6d4', activeTab === 'explain', false)}
+                  title="Get a quick AI explanation of this subject"
+                >
+                  ✨<div style={{ fontSize: '0.7rem', marginTop: 2 }}>Explain</div>
+                </button>
               </div>
+
+              {activeTab === 'explain' && (
+                <div style={{ marginTop: '1rem', padding: '0.9rem 1rem', borderRadius: 10, background: 'var(--bg-card2)', border: '1px solid var(--border)' }}>
+                  {explainState.status === 'loading' && <div className="dsa-idle">Asking AI Coach…</div>}
+                  {explainState.status === 'error' && <div className="dsa-error">⚠️ {explainState.error}</div>}
+                  {explainState.status === 'ready' && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.6 }}>{explainState.text}</div>
+                  )}
+                </div>
+              )}
 
               {activeTab === 'videos' && (
                 <div style={{ marginTop: '1rem' }}>
@@ -222,8 +255,26 @@ function AllSubjectCard({ subj }) {
               )}
             </>
           ) : (
-            <div style={{ color: 'var(--text-dim)', fontSize: '0.85rem', padding: '0.5rem 0' }}>
-              Resources coming soon for this subject.
+            <div>
+              <div style={{ color: 'var(--text-dim)', fontSize: '0.85rem', padding: '0.5rem 0 0.8rem' }}>
+                Resources coming soon for this subject — but you can still get a quick AI explanation:
+              </div>
+              <button
+                onClick={handleExplainClick}
+                style={tileStyle('#06b6d4', activeTab === 'explain', false)}
+                title="Get a quick AI explanation of this subject"
+              >
+                ✨<div style={{ fontSize: '0.7rem', marginTop: 2 }}>Explain</div>
+              </button>
+              {activeTab === 'explain' && (
+                <div style={{ marginTop: '1rem', padding: '0.9rem 1rem', borderRadius: 10, background: 'var(--bg-card2)', border: '1px solid var(--border)' }}>
+                  {explainState.status === 'loading' && <div className="dsa-idle">Asking AI Coach…</div>}
+                  {explainState.status === 'error' && <div className="dsa-error">⚠️ {explainState.error}</div>}
+                  {explainState.status === 'ready' && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.6 }}>{explainState.text}</div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

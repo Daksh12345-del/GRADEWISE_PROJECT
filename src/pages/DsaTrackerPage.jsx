@@ -11,7 +11,7 @@ import { fetchCodingProfile, DSA_PLATFORMS } from '../lib/api'
 import {
   DifficultyBarChart, CombinedHeatmap, ConsistencyRadar, WeakTopicsList,
   RatingHistoryChart, GithubLanguagesPie, TotalSolvedSummaryCard, RatingBucketHistogram,
-  AchievementBadges, ProgressDeltaCard, DsaLeaderboardModal, UpcomingContestsModal, recordDsaSnapshot,
+  AchievementBadges, ProgressDeltaCard, DsaLeaderboardModal, UpcomingContestsModal, AiRoadmapModal, recordDsaSnapshot,
 } from './components/DsaInsights'
 const PLATFORM_META = {
   leetcode:   { label: 'LeetCode',   icon: '🟧', color: '#f59e0b' },
@@ -239,6 +239,7 @@ export default function DsaTrackerPage() {
   const [fetchingAll, setFetchingAll] = useState(false)
   const [leaderboardOpen, setLeaderboardOpen] = useState(false)
   const [contestsOpen, setContestsOpen] = useState(false)
+  const [roadmapOpen, setRoadmapOpen] = useState(false)
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(usernames)) } catch { /* ignore */ }
@@ -290,6 +291,7 @@ export default function DsaTrackerPage() {
           <ThemeToggleButton isLight={isLight} toggleTheme={toggleTheme} title="Toggle theme" />
           <button className="hdr-stats-btn" title="Live upcoming contests" onClick={() => setContestsOpen(true)} style={{ marginLeft: 10 }}>🏁 <span>Contests</span></button>
           <button className="hdr-stats-btn" title="Compare your DSA progress with others" onClick={() => setLeaderboardOpen(true)} style={{ marginLeft: 10 }}>🏆 <span>Leaderboard</span></button>
+          <button className="hdr-stats-btn" title="Get a personalized AI DSA roadmap" onClick={() => setRoadmapOpen(true)} style={{ marginLeft: 10 }}>🗺️ <span>AI Roadmap</span></button>
         </div>
       </header>
 
@@ -387,6 +389,7 @@ export default function DsaTrackerPage() {
 
       <DsaLeaderboardModal open={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} results={results} />
       <UpcomingContestsModal open={contestsOpen} onClose={() => setContestsOpen(false)} />
+      <AiRoadmapModal open={roadmapOpen} onClose={() => setRoadmapOpen(false)} results={results} />
     </div>
   )
 }

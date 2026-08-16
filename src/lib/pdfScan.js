@@ -173,6 +173,34 @@ export async function scanResultPdf(file, semFilter = -1) {
   const extracted = await parseInWorkerOrFallback(rawPages, semesters, semFilter)
 
   if (extracted.length === 0) {
+    // Distinguish two different failure modes so the error message actually
+    // tells the student what to do next, instead of a generic dead-end:
+    //
+    // 1. A genuinely wrong file (fee receipt, admit card, some other PDF) —
+    //    none of the AKTU One View markers are present at all.
+    // 2. The RIGHT portal page, but exported *before* clicking "Print One
+    //    View" — AKTU's summary view only shows session-level totals
+    //    (e.g. "Marks: 1446/1800") with no per-subject table underneath.
+    //    That subject-wise data simply isn't in the PDF's text layer in
+    //    this case — no amount of parsing (or even an LLM/AI reading the
+    //    PDF) can recover marks that were never exported into the file.
+    //    The only real fix is re-exporting from the portal correctly, so
+    //    we detect this exact pattern and say so directly.
+    const fullText = rawPages.flatMap(p => p.items.map(it => it.text)).join(' ')
+    const looksLikeOneViewSummary =
+      /session\s*:/i.test(fullText) &&
+      /marks\s*:/i.test(fullText) &&
+      !/sgpa/i.test(fullText) // the detailed per-semester table always includes an "SGPA" field
+
+    if (looksLikeOneViewSummary) {
+      throw new Error(
+        'This PDF only has the summary totals (e.g. "Marks: 1446/1800"), not the ' +
+        'subject-wise marks — that\'s because it was exported before clicking ' +
+        '"Print One View" on the AKTU portal. Go back to erp.aktu.ac.in, open your ' +
+        'result, click "Print One View" first, and download/print THAT expanded page instead.'
+      )
+    }
+
     throw new Error(
       'No subject marks found in this PDF. Make sure you uploaded the result sheet ' +
         '(not fee receipt / admit card) from AKTU One View.' +
