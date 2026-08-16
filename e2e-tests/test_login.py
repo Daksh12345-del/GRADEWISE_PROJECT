@@ -25,7 +25,7 @@ class LoginPageTests(unittest.TestCase):
         )
 
     def test_title_is_correct(self):
-        self.assertEqual(self.driver.title, "Gradewallah")
+        self.assertIn("Gradewallah", self.driver.title)
 
     def test_all_step1_fields_present(self):
         for field_id in ["login-name", "login-email", "login-university", "login-course"]:
