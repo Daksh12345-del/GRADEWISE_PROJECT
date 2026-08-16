@@ -7,6 +7,7 @@ import {
 } from 'recharts'
 import { fetchUpcomingContests } from '../../lib/api'
 import { fetchAiDsaRoadmap } from '../../lib/api'
+import FormattedAiText from './FormattedAiText'
 import { getClerkUserId } from '../../lib/clerkUser'
 import { useAuthUser } from '../../lib/useAuthUser'
 import {
@@ -775,8 +776,8 @@ export function AiRoadmapModal({ open, onClose, results }) {
           {state.status === 'idle' && <div className="dsa-idle">Click "Generate" for a prioritized roadmap.</div>}
           {state.status === 'error' && <div className="dsa-error">⚠️ {state.error}</div>}
           {state.status === 'ready' && (
-            <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.7 }}>
-              {state.roadmap}
+            <div style={{ color: 'var(--text)' }}>
+              <FormattedAiText text={state.roadmap} />
             </div>
           )}
         </div>

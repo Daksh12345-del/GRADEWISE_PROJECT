@@ -11,6 +11,7 @@ import ThemeToggleButton from './components/ThemeToggleButton'
 import Logo from './components/Logo'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import AskAiWidget from './components/AskAiWidget'
+import { fetchMyDsaStats } from '../lib/leaderboard'
 
 function timeAgo(iso) {
   if (!iso) return ''
@@ -41,6 +42,13 @@ export default function DashboardPage() {
   const [placements, setPlacements] = useState(null) // null = loading, [] = empty, [...] = data
   const [internships, setInternships] = useState(null) // null = loading, [] = empty, [...] = data
   const [scanOpen, setScanOpen] = useState(false)
+  const [dsaStats, setDsaStats] = useState(undefined) // undefined = loading, null = no data yet, {...} = real stats
+
+  useEffect(() => {
+    let cancelled = false
+    fetchMyDsaStats().then(d => { if (!cancelled) setDsaStats(d) }).catch(() => { if (!cancelled) setDsaStats(null) })
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -200,6 +208,43 @@ export default function DashboardPage() {
               <div className="dash-stat-sub">Toward degree</div>
             </div>
           </div>
+
+          {/* DSA overview row — mirrors the CGPA stats row above so the
+              dashboard gives a real at-a-glance view of BOTH academics and
+              DSA in one look, instead of DSA only living on its own page. */}
+          <div className="dash-actions-title" style={{ marginTop: 20 }}>🧩 DSA Progress</div>
+          {dsaStats === undefined && (
+            <div className="dash-stats"><div className="dash-stat"><div className="dsa-idle">Loading…</div></div></div>
+          )}
+          {dsaStats === null && (
+            <div className="panel-section" style={{ padding: '1rem 1.2rem', fontSize: '0.85rem', color: 'var(--text-dim)' }}>
+              Fetch a coding profile on the <button onClick={() => navigate('/dsa-tracker')} style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontWeight: 600, padding: 0 }}>DSA Tracker</button> to see your progress here.
+            </div>
+          )}
+          {dsaStats && (
+            <div className="dash-stats">
+              <div className="dash-stat">
+                <div className="dash-stat-lbl">Problems Solved</div>
+                <div className="dash-stat-val">{dsaStats.total_solved}</div>
+                <div className="dash-stat-sub">Across all platforms</div>
+              </div>
+              <div className="dash-stat">
+                <div className="dash-stat-lbl">Consistency Score</div>
+                <div className="dash-stat-val purple">{dsaStats.consistency_score}<span style={{ fontSize: '1rem', color: 'var(--text-dim)' }}>/100</span></div>
+                <div className="dash-stat-sub">Streak + coverage + volume</div>
+              </div>
+              <div className="dash-stat">
+                <div className="dash-stat-lbl">Best Streak</div>
+                <div className="dash-stat-val green">{dsaStats.best_streak}</div>
+                <div className="dash-stat-sub">Days in a row</div>
+              </div>
+              <div className="dash-stat">
+                <div className="dash-stat-lbl">Platforms Linked</div>
+                <div className="dash-stat-val yellow">{dsaStats.platforms_linked}<span style={{ fontSize: '1rem', color: 'var(--text-dim)' }}>/6</span></div>
+                <div className="dash-stat-sub">LeetCode, Codeforces, GitHub…</div>
+              </div>
+            </div>
+          )}
 
           {/* Quick Actions */}
           <div className="dash-actions-title">⚡ What do you want to do today?</div>

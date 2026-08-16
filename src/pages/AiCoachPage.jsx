@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
 import Logo from './components/Logo'
+import FormattedAiText from './components/FormattedAiText'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { fetchAiExplain, fetchAiDsaRoadmap } from '../lib/api'
@@ -15,17 +16,19 @@ const QUICK_PROMPTS = [
 function ChatBubble({ role, text, error }) {
   const isUser = role === 'user'
   return (
-    <div style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
+    <div style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: 14 }}>
       <div style={{
-        maxWidth: '78%', padding: '10px 14px', borderRadius: 14,
+        maxWidth: '82%', padding: isUser ? '10px 15px' : '14px 16px', borderRadius: 14,
         borderBottomRightRadius: isUser ? 4 : 14,
         borderBottomLeftRadius: isUser ? 14 : 4,
         background: isUser ? 'var(--cyan)' : (error ? 'rgba(239,68,68,0.12)' : 'var(--bg-card2)'),
         color: isUser ? '#04202a' : (error ? '#ef4444' : 'var(--text)'),
-        fontSize: '0.86rem', lineHeight: 1.5, whiteSpace: 'pre-wrap',
-        border: error ? '1px solid #ef4444' : 'none',
+        border: error ? '1px solid #ef4444' : (isUser ? 'none' : '1px solid var(--border)'),
+        fontFamily: 'var(--font-body, inherit)',
       }}>
-        {text}
+        {isUser
+          ? <span style={{ fontSize: '0.86rem', lineHeight: 1.5 }}>{text}</span>
+          : <FormattedAiText text={text} />}
       </div>
     </div>
   )

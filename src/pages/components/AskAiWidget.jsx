@@ -4,6 +4,7 @@ import { useAuthUser, useSetTargetRole } from '../../lib/useAuthUser'
 import { getWeakSubjectNames } from '../../lib/gradesEngine'
 import { fetchMyDsaStats } from '../../lib/leaderboard'
 import { fetchAskCoach } from '../../lib/api'
+import FormattedAiText from './FormattedAiText'
 
 const QUICK_PROMPTS = [
   { label: '📘 Study Planner', build: (weak) => weak[0] ? `Mujhe ${weak[0]} mein improve karna hai` : 'Mujhe apni sabse kamzor subject mein improve karna hai' },
@@ -111,11 +112,14 @@ export default function AskAiWidget() {
           {messages.map((m, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
               <div style={{
-                maxWidth: '85%', padding: '9px 13px', borderRadius: 12, fontSize: '0.84rem', lineHeight: 1.55, whiteSpace: 'pre-wrap',
+                maxWidth: '85%', padding: m.role === 'user' ? '9px 13px' : '13px 15px', borderRadius: 12,
                 background: m.role === 'user' ? 'var(--cyan)' : (m.error ? 'rgba(239,68,68,0.12)' : 'var(--bg-card2)'),
                 color: m.role === 'user' ? '#04202a' : (m.error ? '#ef4444' : 'var(--text)'),
+                border: m.role === 'user' ? 'none' : '1px solid var(--border)',
               }}>
-                {m.text}
+                {m.role === 'user'
+                  ? <span style={{ fontSize: '0.84rem', lineHeight: 1.55 }}>{m.text}</span>
+                  : <FormattedAiText text={m.text} />}
               </div>
             </div>
           ))}

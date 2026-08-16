@@ -67,7 +67,7 @@ export async function fetchMyDsaStats() {
   if (!userId) return null
   const { data, error } = await supabase
     .from('dsa_leaderboard_entries')
-    .select('total_solved, consistency_score, best_streak')
+    .select('total_solved, consistency_score, best_streak, platforms_linked')
     .eq('user_id', userId)
     .maybeSingle()
   if (error) { console.error('Failed to read own DSA stats:', error); return null }
