@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
@@ -267,22 +267,42 @@ export default function DsaTrackerPage() {
     setFetchingAll(false)
   }
 
-  // Save a real DB snapshot after each full fetch so ProgressDeltaCard can
-  // show a genuine "vs N days ago" comparison later — see DsaInsights.jsx.
+  // Save a real DB snapshot after each fetch so ProgressDeltaCard can show
+  // a genuine "vs N days ago" comparison later — see DsaInsights.jsx.
   // Also sync the leaderboard row here (not only when the Leaderboard modal
   // happens to be opened) so the Dashboard's "DSA Progress" section — which
   // reads fetchMyDsaStats() from this same table — updates as soon as the
   // student fetches any profile, instead of staying stuck on its empty
   // state until they separately open the Leaderboard modal.
+  //
+  // IMPORTANT: this used to depend only on [fetchingAll], so it only ever
+  // fired after the "⚡ Fetch all profiles" button. A student who fetched
+  // platforms one at a time with the per-row "Fetch" buttons never
+  // triggered a sync at all — fetchingAll stayed false the whole time — so
+  // their Dashboard's DSA Progress card stayed on its empty state forever
+  // even though they clearly had live data on this page. Now it watches
+  // `results` directly and fires whenever fetches have settled (nothing
+  // still loading), regardless of whether that was a single Fetch or a
+  // batch Fetch All. A ref-based fingerprint of the ready platforms avoids
+  // re-syncing on unrelated re-renders.
+  const lastSyncedRef = useRef(null)
   useEffect(() => {
     if (fetchingAll) return
+    const anyLoading = DSA_PLATFORMS.some(p => results[p]?.status === 'loading')
+    if (anyLoading) return
     const anyReady = DSA_PLATFORMS.some(p => results[p]?.status === 'ready')
-    if (anyReady) {
-      recordDsaSnapshot(results)
-      recordDsaLeaderboardSync(results, displayName)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchingAll])
+    if (!anyReady) return
+
+    const fingerprint = DSA_PLATFORMS
+      .filter(p => results[p]?.status === 'ready')
+      .map(p => `${p}:${JSON.stringify(results[p].data)}`)
+      .join('|')
+    if (fingerprint === lastSyncedRef.current) return
+    lastSyncedRef.current = fingerprint
+
+    recordDsaSnapshot(results)
+    recordDsaLeaderboardSync(results, displayName)
+  }, [results, fetchingAll, displayName])
 
   return (
     <div className="page active" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} id="dsaTrackerPage">
