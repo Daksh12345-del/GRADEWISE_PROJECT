@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar, { SidebarToggleButton } from './components/Sidebar'
 import ThemeToggleButton from './components/ThemeToggleButton'
@@ -6,9 +6,14 @@ import Logo from './components/Logo'
 import FormattedAiText from './components/FormattedAiText'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
-import { fetchAiExplain, fetchAiDsaRoadmap } from '../lib/api'
+import { useGrades } from '../lib/GradesContext'
+import { useAuthUser } from '../lib/useAuthUser'
+import { getWeakSubjectNames } from '../lib/gradesEngine'
+import { fetchMyDsaStats } from '../lib/leaderboard'
+import { fetchAiExplain, fetchAiDsaRoadmap, fetchAskCoach } from '../lib/api'
 
 const QUICK_PROMPTS = [
+  { label: '💬 Ask anything', mode: 'ask' },
   { label: '📘 Explain a subject', mode: 'explain' },
   { label: '🗺️ DSA roadmap', mode: 'roadmap' },
 ]
@@ -38,19 +43,42 @@ export default function AiCoachPage() {
   const navigate = useNavigate()
   const { isLight, toggleTheme } = useTheme()
   const sidebarToggle = useSidebarToggle()
+  const grades = useGrades()
+  const { user } = useAuthUser()
 
-  const [mode, setMode] = useState('explain') // 'explain' | 'roadmap'
+  const [mode, setMode] = useState('ask') // 'ask' | 'explain' | 'roadmap'
   const [level, setLevel] = useState('beginner')
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: "Hi! I'm your AI Career Coach. Ask me to explain any subject topic in a couple of lines, or get a personalized DSA roadmap based on your level." },
+    { role: 'assistant', text: "Hi! I'm your AI Career Coach. Ask me anything, get a subject explained in a couple of lines, or get a personalized DSA roadmap based on your level." },
   ])
   const [busy, setBusy] = useState(false)
+  const [dsaStats, setDsaStats] = useState(undefined) // undefined = loading, null = none yet, {...} = real stats
   const scrollRef = useRef(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchMyDsaStats().then(d => { if (!cancelled) setDsaStats(d) }).catch(() => { if (!cancelled) setDsaStats(null) })
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages])
+
+  // Same real-data context AskAiWidget sends — CGPA, weak subjects, DSA
+  // stats, target role — so "Ask anything" answers are grounded in this
+  // student's actual progress, not generic advice.
+  const weakSubjects = getWeakSubjectNames(grades.marksData, 4)
+  const buildContext = useCallback(() => ({
+    cgpa: grades.cgpa > 0 ? Number(grades.cgpa.toFixed(2)) : null,
+    semestersDone: grades.semestersDone || null,
+    weakSubjects,
+    dsaTotalSolved: dsaStats?.total_solved ?? null,
+    dsaConsistencyScore: dsaStats?.consistency_score ?? null,
+    dsaBestStreak: dsaStats?.best_streak ?? null,
+    targetRole: user?.targetRole || null,
+  }), [grades.cgpa, grades.semestersDone, weakSubjects, dsaStats, user?.targetRole])
 
   async function send() {
     const text = input.trim()
@@ -62,8 +90,10 @@ export default function AiCoachPage() {
       let reply
       if (mode === 'roadmap') {
         reply = await fetchAiDsaRoadmap(level, [text])
-      } else {
+      } else if (mode === 'explain') {
         reply = await fetchAiExplain(text)
+      } else {
+        reply = await fetchAskCoach(text, buildContext())
       }
       setMessages(prev => [...prev, { role: 'assistant', text: reply }])
     } catch (e) {
@@ -173,7 +203,13 @@ export default function AiCoachPage() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={mode === 'roadmap' ? 'Type a weak topic (e.g. Dynamic Programming) or hit "Get general roadmap" above…' : 'Type a subject or topic, e.g. "Operating Systems deadlock"…'}
+                placeholder={
+                  mode === 'roadmap'
+                    ? 'Type a weak topic (e.g. Dynamic Programming) or hit "Get general roadmap" above…'
+                    : mode === 'explain'
+                      ? 'Type a subject or topic, e.g. "Operating Systems deadlock"…'
+                      : 'Ask anything — e.g. "My CGPA is 6.8, what should I improve for product-based companies?"'
+                }
                 rows={1}
                 className="dsa-username-input"
                 style={{ flex: 1, resize: 'none', fontFamily: 'inherit' }}
