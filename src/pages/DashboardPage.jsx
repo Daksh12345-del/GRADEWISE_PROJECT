@@ -12,6 +12,8 @@ import Logo from './components/Logo'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import AskAiWidget from './components/AskAiWidget'
 import { fetchMyDsaStats } from '../lib/leaderboard'
+import CgpaLeaderboard from './components/CgpaLeaderboard'
+import { DsaLeaderboardModal } from './components/DsaInsights'
 
 function timeAgo(iso) {
   if (!iso) return ''
@@ -43,6 +45,8 @@ export default function DashboardPage() {
   const [internships, setInternships] = useState(null) // null = loading, [] = empty, [...] = data
   const [scanOpen, setScanOpen] = useState(false)
   const [dsaStats, setDsaStats] = useState(undefined) // undefined = loading, null = no data yet, {...} = real stats
+  const [cgpaLeaderboardOpen, setCgpaLeaderboardOpen] = useState(false)
+  const [dsaLeaderboardOpen, setDsaLeaderboardOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -130,6 +134,8 @@ export default function DashboardPage() {
             💼 <span>Internships</span>
           </button>
           <button className="hdr-scan-btn" title="Scan Result Sheet" onClick={() => setScanOpen(true)}>📷 <span>Scan Result</span></button>
+          <button className="hdr-stats-btn" title="Compare your CGPA with others" onClick={() => setCgpaLeaderboardOpen(true)}>🏆 <span>Leaderboard</span></button>
+          <button className="hdr-stats-btn" title="Compare your DSA progress with others" onClick={() => setDsaLeaderboardOpen(true)}>🧩 <span>DSA Leaderboard</span></button>
           <div className="user-badge">
             <div className="user-avatar">{initial}</div>
             <div className="user-name">
@@ -425,6 +431,20 @@ export default function DashboardPage() {
         </div>
       </div>
       <ScanModal open={scanOpen} onClose={() => setScanOpen(false)} />
+
+      <CgpaLeaderboard
+        open={cgpaLeaderboardOpen}
+        onClose={() => setCgpaLeaderboardOpen(false)}
+        myCgpa={grades.cgpa}
+        myCreditsCompleted={grades.creditsEarned}
+        mySemestersDone={grades.semestersDone}
+      />
+
+      <DsaLeaderboardModal
+        open={dsaLeaderboardOpen}
+        onClose={() => setDsaLeaderboardOpen(false)}
+        results={{}}
+      />
     </div>
   )
 }
