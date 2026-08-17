@@ -47,7 +47,7 @@ function AppRoutes() {
       <Route path="/internships" element={<PageTransition><ProtectedRoute><InternshipsPage /></ProtectedRoute></PageTransition>} />
       <Route path="/placements" element={<PageTransition><ProtectedRoute><PlacementsPage /></ProtectedRoute></PageTransition>} />
       <Route path="/dsa-tracker" element={<PageTransition><ProtectedRoute><DsaTrackerPage /></ProtectedRoute></PageTransition>} />
-      <Route path="/ai-coach" element={<PageTransition><ProtectedRoute><AiCoachPage /></ProtectedRoute></PageTransition>} />
+      <Route path="/ai-coach" element={<PageTransition><ContentProtectedRoute><AiCoachPage /></ContentProtectedRoute></PageTransition>} />
     </Routes>
   )
 }
