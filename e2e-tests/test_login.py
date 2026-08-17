@@ -25,7 +25,9 @@ class LoginPageTests(unittest.TestCase):
         )
 
     def test_title_is_correct(self):
-        self.assertEqual(self.driver.title, "Gradewallah")
+        # index.html sets the full SEO title, not just the bare brand name —
+        # keep this in sync with <title> in GRADEWISE_PROJECT/index.html.
+        self.assertEqual(self.driver.title, "Gradewallah: Grades. Code. Career. All in One Place.")
 
     def test_all_step1_fields_present(self):
         for field_id in ["login-name", "login-email", "login-university", "login-course"]:
