@@ -530,6 +530,29 @@ export function recordDsaSnapshot(results) {
   saveDsaSnapshot({ totalSolved, bestStreak, consistencyScore: overall })
 }
 
+// Called by DsaTrackerPage right alongside recordDsaSnapshot, on every
+// successful profile fetch — NOT only when the DSA Leaderboard modal
+// happens to be opened. Previously, upsertDsaLeaderboardEntry only ever
+// fired from inside DsaLeaderboardList's auto-sync effect below, which
+// only mounts once the user opens that modal. That meant a student who
+// just fetched a profile on the DSA Tracker page (exactly what the
+// Dashboard's own "DSA Progress" empty state tells them to do) never got
+// a row written to dsa_leaderboard_entries, so fetchMyDsaStats() on the
+// Dashboard kept coming back null and the section stayed stuck on the
+// empty state forever. This is the fix: sync on fetch, unconditionally.
+export function recordDsaLeaderboardSync(results, displayName) {
+  if (!getClerkUserId()) return
+  const { overall, totalSolved, bestStreak, platformsFetched } = computeDsaMetrics(results)
+  if (platformsFetched.length === 0) return
+  return upsertDsaLeaderboardEntry({
+    displayName,
+    consistencyScore: overall,
+    totalSolved,
+    bestStreak,
+    platformsLinked: platformsFetched.length,
+  })
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // 12. DSA leaderboard — two ranked views (Consistency Score, Total Solved)
 //     over the same opt-in Supabase table.

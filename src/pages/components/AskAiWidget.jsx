@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useGrades } from '../../lib/GradesContext'
 import { useAuthUser, useSetTargetRole } from '../../lib/useAuthUser'
 import { getWeakSubjectNames } from '../../lib/gradesEngine'
-import { fetchAskCoach } from '../../lib/api'
+import { fetchAskCoach, fetchTranscribeAudio } from '../../lib/api'
 import FormattedAiText from './FormattedAiText'
 
 const QUICK_PROMPTS = [
@@ -12,6 +12,16 @@ const QUICK_PROMPTS = [
   { label: '💼 Career Guidance', build: () => 'Mere current progress ke hisaab se career ke liye agla step kya hona chahiye?' },
   { label: '🎤 Interview Prep', build: () => 'Mere target role ke liye interview prep kaise karu?' },
 ]
+
+// Voice input uses the browser's MediaRecorder to capture audio, then
+// sends it to OUR backend, which forwards it to Groq's Whisper endpoint
+// (see app/ai/coach.py) — same Groq account as the rest of the AI Coach,
+// deliberately not routed through any other platform (e.g. the browser's
+// built-in Web Speech API, which would send audio to Google instead).
+const hasMicSupport = typeof window !== 'undefined'
+  && typeof navigator !== 'undefined'
+  && !!navigator.mediaDevices?.getUserMedia
+  && typeof window.MediaRecorder !== 'undefined'
 
 // dsaStats comes from the parent (DashboardPage), which already fetches it
 // once for its own "DSA Progress" cards — passed down here instead of
@@ -26,6 +36,62 @@ export default function AskAiWidget({ dsaStats }) {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([])
   const [busy, setBusy] = useState(false)
+  const [recording, setRecording] = useState(false)
+  const [transcribing, setTranscribing] = useState(false)
+  const [micError, setMicError] = useState('')
+  const mediaRecorderRef = useRef(null)
+  const chunksRef = useRef([])
+  const streamRef = useRef(null)
+
+  useEffect(() => {
+    // Stop the mic stream if the widget unmounts mid-recording.
+    return () => { streamRef.current?.getTracks().forEach(t => t.stop()) }
+  }, [])
+
+  async function startRecording() {
+    setMicError('')
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      streamRef.current = stream
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '')
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
+      chunksRef.current = []
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop())
+        streamRef.current = null
+        const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' })
+        if (blob.size === 0) return
+        setTranscribing(true)
+        try {
+          const text = await fetchTranscribeAudio(blob)
+          setInput(prev => (prev ? `${prev} ${text}` : text))
+        } catch (e) {
+          setMicError(e.message || 'Voice input failed — please try again or type instead.')
+        } finally {
+          setTranscribing(false)
+        }
+      }
+      mediaRecorderRef.current = recorder
+      recorder.start()
+      setRecording(true)
+    } catch {
+      setMicError('Mic access was blocked — allow microphone permission and try again.')
+    }
+  }
+
+  function stopRecording() {
+    mediaRecorderRef.current?.stop()
+    setRecording(false)
+  }
+
+  function toggleRecording() {
+    if (busy || transcribing) return
+    if (recording) stopRecording()
+    else startRecording()
+  }
 
   useEffect(() => { setRoleInput(user?.targetRole || '') }, [user?.targetRole])
 
@@ -129,14 +195,44 @@ export default function AskAiWidget({ dsaStats }) {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') ask(input) }}
-          placeholder='e.g. "Mera CGPA 6.8 hai, product-based company ke liye kya improve karu?"'
+          placeholder={recording ? 'Listening…' : transcribing ? 'Transcribing…' : 'e.g. "Mera CGPA 6.8 hai, product-based company ke liye kya improve karu?" — or anything else'}
           className="dsa-username-input"
           style={{ flex: 1 }}
         />
+        {hasMicSupport && (
+          <button
+            type="button"
+            onClick={toggleRecording}
+            disabled={busy || transcribing}
+            title={recording ? 'Stop recording' : 'Ask by voice'}
+            aria-label={recording ? 'Stop recording' : 'Ask by voice'}
+            style={{
+              width: 38, height: 38, borderRadius: '50%', border: '1px solid var(--border)',
+              background: recording ? '#ef4444' : 'var(--bg-card2)',
+              color: recording ? '#fff' : 'var(--text)',
+              cursor: (busy || transcribing) ? 'default' : 'pointer',
+              opacity: transcribing ? 0.6 : 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1rem', flexShrink: 0,
+              animation: recording ? 'gw-mic-pulse 1.2s ease-in-out infinite' : 'none',
+            }}
+          >
+            {transcribing ? '…' : '🎤'}
+          </button>
+        )}
         <button className="job-apply-btn" onClick={() => ask(input)} disabled={busy || !input.trim()}>
           {busy ? '…' : 'Ask'}
         </button>
       </div>
+      {micError && (
+        <div style={{ fontSize: '0.72rem', color: '#ef4444', marginTop: 6 }}>{micError}</div>
+      )}
+      <style>{`
+        @keyframes gw-mic-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.45); }
+          50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+        }
+      `}</style>
     </div>
   )
 }

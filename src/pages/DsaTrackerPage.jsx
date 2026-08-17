@@ -7,11 +7,13 @@ import Logo from './components/Logo'
 import { AnimatedNumber } from './components/motionKit'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
+import { useAuthUser } from '../lib/useAuthUser'
 import { fetchCodingProfile, DSA_PLATFORMS } from '../lib/api'
 import {
   DifficultyBarChart, CombinedHeatmap, ConsistencyRadar, WeakTopicsList,
   RatingHistoryChart, GithubLanguagesPie, TotalSolvedSummaryCard, RatingBucketHistogram,
-  AchievementBadges, ProgressDeltaCard, DsaLeaderboardModal, UpcomingContestsModal, AiRoadmapModal, recordDsaSnapshot,
+  AchievementBadges, ProgressDeltaCard, DsaLeaderboardModal, UpcomingContestsModal, AiRoadmapModal,
+  recordDsaSnapshot, recordDsaLeaderboardSync,
 } from './components/DsaInsights'
 const PLATFORM_META = {
   leetcode:   { label: 'LeetCode',   icon: '🟧', color: '#f59e0b' },
@@ -224,6 +226,8 @@ export default function DsaTrackerPage() {
   const navigate = useNavigate()
   const { isLight, toggleTheme } = useTheme()
   const sidebarToggle = useSidebarToggle()
+  const { user } = useAuthUser()
+  const displayName = user?.name || 'Student'
 
   const [usernames, setUsernames] = useState(() => {
     const saved = loadSaved()
@@ -265,10 +269,18 @@ export default function DsaTrackerPage() {
 
   // Save a real DB snapshot after each full fetch so ProgressDeltaCard can
   // show a genuine "vs N days ago" comparison later — see DsaInsights.jsx.
+  // Also sync the leaderboard row here (not only when the Leaderboard modal
+  // happens to be opened) so the Dashboard's "DSA Progress" section — which
+  // reads fetchMyDsaStats() from this same table — updates as soon as the
+  // student fetches any profile, instead of staying stuck on its empty
+  // state until they separately open the Leaderboard modal.
   useEffect(() => {
     if (fetchingAll) return
     const anyReady = DSA_PLATFORMS.some(p => results[p]?.status === 'ready')
-    if (anyReady) recordDsaSnapshot(results)
+    if (anyReady) {
+      recordDsaSnapshot(results)
+      recordDsaLeaderboardSync(results, displayName)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchingAll])
 

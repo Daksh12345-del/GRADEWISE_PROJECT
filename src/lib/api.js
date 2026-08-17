@@ -143,3 +143,32 @@ export async function fetchAskCoach(question, context = {}) {
   const data = await postJson(url, { question, context }, { timeoutMs: 30000 })
   return data.answer
 }
+
+/** POST /api/ai/transcribe — voice input for the mic button. Sends a
+ * recorded audio Blob (from MediaRecorder) to our own backend, which
+ * forwards it to Groq's Whisper endpoint (see app/ai/coach.py) — kept on
+ * the same Groq account as the rest of the AI Coach rather than a second
+ * provider. Returns the transcribed text. */
+export async function fetchTranscribeAudio(audioBlob) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const url = `${PYTHON_BACKEND_URL}/api/ai/transcribe`
+  const form = new FormData()
+  const ext = audioBlob.type.includes('mp4') ? 'mp4' : audioBlob.type.includes('ogg') ? 'ogg' : 'webm'
+  form.append('file', audioBlob, `voice-input.${ext}`)
+  let res
+  try {
+    res = await fetchWithTimeout(url, { method: 'POST', body: form }, 30000)
+  } catch (err) {
+    throw new Error(err.name === 'AbortError' ? 'Voice input timed out, please try again' : (err.message || 'Network error'))
+  }
+  let json
+  try {
+    json = await res.json()
+  } catch {
+    throw new Error(`Backend returned an invalid response (HTTP ${res.status})`)
+  }
+  if (!res.ok) {
+    throw new Error(json.error || `HTTP ${res.status}`)
+  }
+  return json.text
+}
