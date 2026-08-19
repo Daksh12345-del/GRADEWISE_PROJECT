@@ -294,7 +294,7 @@ export default function LoginPage() {
             <Logo imgClassName="hero-logo-img" />
           </div>
           <div className="hero-title">Gradewallah</div>
-          <div className="hero-tagline">Your Complete Student Problem Solver · v7.1 (GPA fix)</div>
+          <div className="hero-tagline">Your complete student problem solver</div>
           <div className="hero-features">
             <span className="hero-feat-pill">📊 CGPA Tracker</span>
             <span className="hero-feat-pill">📚 Study Resources</span>
@@ -340,10 +340,9 @@ export default function LoginPage() {
                   <div className="field-err" id="login-verification-err">{verificationErr}</div>
                 </div>
                 <button
-                  className="btn-login btn-next"
+                  className="btn-login btn-next btn-launch"
                   onClick={confirmVerificationCode}
                   disabled={isSubmitting}
-                  style={{ background: 'linear-gradient(135deg,#10b981,#06b6d4)' }}
                 >
                   {isSubmitting ? 'Verifying…' : '✅ Confirm & Launch Gradewallah'}
                 </button>
@@ -497,6 +496,7 @@ export default function LoginPage() {
                   <button
                     onClick={doGoogleLogin}
                     disabled={oauthLoading !== null}
+                    className="oauth-btn-google"
                     style={{
                       flex: 1, minWidth: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
                       padding: '0.8rem 1rem', borderRadius: 14, cursor: oauthLoading ? 'default' : 'pointer', transition: 'all 0.2s',
@@ -523,6 +523,7 @@ export default function LoginPage() {
                   <button
                     onClick={doGithubLogin}
                     disabled={oauthLoading !== null}
+                    className="oauth-btn-github"
                     style={{
                       flex: 1, minWidth: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
                       padding: '0.8rem 1rem', borderRadius: 14, cursor: oauthLoading ? 'default' : 'pointer', transition: 'all 0.2s',

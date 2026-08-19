@@ -30,7 +30,7 @@ export default function JobStatsBar({ stats, moneyLabel, avgMoney, loading }) {
   ]
 
   if (moneyLabel && avgMoney) {
-    cards.push({ key: 'money', label: moneyLabel, value: avgMoney, sub: 'Across disclosed listings', color: '#06b6d4', emoji: '💰' })
+    cards.push({ key: 'money', label: moneyLabel, value: avgMoney, sub: 'Across disclosed listings', color: '#fbbf24', emoji: '💰' })
   }
 
   return (

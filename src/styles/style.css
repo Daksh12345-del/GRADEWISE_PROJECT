@@ -634,6 +634,27 @@ body.light-mode .form-select option { background: #fff; color: #1e1b4b; }
 .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.45); }
 .btn-login:active { transform: translateY(0); }
 
+/* Final "launch" step — same shape/motion as .btn-login, but a violet→gold
+   sweep to mark this as the completion moment, still inside the page's own
+   palette (previously hardcoded to an unrelated green→cyan gradient). */
+.btn-login.btn-launch {
+  background: linear-gradient(135deg, var(--violet) 0%, #8b5cf6 45%, var(--gold) 100%);
+  box-shadow: 0 4px 20px rgba(245,158,11,0.3);
+}
+.btn-login.btn-launch:hover {
+  box-shadow: 0 8px 32px rgba(245,158,11,0.4);
+}
+
+/* ── OAuth buttons — subtle brand-tinted hover instead of flat gray ── */
+.oauth-btn-google:hover {
+  border-color: rgba(66,133,244,0.45) !important;
+  box-shadow: 0 4px 16px rgba(66,133,244,0.15);
+}
+.oauth-btn-github:hover {
+  border-color: rgba(124,58,237,0.5) !important;
+  box-shadow: 0 4px 16px rgba(124,58,237,0.18);
+}
+
 .err-msg {
   color: #fff;
   background: rgba(239,68,68,0.12);
@@ -737,7 +758,12 @@ body.light-mode .h-logo-text {
 }
 .btn-logout:hover { background: rgba(239,68,68,0.18); transform: translateY(-1px); }
 
-/* ── HEADER BUTTONS ── */
+/* ── HEADER BUTTONS ──
+   Unified to a violet + gold duotone (matches the "gold+violet accent"
+   design intent stated at the top of this file) instead of the previous
+   4-color mix (green/gold/violet/cyan), which read as noisy "badge soup"
+   rather than a deliberate palette. Semantic red stays reserved for
+   Sign Out / destructive actions only. */
 .hdr-res-btn, .hdr-analyse-btn, .hdr-scan-btn {
   display: flex; align-items: center; gap: 5px;
   padding: 6px 14px; border-radius: 10px;
@@ -746,14 +772,15 @@ body.light-mode .h-logo-text {
   border: 1.5px solid; letter-spacing: 0.5px; white-space: nowrap;
 }
 .hdr-res-btn {
-  background: rgba(16,185,129,0.08);
-  border-color: rgba(16,185,129,0.35);
-  color: #10b981;
+  background: rgba(124,58,237,0.08);
+  border-color: rgba(124,58,237,0.32);
+  color: #c4b5fd;
 }
 .hdr-res-btn:hover {
-  background: rgba(16,185,129,0.18);
+  background: rgba(124,58,237,0.16);
+  border-color: rgba(124,58,237,0.5);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(16,185,129,0.2);
+  box-shadow: 0 4px 14px rgba(124,58,237,0.2);
 }
 .hdr-analyse-btn {
   background: rgba(245,158,11,0.08);
@@ -783,11 +810,11 @@ body.light-mode .h-logo-text {
 @media (max-width: 479px) { .hdr-scan-btn { display: none; } }
 
 /* ── HEADER STATS / EXPORT BUTTONS ──
-   Same visual family as .hdr-scan-btn, but intentionally NOT hidden at
-   ≤479px like .hdr-scan-btn is — these open the CGPA panel and trigger the
-   PDF export, both of which used to be reachable only by scrolling all the
-   way down to the floating button, so they stay visible (icon-only) even
-   on the smallest phones. */
+   Leaderboards get the gold accent (trophy/rank semantics fit gold
+   naturally) instead of the previous unrelated cyan, closing the loop on
+   the violet+gold duotone across the whole header. Export keeps a
+   restrained green — the one place a true "success/complete" color earns
+   its keep, since it confirms a completed download action. */
 .hdr-stats-btn, .hdr-export-btn {
   display: flex; align-items: center; gap: 5px;
   padding: 6px 14px; border-radius: 10px;
@@ -796,14 +823,14 @@ body.light-mode .h-logo-text {
   border: 1.5px solid; letter-spacing: 0.5px; white-space: nowrap;
 }
 .hdr-stats-btn {
-  background: rgba(6,182,212,0.1);
-  border-color: rgba(6,182,212,0.4);
-  color: #67e8f9;
+  background: rgba(245,158,11,0.1);
+  border-color: rgba(245,158,11,0.4);
+  color: var(--gold-bright);
 }
 .hdr-stats-btn:hover {
-  background: rgba(6,182,212,0.2);
+  background: rgba(245,158,11,0.2);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(6,182,212,0.25);
+  box-shadow: 0 4px 14px rgba(245,158,11,0.25);
 }
 .hdr-export-btn {
   background: rgba(16,185,129,0.1);
@@ -909,8 +936,11 @@ body.light-mode .dash-hero {
 }
 .dash-subtitle { color: var(--text-muted) !important; font-size: 0.88rem !important; }
 
-/* CGPA hero number — glowing gold */
+/* CGPA hero number — glowing gold→violet gradient (was previously dead
+   code: the JSX element never carried this id, so the number rendered as
+   flat cyan text instead of this gradient+glow treatment). */
 #dash-cgpa-hero {
+  font-family: var(--font-display) !important;
   font-size: 3.8rem !important;
   font-weight: 900 !important;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #c4b5fd 100%) !important;
@@ -3528,7 +3558,7 @@ body.light-mode #dash-cgpa-hero {
   .as-danger { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.25); }
   .as-warn   { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); }
   .as-good   { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); }
-  .as-info   { background: rgba(6,182,212,0.08);  border-color: rgba(6,182,212,0.25); }
+  .as-info   { background: rgba(124,58,237,0.08); border-color: rgba(124,58,237,0.25); }
 
   .as-num {
     font-family: var(--font-display);
@@ -3538,7 +3568,7 @@ body.light-mode #dash-cgpa-hero {
   .as-danger .as-num { color: #ef4444; }
   .as-warn .as-num   { color: #f59e0b; }
   .as-good .as-num   { color: #10b981; }
-  .as-info .as-num   { color: #06b6d4; }
+  .as-info .as-num   { color: #a78bfa; }
 
   .as-lbl { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
 
@@ -4328,16 +4358,16 @@ body.light-mode #dash-cgpa-hero {
     white-space: nowrap;
   }
   .res-sem-tab:hover {
-    border-color: var(--cyan);
-    color: var(--cyan);
-    background: rgba(6,182,212,0.06);
+    border-color: var(--violet-bright);
+    color: #c4b5fd;
+    background: rgba(124,58,237,0.08);
   }
   .res-sem-tab.active {
-    background: rgba(6,182,212,0.12);
-    border-color: var(--cyan);
-    color: var(--cyan);
+    background: rgba(124,58,237,0.14);
+    border-color: var(--violet-bright);
+    color: #c4b5fd;
     font-weight: 700;
-    box-shadow: 0 2px 12px rgba(6,182,212,0.18);
+    box-shadow: 0 2px 12px rgba(124,58,237,0.22);
   }
 
   /* ── Subject Card ── */

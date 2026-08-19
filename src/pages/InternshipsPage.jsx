@@ -19,7 +19,12 @@ function initials(company) {
   return words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : words[0].slice(0, 2).toUpperCase()
 }
 
-const LOGO_COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#14b8a6']
+// Red is deliberately excluded — it's reserved app-wide for danger/error
+// states (closing-soon badges, F grades, weak subjects), so a red company
+// logo could misleadingly read as "something's wrong with this listing".
+// True cyan/blue dropped too (leftover from before --cyan was remapped to
+// indigo) in favor of tones that sit closer to the violet+gold brand.
+const LOGO_COLORS = ['#8b5cf6', '#f59e0b', '#10b981', '#a78bfa', '#fbbf24', '#ec4899', '#14b8a6', '#f97316']
 const CACHE_KEY = 'internships'
 // Same reasoning as PlacementsPage: rendering every listing at once (each
 // with its own hover/stagger motion component) can freeze the tab when the

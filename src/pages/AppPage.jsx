@@ -335,21 +335,21 @@ export default function AppPage() {
           <div style={{ display: 'flex', gap: 12 }}>
             <div style={{
               position: 'relative', isolation: 'isolate', overflow: 'visible',
-              background: 'var(--bg-card2)', border: '1px solid var(--border)', borderRadius: 12,
+              background: 'var(--bg-card2)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 12,
               padding: '0.5rem 1rem', textAlign: 'right', minWidth: 110,
             }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', lineHeight: 1.3 }}>SGPA — {sem.label}</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, lineHeight: 1.4, color: 'var(--cyan)', display: 'block' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800, lineHeight: 1.4, color: 'var(--violet-bright)', display: 'block' }}>
                 {sgpa > 0 ? sgpa.toFixed(2) : '—'}
               </div>
             </div>
             <div style={{
               position: 'relative', isolation: 'isolate', overflow: 'visible',
-              background: 'var(--bg-card2)', border: '1px solid var(--border)', borderRadius: 12,
+              background: 'var(--bg-card2)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12,
               padding: '0.5rem 1rem', textAlign: 'right', minWidth: 130,
             }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', lineHeight: 1.3 }}>CGPA (completed sems)</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, lineHeight: 1.4, color: 'var(--purple)', display: 'block' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800, lineHeight: 1.4, color: 'var(--gold-bright)', display: 'block' }}>
                 {grades.cgpa > 0 ? grades.cgpa.toFixed(2) : '—'}
               </div>
             </div>

@@ -12,7 +12,7 @@ import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import { useLiveContentVersion } from '../lib/LiveContentGate'
 
-const VIDEO_COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b']
+const VIDEO_COLORS = ['#a78bfa', '#8b5cf6', '#10b981', '#f59e0b']
 
 // Fixed AKTU-style thresholds — cannot be changed by the user
 function getThreshold(credits) {
@@ -325,7 +325,7 @@ export default function AnalyserPage() {
           <button
             className="btn-logout"
             onClick={() => navigate('/dashboard')}
-            style={{ background: 'rgba(6,182,212,0.1)', borderColor: 'rgba(6,182,212,0.3)', color: 'var(--cyan)' }}
+            style={{ background: 'rgba(124,58,237,0.1)', borderColor: 'rgba(124,58,237,0.32)', color: '#c4b5fd' }}
           >
             ← Back to Dashboard
           </button>

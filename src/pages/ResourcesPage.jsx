@@ -14,7 +14,11 @@ import ScanModal from './components/ScanModal'
 import Logo from './components/Logo'
 import { RevealOnScroll } from './components/motionKit'
 
-const VIDEO_COLORS = ['#06b6d4','#8b5cf6','#10b981','#f59e0b','#3b82f6','#ec4899','#22d3ee','#a78bfa']
+// Violet→gold spectrum (matches the brand duotone used everywhere else)
+// instead of the previous true-rainbow mix (cyan/violet/green/amber/blue/
+// pink), which read as random "confetti" rather than a deliberate palette.
+// Still varied enough to tell consecutive video cards apart at a glance.
+const VIDEO_COLORS = ['#a78bfa','#fbbf24','#8b5cf6','#f59e0b','#c4b5fd','#facc15','#7c3aed','#fcd34d']
 
 // Batch-group swap tables now live in ../lib/batchGroups.js — shared with
 // the PDF scanner, which uses the same data to auto-detect a student's
@@ -172,7 +176,7 @@ function AllSubjectCard({ subj }) {
           <span className="res-subj-name">{subj.name}</span>
         </div>
         <div className="res-subj-meta">
-          <span className="res-badge" style={{ background: 'rgba(6,182,212,0.12)', color: '#06b6d4', fontSize: '0.65rem' }}>
+          <span className="res-badge" style={{ background: 'rgba(124,58,237,0.12)', color: '#c4b5fd', fontSize: '0.65rem' }}>
             {subj.semLabel}
           </span>
           {!hasAnything && (
@@ -210,7 +214,7 @@ function AllSubjectCard({ subj }) {
                 </button>
                 <button
                   onClick={handleExplainClick}
-                  style={tileStyle('#06b6d4', activeTab === 'explain', false)}
+                  style={tileStyle('#818cf8', activeTab === 'explain', false)}
                   title="Get a quick AI explanation of this subject"
                 >
                   ✨<div style={{ fontSize: '0.7rem', marginTop: 2 }}>Explain</div>
@@ -261,7 +265,7 @@ function AllSubjectCard({ subj }) {
               </div>
               <button
                 onClick={handleExplainClick}
-                style={tileStyle('#06b6d4', activeTab === 'explain', false)}
+                style={tileStyle('#818cf8', activeTab === 'explain', false)}
                 title="Get a quick AI explanation of this subject"
               >
                 ✨<div style={{ fontSize: '0.7rem', marginTop: 2 }}>Explain</div>
@@ -941,7 +945,7 @@ export default function ResourcesPage() {
                   style={{
                     fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: 20, marginLeft: 4,
                     ...(user.group === 'A'
-                      ? { background: 'rgba(6,182,212,0.18)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.35)' }
+                      ? { background: 'rgba(245,158,11,0.18)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }
                       : { background: 'rgba(167,139,250,0.18)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.35)' }),
                   }}
                 >
@@ -972,8 +976,8 @@ export default function ResourcesPage() {
           <div
             style={{
               width: '100%', maxWidth: 640, position: 'relative', display: 'flex', alignItems: 'center',
-              background: 'var(--bg-card2)', border: `1.5px solid ${isSearching ? '#06b6d4' : 'var(--border)'}`,
-              borderRadius: 999, padding: '0.85rem 1.4rem', boxShadow: isSearching ? '0 4px 24px rgba(6,182,212,0.18)' : '0 2px 10px rgba(0,0,0,0.08)',
+              background: 'var(--bg-card2)', border: `1.5px solid ${isSearching ? 'var(--violet)' : 'var(--border)'}`,
+              borderRadius: 999, padding: '0.85rem 1.4rem', boxShadow: isSearching ? '0 4px 24px rgba(124,58,237,0.2)' : '0 2px 10px rgba(0,0,0,0.08)',
               transition: 'border-color 0.2s, box-shadow 0.2s',
             }}
           >
