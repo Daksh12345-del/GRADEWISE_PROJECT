@@ -256,7 +256,7 @@ export function WeakTopicsList({ results }) {
 //    own APIs. Fetched once on mount, independent of the username panel.
 // ─────────────────────────────────────────────────────────────────────────
 const CONTEST_META = {
-  codeforces: { label: 'Codeforces', color: '#3b82f6', icon: '🔷' },
+  codeforces: { label: 'Codeforces', color: '#ec4899', icon: '🔷' },
   leetcode:   { label: 'LeetCode',   color: '#f59e0b', icon: '🟧' },
 }
 
@@ -332,7 +332,7 @@ export function RatingHistoryChart({ results }) {
         <XAxis dataKey="contest" tick={{ fill: 'var(--text-dim)', fontSize: 9 }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} interval={0} angle={-20} textAnchor="end" height={50} />
         <YAxis tick={{ fill: 'var(--text-dim)', fontSize: 11 }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} domain={['dataMin - 50', 'dataMax + 50']} />
         <Tooltip contentStyle={{ background: 'var(--bg-card2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
-        <Line type="monotone" dataKey="rating" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: '#3b82f6' }} />
+        <Line type="monotone" dataKey="rating" stroke="#ec4899" strokeWidth={2} dot={{ r: 3, fill: '#ec4899' }} />
       </LineChart>
     </ResponsiveContainer>
   )
@@ -342,7 +342,7 @@ export function RatingHistoryChart({ results }) {
 // 7. GitHub top-languages pie — real repo-language breakdown, already
 //    fetched (topLanguages).
 // ─────────────────────────────────────────────────────────────────────────
-const PIE_COLORS = ['#818cf8', '#39d353', '#f59e0b', '#ef4444', '#06b6d4', '#a855f7']
+const PIE_COLORS = ['#818cf8', '#39d353', '#f59e0b', '#ef4444', '#14b8a6', '#a855f7']
 
 export function GithubLanguagesPie({ results }) {
   const gh = results.github?.status === 'ready' ? results.github.data : null
@@ -411,7 +411,7 @@ export function RatingBucketHistogram({ results }) {
         <XAxis dataKey="label" tick={{ fill: 'var(--text-dim)', fontSize: 9 }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} interval={0} angle={-35} textAnchor="end" height={50} />
         <YAxis tick={{ fill: 'var(--text-dim)', fontSize: 11 }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} allowDecimals={false} />
         <Tooltip contentStyle={{ background: 'var(--bg-card2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
-        <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="count" fill="#ec4899" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -628,7 +628,7 @@ function DsaLeaderboardList({ results, sortBy }) {
             return (
               <div key={e.user_id} style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px', borderRadius: 8,
-                background: isMe ? 'rgba(6,182,212,0.12)' : 'var(--bg-card2)',
+                background: isMe ? 'rgba(129,140,248,0.12)' : 'var(--bg-card2)',
                 border: isMe ? '1px solid var(--cyan)' : '1px solid transparent',
               }}>
                 <span style={{ width: 24, textAlign: 'center', fontWeight: 700, fontSize: '0.75rem', color: i < 3 ? '#f59e0b' : 'var(--text-dim)' }}>

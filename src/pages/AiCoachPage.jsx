@@ -27,7 +27,7 @@ function ChatBubble({ role, text, error }) {
         borderBottomRightRadius: isUser ? 4 : 14,
         borderBottomLeftRadius: isUser ? 14 : 4,
         background: isUser ? 'var(--cyan)' : (error ? 'rgba(239,68,68,0.12)' : 'var(--bg-card2)'),
-        color: isUser ? '#04202a' : (error ? '#ef4444' : 'var(--text)'),
+        color: isUser ? '#fff' : (error ? '#ef4444' : 'var(--text)'),
         border: error ? '1px solid #ef4444' : (isUser ? 'none' : '1px solid var(--border)'),
         fontFamily: 'var(--font-body, inherit)',
       }}>
@@ -164,7 +164,7 @@ export default function AiCoachPage() {
                   style={{
                     padding: '6px 14px', borderRadius: 20, border: '1px solid var(--border)', cursor: 'pointer',
                     background: mode === p.mode ? 'var(--cyan)' : 'var(--bg-card2)',
-                    color: mode === p.mode ? '#04202a' : 'var(--text)', fontWeight: 600, fontSize: '0.78rem',
+                    color: mode === p.mode ? '#fff' : 'var(--text)', fontWeight: 600, fontSize: '0.78rem',
                   }}
                 >
                   {p.label}
