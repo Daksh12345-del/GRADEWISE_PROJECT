@@ -19,9 +19,7 @@ function initials(company) {
   return words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : words[0].slice(0, 2).toUpperCase()
 }
 
-// Same rationale as InternshipsPage — red reserved for danger/error states,
-// true cyan/blue dropped as a leftover from before --cyan meant indigo.
-const LOGO_COLORS = ['#8b5cf6', '#f59e0b', '#10b981', '#a78bfa', '#fbbf24', '#ec4899', '#14b8a6', '#f97316']
+const LOGO_COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#14b8a6']
 const CACHE_KEY = 'placements'
 // With 2000+ live listings, mounting every card (each with its own
 // hover/stagger motion component) at once froze the tab entirely

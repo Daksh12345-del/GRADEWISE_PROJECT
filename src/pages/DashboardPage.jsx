@@ -129,6 +129,7 @@ export default function DashboardPage() {
             className="hdr-res-btn"
             onClick={() => navigate('/internships')}
             title="Internships"
+            style={{ borderColor: 'rgba(139,92,246,0.4)', color: '#a78bfa', background: 'rgba(139,92,246,0.1)' }}
           >
             💼 <span>Internships</span>
           </button>
@@ -144,7 +145,7 @@ export default function DashboardPage() {
                   style={{
                     fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: 20, marginLeft: 4,
                     ...(user.group === 'A'
-                      ? { background: 'rgba(245,158,11,0.18)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }
+                      ? { background: 'rgba(6,182,212,0.18)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.35)' }
                       : { background: 'rgba(167,139,250,0.18)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.35)' }),
                   }}
                 >
@@ -176,14 +177,14 @@ export default function DashboardPage() {
               <div className="dash-subtitle" style={{ marginTop: 6 }}>Track your progress. Own your journey.</div>
               <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.72rem', color: '#64748b', letterSpacing: '1.5px', fontWeight: 700, textTransform: 'uppercase' }}>Current Semester</span>
-                <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: 'rgba(124,58,237,0.1)', color: '#c4b5fd', border: '1px solid rgba(124,58,237,0.28)' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: 'rgba(6,182,212,0.1)', color: 'var(--cyan)', border: '1px solid rgba(6,182,212,0.25)' }}>
                   {grades.currentSemBadge}
                 </span>
               </div>
             </div>
             <div style={{ textAlign: 'right', flexShrink: 0 }}>
               <div style={{ fontSize: '0.62rem', color: '#64748b', letterSpacing: '2.5px', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>CURRENT CGPA</div>
-              <div id="dash-cgpa-hero">
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '3.8rem', fontWeight: 900, color: 'var(--cyan)', lineHeight: 1, letterSpacing: '-2px', textShadow: '0 0 40px rgba(6,182,212,0.3)' }}>
                 {displayCGPA}
               </div>
               <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 4 }}>out of 10.00</div>

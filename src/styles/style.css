@@ -634,27 +634,6 @@ body.light-mode .form-select option { background: #fff; color: #1e1b4b; }
 .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.45); }
 .btn-login:active { transform: translateY(0); }
 
-/* Final "launch" step — same shape/motion as .btn-login, but a violet→gold
-   sweep to mark this as the completion moment, still inside the page's own
-   palette (previously hardcoded to an unrelated green→cyan gradient). */
-.btn-login.btn-launch {
-  background: linear-gradient(135deg, var(--violet) 0%, #8b5cf6 45%, var(--gold) 100%);
-  box-shadow: 0 4px 20px rgba(245,158,11,0.3);
-}
-.btn-login.btn-launch:hover {
-  box-shadow: 0 8px 32px rgba(245,158,11,0.4);
-}
-
-/* ── OAuth buttons — subtle brand-tinted hover instead of flat gray ── */
-.oauth-btn-google:hover {
-  border-color: rgba(66,133,244,0.45) !important;
-  box-shadow: 0 4px 16px rgba(66,133,244,0.15);
-}
-.oauth-btn-github:hover {
-  border-color: rgba(124,58,237,0.5) !important;
-  box-shadow: 0 4px 16px rgba(124,58,237,0.18);
-}
-
 .err-msg {
   color: #fff;
   background: rgba(239,68,68,0.12);
@@ -758,12 +737,7 @@ body.light-mode .h-logo-text {
 }
 .btn-logout:hover { background: rgba(239,68,68,0.18); transform: translateY(-1px); }
 
-/* ── HEADER BUTTONS ──
-   Unified to a violet + gold duotone (matches the "gold+violet accent"
-   design intent stated at the top of this file) instead of the previous
-   4-color mix (green/gold/violet/cyan), which read as noisy "badge soup"
-   rather than a deliberate palette. Semantic red stays reserved for
-   Sign Out / destructive actions only. */
+/* ── HEADER BUTTONS ── */
 .hdr-res-btn, .hdr-analyse-btn, .hdr-scan-btn {
   display: flex; align-items: center; gap: 5px;
   padding: 6px 14px; border-radius: 10px;
@@ -772,15 +746,14 @@ body.light-mode .h-logo-text {
   border: 1.5px solid; letter-spacing: 0.5px; white-space: nowrap;
 }
 .hdr-res-btn {
-  background: rgba(124,58,237,0.08);
-  border-color: rgba(124,58,237,0.32);
-  color: #c4b5fd;
+  background: rgba(16,185,129,0.08);
+  border-color: rgba(16,185,129,0.35);
+  color: #10b981;
 }
 .hdr-res-btn:hover {
-  background: rgba(124,58,237,0.16);
-  border-color: rgba(124,58,237,0.5);
+  background: rgba(16,185,129,0.18);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(124,58,237,0.2);
+  box-shadow: 0 4px 14px rgba(16,185,129,0.2);
 }
 .hdr-analyse-btn {
   background: rgba(245,158,11,0.08);
@@ -810,11 +783,11 @@ body.light-mode .h-logo-text {
 @media (max-width: 479px) { .hdr-scan-btn { display: none; } }
 
 /* ── HEADER STATS / EXPORT BUTTONS ──
-   Leaderboards get the gold accent (trophy/rank semantics fit gold
-   naturally) instead of the previous unrelated cyan, closing the loop on
-   the violet+gold duotone across the whole header. Export keeps a
-   restrained green — the one place a true "success/complete" color earns
-   its keep, since it confirms a completed download action. */
+   Same visual family as .hdr-scan-btn, but intentionally NOT hidden at
+   ≤479px like .hdr-scan-btn is — these open the CGPA panel and trigger the
+   PDF export, both of which used to be reachable only by scrolling all the
+   way down to the floating button, so they stay visible (icon-only) even
+   on the smallest phones. */
 .hdr-stats-btn, .hdr-export-btn {
   display: flex; align-items: center; gap: 5px;
   padding: 6px 14px; border-radius: 10px;
@@ -823,14 +796,14 @@ body.light-mode .h-logo-text {
   border: 1.5px solid; letter-spacing: 0.5px; white-space: nowrap;
 }
 .hdr-stats-btn {
-  background: rgba(245,158,11,0.1);
-  border-color: rgba(245,158,11,0.4);
-  color: var(--gold-bright);
+  background: rgba(6,182,212,0.1);
+  border-color: rgba(6,182,212,0.4);
+  color: #67e8f9;
 }
 .hdr-stats-btn:hover {
-  background: rgba(245,158,11,0.2);
+  background: rgba(6,182,212,0.2);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(245,158,11,0.25);
+  box-shadow: 0 4px 14px rgba(6,182,212,0.25);
 }
 .hdr-export-btn {
   background: rgba(16,185,129,0.1);
@@ -936,11 +909,8 @@ body.light-mode .dash-hero {
 }
 .dash-subtitle { color: var(--text-muted) !important; font-size: 0.88rem !important; }
 
-/* CGPA hero number — glowing gold→violet gradient (was previously dead
-   code: the JSX element never carried this id, so the number rendered as
-   flat cyan text instead of this gradient+glow treatment). */
+/* CGPA hero number — glowing gold */
 #dash-cgpa-hero {
-  font-family: var(--font-display) !important;
   font-size: 3.8rem !important;
   font-weight: 900 !important;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #c4b5fd 100%) !important;
@@ -1405,16 +1375,136 @@ body.light-mode #dash-cgpa-hero {
 #group-selector-wrap { transition: all 0.3s; }
 
 /* ═══ END GRADEWALLAH AURORA THEME v3 ═══ */
-/* NOTE: a duplicate `:root` + `body.light-mode` block used to sit here,
-   re-declaring --cyan/--purple/--green/--yellow/--red/--bg-* etc. back to
-   the OLD pre-v3 literal blue/cyan palette. Because a later same-specificity
-   `:root` wins in the CSS cascade, that leftover block silently overrode
-   EVERY use of these variables across the entire app — Dashboard, Login,
-   Grades, Resources, DSA Tracker, Internships, Placements, all of it —
-   which is why the app kept rendering in blue/cyan instead of the intended
-   indigo/violet/gold "Aurora v3" palette defined at the top of this file.
-   It has been removed; the real tokens at the top of this file (line ~10)
-   are now the only definition. */
+:root {
+    --bg-deep: #030712;
+    --bg-card: #0d1117;
+    --bg-card2: #111827;
+    --border: rgba(255,255,255,0.08);
+    --cyan: #06b6d4;
+    --cyan-bright: #22d3ee;
+    --cyan-glow: rgba(6,182,212,0.35);
+    --purple: #8b5cf6;
+    --purple-glow: rgba(139,92,246,0.3);
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-muted: #94a3b8;
+    --font-display: 'Sora', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+  }
+
+  /* ── LIGHT MODE ── */
+  body.light-mode {
+    --bg-deep: #f0f4f8;
+    --bg-card: #ffffff;
+    --bg-card2: #f1f5f9;
+    --border: rgba(6,182,212,0.25);
+    --cyan: #0284c7;
+    --cyan-bright: #0ea5e9;
+    --cyan-glow: rgba(2,132,199,0.25);
+    --purple: #7c3aed;
+    --green: #059669;
+    --yellow: #d97706;
+    --red: #dc2626;
+    --text: #0f172a;
+    --text-dim: #64748b;
+    --text-muted: #475569;
+  }
+
+  body.light-mode::before {
+    background-image:
+      linear-gradient(rgba(2,132,199,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(2,132,199,0.02) 1px, transparent 1px);
+  }
+
+  body.light-mode .login-glow {
+    background: radial-gradient(circle, rgba(2,132,199,0.1) 0%, transparent 70%);
+  }
+
+  body.light-mode .login-card {
+    box-shadow: 0 0 80px rgba(2,132,199,0.08), 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  body.light-mode .subject-card {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+    border-color: rgba(2,132,199,0.18);
+  }
+
+  body.light-mode .header {
+    background: rgba(255,255,255,0.98);
+    border-bottom: 1px solid rgba(2,132,199,0.15);
+    box-shadow: 0 1px 0 rgba(2,132,199,0.12), 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  body.light-mode .sidebar {
+    box-shadow: 2px 0 16px rgba(0,0,0,0.07);
+    border-right-color: rgba(2,132,199,0.18);
+  }
+
+  body.light-mode .right-panel {
+    box-shadow: -2px 0 16px rgba(0,0,0,0.07);
+    border-left-color: rgba(2,132,199,0.18);
+  }
+
+  body.light-mode .marks-input {
+    background: rgba(2,132,199,0.05);
+    color: var(--text);
+  }
+
+  body.light-mode .marks-input::placeholder { color: var(--text-dim); }
+
+  body.light-mode .form-input {
+    background: rgba(2,132,199,0.04);
+    color: var(--text);
+  }
+
+  body.light-mode .elective-select {
+    background: rgba(2,132,199,0.04);
+    color: var(--text);
+  }
+
+  body.light-mode .elective-select option {
+    background: var(--bg-card);
+    color: var(--text);
+  }
+
+  body.light-mode .mobile-sem-btn {
+    color: var(--text-dim);
+  }
+
+  /* ── SCAN BUTTON ── */
+  .hdr-scan-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1.5px solid rgba(139,92,246,0.5);
+    background: rgba(139,92,246,0.12);
+    color: #a78bfa;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .hdr-scan-btn:hover {
+    background: rgba(139,92,246,0.22);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(139,92,246,0.25);
+  }
+  @media (max-width: 767px) {
+    .hdr-scan-btn span { display: none; }
+    .hdr-scan-btn { padding: 5px 8px; font-size: 1rem; border: none; background: none; }
+  }
+  @media (max-width: 479px) { .hdr-scan-btn { display: none; } }
+
+  /* ── SCAN MODAL ── */
   #scanModal {
     display: none;
     position: fixed;
@@ -3438,7 +3528,7 @@ body.light-mode #dash-cgpa-hero {
   .as-danger { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.25); }
   .as-warn   { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); }
   .as-good   { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); }
-  .as-info   { background: rgba(124,58,237,0.08); border-color: rgba(124,58,237,0.25); }
+  .as-info   { background: rgba(6,182,212,0.08);  border-color: rgba(6,182,212,0.25); }
 
   .as-num {
     font-family: var(--font-display);
@@ -3448,7 +3538,7 @@ body.light-mode #dash-cgpa-hero {
   .as-danger .as-num { color: #ef4444; }
   .as-warn .as-num   { color: #f59e0b; }
   .as-good .as-num   { color: #10b981; }
-  .as-info .as-num   { color: #a78bfa; }
+  .as-info .as-num   { color: #06b6d4; }
 
   .as-lbl { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
 
@@ -4238,16 +4328,16 @@ body.light-mode #dash-cgpa-hero {
     white-space: nowrap;
   }
   .res-sem-tab:hover {
-    border-color: var(--violet-bright);
-    color: #c4b5fd;
-    background: rgba(124,58,237,0.08);
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(6,182,212,0.06);
   }
   .res-sem-tab.active {
-    background: rgba(124,58,237,0.14);
-    border-color: var(--violet-bright);
-    color: #c4b5fd;
+    background: rgba(6,182,212,0.12);
+    border-color: var(--cyan);
+    color: var(--cyan);
     font-weight: 700;
-    box-shadow: 0 2px 12px rgba(124,58,237,0.22);
+    box-shadow: 0 2px 12px rgba(6,182,212,0.18);
   }
 
   /* ── Subject Card ── */
@@ -7567,10 +7657,14 @@ html, body { max-width: 100%; overflow-x: hidden; }
   color: #94a3b8 !important;
   font-size: 0.88rem !important;
 }
-/* #dash-cgpa-hero: the real gold→violet gradient treatment lives near the
-   top of this file (search "CGPA hero number"). A duplicate flat-color
-   version used to sit here and — because it came later with the same
-   !important specificity — silently won the cascade and overrode it. */
+#dash-cgpa-hero {
+  font-size: 3.8rem !important;
+  font-weight: 900 !important;
+  color: var(--cyan) !important;
+  letter-spacing: -2px !important;
+  line-height: 1 !important;
+  text-shadow: 0 0 40px rgba(6,182,212,0.3) !important;
+}
 .dash-hero-badge-lbl {
   font-size: 0.62rem !important;
   letter-spacing: 2.5px !important;

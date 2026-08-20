@@ -18,7 +18,7 @@ export function classifyWorkMode(item) {
 export const WORK_MODE_META = {
   remote: { label: 'Remote', emoji: '🏠', color: '#10b981' },
   hybrid: { label: 'Hybrid', emoji: '🔀', color: '#f59e0b' },
-  onsite: { label: 'On-site', emoji: '🏢', color: '#a78bfa' },
+  onsite: { label: 'On-site', emoji: '🏢', color: '#3b82f6' },
 }
 
 /**

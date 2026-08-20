@@ -17,10 +17,10 @@ import {
 } from './components/DsaInsights'
 const PLATFORM_META = {
   leetcode:   { label: 'LeetCode',   icon: '🟧', color: '#f59e0b' },
-  codeforces: { label: 'Codeforces', icon: '🔷', color: '#ec4899' },
+  codeforces: { label: 'Codeforces', icon: '🔷', color: '#3b82f6' },
   codechef:   { label: 'CodeChef',   icon: '🍫', color: '#8b5cf6' },
   gfg:        { label: 'GeeksforGeeks', icon: '🟢', color: '#10b981' },
-  hackerrank: { label: 'HackerRank', icon: '🟩', color: '#14b8a6' },
+  hackerrank: { label: 'HackerRank', icon: '🟩', color: '#22c55e' },
   github:     { label: 'GitHub',     icon: '🐙', color: '#818cf8' },
 }
 
@@ -379,7 +379,7 @@ export default function DsaTrackerPage() {
               <TotalSolvedSummaryCard results={results} />
             </InsightCard>
 
-            <InsightCard icon="📈" color="#ec4899" title="Codeforces Rating History"
+            <InsightCard icon="📈" color="#3b82f6" title="Codeforces Rating History"
               subtitle="Last 10 rated contests">
               <RatingHistoryChart results={results} />
             </InsightCard>
@@ -393,7 +393,7 @@ export default function DsaTrackerPage() {
               <DifficultyBarChart results={results} />
             </InsightCard>
 
-            <InsightCard icon="📐" color="#ec4899" title="Codeforces Rating-wise Solves"
+            <InsightCard icon="📐" color="#3b82f6" title="Codeforces Rating-wise Solves"
               subtitle="Which difficulty bands you actually solve">
               <RatingBucketHistogram results={results} />
             </InsightCard>
