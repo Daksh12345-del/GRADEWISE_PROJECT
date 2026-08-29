@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { icon: '🏢', label: 'Placements', path: '/placements' },
   { icon: '🧩', label: 'DSA Tracker', path: '/dsa-tracker' },
   { icon: '🤖', label: 'AI Career Coach', path: '/ai-coach' },
+  { icon: '🧑‍🏫', label: 'Personal Tuition', path: '/tuition' },
 ]
 
 const isMobile = () => window.innerWidth <= 767

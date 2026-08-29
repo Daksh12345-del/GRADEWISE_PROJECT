@@ -149,6 +149,86 @@ export async function fetchAskCoach(question, context = {}) {
  * forwards it to Groq's Whisper endpoint (see app/ai/coach.py) — kept on
  * the same Groq account as the rest of the AI Coach rather than a second
  * provider. Returns the transcribed text. */
+// ── Personal Tuition ──────────────────────────────────────────────────────
+// Book a real 1:1 session with a tutor listed on the platform: browse
+// approved teachers → pick an open slot → pay via Razorpay → get an
+// auto-generated Google Meet link. See gradewise-backend/app/tuition.py
+// and app/main.py's "Personal Tuition" section for the backend side.
+
+/** POST /api/tuition/apply — apply to become a tutor (starts pending until an admin approves) */
+export async function applyAsTutor(payload) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  return postJson(`${PYTHON_BACKEND_URL}/api/tuition/apply`, payload)
+}
+
+/** GET /api/tuition/tutors?subject= — browse approved tutors, optionally filtered by subject */
+export async function fetchTutors(subject = '') {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const url = `${PYTHON_BACKEND_URL}/api/tuition/tutors${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`
+  const json = await getJson(url)
+  return json.data || []
+}
+
+/** GET /api/tuition/tutors/{id}/slots — a tutor's open, future time slots */
+export async function fetchTutorSlots(teacherId) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const json = await getJson(`${PYTHON_BACKEND_URL}/api/tuition/tutors/${teacherId}/slots`)
+  return json.data || []
+}
+
+/** POST /api/tuition/tutors/{id}/slots — a tutor opens up one bookable slot */
+export async function addTutorSlot(teacherId, payload) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  return postJson(`${PYTHON_BACKEND_URL}/api/tuition/tutors/${teacherId}/slots`, payload)
+}
+
+/** POST /api/tuition/bookings — reserves the slot + opens a Razorpay order.
+ * Returns { booking_id, razorpay_order_id, razorpay_key_id, amount_paise, currency }. */
+export async function createTuitionBooking(payload) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  return postJson(`${PYTHON_BACKEND_URL}/api/tuition/bookings`, payload)
+}
+
+/** POST /api/tuition/bookings/verify — confirms the booking after Razorpay Checkout succeeds */
+export async function verifyTuitionPayment(payload) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  return postJson(`${PYTHON_BACKEND_URL}/api/tuition/bookings/verify`, payload)
+}
+
+/** GET /api/tuition/bookings/mine?user_id= — the current student's bookings */
+export async function fetchMyTuitionBookings(userId) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  const json = await getJson(`${PYTHON_BACKEND_URL}/api/tuition/bookings/mine?user_id=${encodeURIComponent(userId)}`)
+  return json.data || []
+}
+
+/** GET /api/tuition/teacher/dashboard?user_id= — the current tutor's profile + slots + bookings */
+export async function fetchTutorDashboard(userId) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  return getJson(`${PYTHON_BACKEND_URL}/api/tuition/teacher/dashboard?user_id=${encodeURIComponent(userId)}`)
+}
+
+/** POST /api/tuition/bookings/{id}/review — rate + review a completed session */
+export async function submitTutorReview(bookingId, payload) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  return postJson(`${PYTHON_BACKEND_URL}/api/tuition/bookings/${bookingId}/review`, payload)
+}
+
+/** Loads the Razorpay Checkout script on demand (not on every page load). */
+let _razorpayScriptPromise = null
+export function loadRazorpayCheckout() {
+  if (window.Razorpay) return Promise.resolve()
+  if (_razorpayScriptPromise) return _razorpayScriptPromise
+  _razorpayScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Could not load Razorpay checkout — check your connection'))
+    document.body.appendChild(script)
+  })
+  return _razorpayScriptPromise
+}
+
 export async function fetchTranscribeAudio(audioBlob) {
   if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
   const url = `${PYTHON_BACKEND_URL}/api/ai/transcribe`
