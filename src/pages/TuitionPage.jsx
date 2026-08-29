@@ -5,6 +5,7 @@ import ThemeToggleButton from './components/ThemeToggleButton'
 import Logo from './components/Logo'
 import { StaggerGroup, StaggerItem } from './components/motionKit'
 import { useAuthUser } from '../lib/useAuthUser'
+import { useTutorStatus } from '../lib/useTutorStatus'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import {
@@ -244,6 +245,7 @@ export default function TuitionPage() {
   const { isLight, toggleTheme } = useTheme()
   const sidebarToggle = useSidebarToggle()
   const { user } = useAuthUser()
+  const { hasProfile, approvalStatus } = useTutorStatus()
 
   const [tutors, setTutors] = useState([])
   const [status, setStatus] = useState('loading')
@@ -279,7 +281,6 @@ export default function TuitionPage() {
           </div>
         </div>
         <div className="header-user" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button className="job-apply-btn" onClick={() => navigate('/tutor-dashboard')}>Become / manage tutor</button>
           <ThemeToggleButton isLight={isLight} toggleTheme={toggleTheme} title="Toggle theme" />
         </div>
       </header>
@@ -328,6 +329,36 @@ export default function TuitionPage() {
           )}
 
           <MyBookings user={user} />
+
+          {/* Subtle, easy-to-miss-if-you're-not-looking entry point for
+              becoming a tutor — deliberately not a big header button, so
+              a student browsing to book a class doesn't get funneled into
+              the teacher-side dashboard by accident. Once someone has
+              applied, they get a real Sidebar nav item instead (see
+              Sidebar.jsx + useTutorStatus). */}
+          <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+            {hasProfile ? (
+              <span>
+                You've applied to teach on GradeWise {approvalStatus === 'pending' ? '(pending review)' : approvalStatus === 'approved' ? '(approved)' : '(not approved)'} —{' '}
+                <button
+                  onClick={() => navigate('/tutor-dashboard')}
+                  style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent, #8b5cf6)', cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}
+                >
+                  open your tutor dashboard
+                </button>
+              </span>
+            ) : (
+              <span>
+                Know a subject well?{' '}
+                <button
+                  onClick={() => navigate('/tutor-dashboard')}
+                  style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent, #8b5cf6)', cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}
+                >
+                  Apply to teach on GradeWise
+                </button>
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>

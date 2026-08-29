@@ -1,4 +1,5 @@
 import { SEMESTERS } from '../../lib/gradesData'
+import { useTutorStatus } from '../../lib/useTutorStatus'
 import { StaggerGroup, StaggerItem, PressButton } from './motionKit'
 
 const NAV_ITEMS = [
@@ -40,6 +41,8 @@ export function SidebarToggleButton({ open, mobileOpen, toggle }) {
  * per-semester quick-jump list when provided.
  */
 export default function Sidebar({ activePath, navigate, open, mobileOpen, closeMobile, activeSem, onSemChange }) {
+  const { hasProfile, approvalStatus } = useTutorStatus()
+
   function go(path) {
     navigate(path)
     if (isMobile()) closeMobile()
@@ -70,6 +73,25 @@ export default function Sidebar({ activePath, navigate, open, mobileOpen, closeM
               </PressButton>
             </StaggerItem>
           ))}
+          {/* Only shown once this user has actually applied to tutor —
+              keeps the teacher-side dashboard out of every student's way
+              until they've deliberately opted in via "Teach on GradeWise"
+              (see the subtle link on TuitionPage). */}
+          {hasProfile && (
+            <StaggerItem key="/tutor-dashboard">
+              <PressButton
+                className={`app-nav-btn ${activePath === '/tutor-dashboard' ? 'active' : ''}`}
+                onClick={() => go('/tutor-dashboard')}
+              >
+                <span>🧑‍🏫</span> Tutor Dashboard
+                {approvalStatus === 'pending' && (
+                  <span className="job-mode-badge" style={{ marginLeft: 6, color: '#f59e0b', background: '#f59e0b22', fontSize: '0.6rem' }}>
+                    pending
+                  </span>
+                )}
+              </PressButton>
+            </StaggerItem>
+          )}
         </StaggerGroup>
         <hr className="app-nav-divider" />
         <button
