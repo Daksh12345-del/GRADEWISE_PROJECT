@@ -5,13 +5,17 @@ import ThemeToggleButton from './components/ThemeToggleButton'
 import Logo from './components/Logo'
 import { StaggerGroup, StaggerItem } from './components/motionKit'
 import { useAuthUser } from '../lib/useAuthUser'
-import { useTutorStatus } from '../lib/useTutorStatus'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import {
   fetchTutors, fetchTutorSlots, createTuitionBooking, verifyTuitionPayment,
   loadRazorpayCheckout, fetchMyTuitionBookings, submitTutorReview,
 } from '../lib/api'
+
+// URL of the separate Teacher Portal deployment (gradewise-tutor-portal/),
+// e.g. https://tutors.gradewise.app — set in .env. If unset, the "Apply to
+// teach" link on this page just doesn't render (nothing to link to yet).
+const TUTOR_PORTAL_URL = import.meta.env.VITE_TUTOR_PORTAL_URL || ''
 
 function formatSlot(iso) {
   const d = new Date(iso)
@@ -245,7 +249,6 @@ export default function TuitionPage() {
   const { isLight, toggleTheme } = useTheme()
   const sidebarToggle = useSidebarToggle()
   const { user } = useAuthUser()
-  const { hasProfile, approvalStatus } = useTutorStatus()
 
   const [tutors, setTutors] = useState([])
   const [status, setStatus] = useState('loading')
@@ -311,8 +314,10 @@ export default function TuitionPage() {
           {status === 'error' && <div className="job-state-msg" style={{ color: '#ef4444' }}>Could not load tutors. Try again shortly.</div>}
           {status === 'ready' && tutors.length === 0 && (
             <div className="job-state-msg">
-              No tutors {search ? `for "${search}"` : 'listed'} yet.{' '}
-              <button className="job-apply-btn" onClick={() => navigate('/tutor-dashboard')}>Be the first to sign up as a tutor →</button>
+              No tutors {search ? `for "${search}"` : 'listed'} yet.
+              {TUTOR_PORTAL_URL && (
+                <> <a href={TUTOR_PORTAL_URL} target="_blank" rel="noopener noreferrer" className="job-apply-btn" style={{ marginLeft: 6 }}>Be the first to sign up as a tutor →</a></>
+              )}
             </div>
           )}
 
@@ -330,35 +335,18 @@ export default function TuitionPage() {
 
           <MyBookings user={user} />
 
-          {/* Subtle, easy-to-miss-if-you're-not-looking entry point for
-              becoming a tutor — deliberately not a big header button, so
-              a student browsing to book a class doesn't get funneled into
-              the teacher-side dashboard by accident. Once someone has
-              applied, they get a real Sidebar nav item instead (see
-              Sidebar.jsx + useTutorStatus). */}
-          <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-            {hasProfile ? (
-              <span>
-                You've applied to teach on GradeWise {approvalStatus === 'pending' ? '(pending review)' : approvalStatus === 'approved' ? '(approved)' : '(not approved)'} —{' '}
-                <button
-                  onClick={() => navigate('/tutor-dashboard')}
-                  style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent, #8b5cf6)', cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}
-                >
-                  open your tutor dashboard
-                </button>
-              </span>
-            ) : (
-              <span>
-                Know a subject well?{' '}
-                <button
-                  onClick={() => navigate('/tutor-dashboard')}
-                  style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent, #8b5cf6)', cursor: 'pointer', textDecoration: 'underline', font: 'inherit' }}
-                >
-                  Apply to teach on GradeWise
-                </button>
-              </span>
-            )}
-          </div>
+          {/* Points to the separate Teacher Portal app (its own deployed
+              site — see gradewise-tutor-portal/) rather than a route on
+              this site, so teacher-facing tools (apply, manage slots,
+              bookings) live entirely outside what students browse here. */}
+          {TUTOR_PORTAL_URL && (
+            <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+              Know a subject well?{' '}
+              <a href={TUTOR_PORTAL_URL} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent, #8b5cf6)' }}>
+                Apply to teach on GradeWise →
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
