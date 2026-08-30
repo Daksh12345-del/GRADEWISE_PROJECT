@@ -15,7 +15,19 @@ import {
 // URL of the separate Teacher Portal deployment (gradewise-tutor-portal/),
 // e.g. https://tutors.gradewise.app — set in .env. If unset, the "Apply to
 // teach" link on this page just doesn't render (nothing to link to yet).
-const TUTOR_PORTAL_URL = import.meta.env.VITE_TUTOR_PORTAL_URL || ''
+// URL of the separate Teacher Portal deployment (gradewise-tutor-portal/),
+// e.g. https://tutors.gradewise.app — set in .env. If unset, the "Apply to
+// teach" link on this page just doesn't render (nothing to link to yet).
+// normalizeUrl guards against the common misconfiguration of setting this
+// env var without a protocol (e.g. "portal.gradewallah.com" instead of
+// "https://portal.gradewallah.com") — without it, an <a href> with no
+// protocol is treated as a RELATIVE path and silently appends to the
+// current page's URL instead of navigating to the portal.
+function normalizeUrl(url) {
+  if (!url) return ''
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`
+}
+const TUTOR_PORTAL_URL = normalizeUrl(import.meta.env.VITE_TUTOR_PORTAL_URL || '')
 
 function formatSlot(iso) {
   const d = new Date(iso)
@@ -75,7 +87,7 @@ function TutorCard({ tutor, user, onBooked }) {
         key: order.razorpay_key_id,
         amount: order.amount_paise,
         currency: order.currency,
-        name: 'GradeWise Tuition',
+        name: 'GradeWallah Tuition',
         description: `Session with ${tutor.name}`,
         order_id: order.razorpay_order_id,
         prefill: { name: user.name, email: user.email },
@@ -348,7 +360,7 @@ export default function TuitionPage() {
             <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
               Know a subject well?{' '}
               <a href={TUTOR_PORTAL_URL} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent, #8b5cf6)' }}>
-                Apply to teach on GradeWise →
+                Apply to teach on GradeWallah →
               </a>
             </div>
           )}
