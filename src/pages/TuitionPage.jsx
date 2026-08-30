@@ -15,9 +15,6 @@ import {
 // URL of the separate Teacher Portal deployment (gradewise-tutor-portal/),
 // e.g. https://tutors.gradewise.app — set in .env. If unset, the "Apply to
 // teach" link on this page just doesn't render (nothing to link to yet).
-// URL of the separate Teacher Portal deployment (gradewise-tutor-portal/),
-// e.g. https://tutors.gradewise.app — set in .env. If unset, the "Apply to
-// teach" link on this page just doesn't render (nothing to link to yet).
 // normalizeUrl guards against the common misconfiguration of setting this
 // env var without a protocol (e.g. "portal.gradewallah.com" instead of
 // "https://portal.gradewallah.com") — without it, an <a href> with no
@@ -42,6 +39,33 @@ function StarRating({ value }) {
     <span style={{ color: '#f59e0b', fontSize: '0.85rem' }}>
       {'★'.repeat(full)}{'☆'.repeat(5 - full)} <span style={{ color: 'var(--text-dim)' }}>({value})</span>
     </span>
+  )
+}
+
+/** Clickable 1–5 star input, with a hover preview so the person can see
+ * what they're about to pick before committing. */
+function StarInput({ value, onChange }) {
+  const [hovered, setHovered] = useState(0)
+  return (
+    <div style={{ display: 'flex', gap: 4 }} onMouseLeave={() => setHovered(0)}>
+      {[1, 2, 3, 4, 5].map(n => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n)}
+          onMouseEnter={() => setHovered(n)}
+          aria-label={`${n} star${n > 1 ? 's' : ''}`}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer', padding: 2,
+            fontSize: '1.5rem', lineHeight: 1, color: '#f59e0b',
+            transform: (hovered || value) >= n ? 'scale(1.08)' : 'scale(1)',
+            transition: 'transform 0.1s ease',
+          }}
+        >
+          {(hovered || value) >= n ? '★' : '☆'}
+        </button>
+      ))}
+    </div>
   )
 }
 
@@ -155,10 +179,16 @@ function TutorCard({ tutor, user, onBooked }) {
             <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>No open slots right now — check back later.</div>
           )}
           {slots && slots.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {slots.map(slot => (
-                <div key={slot.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: '0.85rem' }}>{formatSlot(slot.scheduled_start)}</span>
+                <div
+                  key={slot.id}
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10,
+                    padding: '8px 10px', borderRadius: 8, background: 'var(--bg-soft, rgba(139,92,246,0.05))',
+                  }}
+                >
+                  <span style={{ fontSize: '0.85rem' }}>📅 {formatSlot(slot.scheduled_start)}</span>
                   <button
                     className="job-apply-btn"
                     disabled={bookingSlotId === slot.id}
@@ -214,6 +244,9 @@ function MyBookings({ user }) {
   const [reviewFor, setReviewFor] = useState(null)
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
+  const [submittedReviews, setSubmittedReviews] = useState({}) // { [bookingId]: { rating, comment } }
+  const [reviewError, setReviewError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   async function load() {
     if (!user) return
@@ -227,12 +260,18 @@ function MyBookings({ user }) {
   useEffect(() => { load() }, [user?.id])
 
   async function sendReview(bookingId) {
+    setReviewError('')
+    setSubmitting(true)
     try {
       await submitTutorReview(bookingId, { student_id: user.id, rating, comment })
+      setSubmittedReviews(prev => ({ ...prev, [bookingId]: { rating, comment } }))
       setReviewFor(null)
       setComment('')
+      setRating(5)
     } catch (e) {
-      alert(e.message || 'Could not submit review')
+      setReviewError(e.message || 'Could not submit your review')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -240,46 +279,85 @@ function MyBookings({ user }) {
   if (bookings.length === 0) return null
 
   return (
-    <div style={{ marginTop: 24 }}>
-      <h3 style={{ fontSize: '1rem', marginBottom: 10 }}>My Booked Sessions</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {bookings.map(b => (
-          <div key={b.id} className="job-card" style={{ padding: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-              <div>
-                <strong>{b.subject}</strong> with {b.teacher_name || 'Tutor'}
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{formatSlot(b.scheduled_start)}</div>
-              </div>
-              <span className="job-mode-badge" style={{
-                color: b.status === 'confirmed' ? '#10b981' : '#f59e0b',
-                background: (b.status === 'confirmed' ? '#10b981' : '#f59e0b') + '22',
-              }}>
-                {b.status === 'confirmed' ? 'Confirmed' : 'Awaiting payment'}
-              </span>
-            </div>
-            {b.status === 'confirmed' && (
-              <JoinCallButton booking={b} user={user} />
-            )}
-            {b.status === 'confirmed' && new Date(b.scheduled_end) > new Date() && (
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 8 }}>
-                Session hasn't happened yet — you'll be able to rate it once it's over.
-              </div>
-            )}
-            {b.status === 'confirmed' && new Date(b.scheduled_end) <= new Date() && (
-              reviewFor === b.id ? (
-                <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <select className="form-select" value={rating} onChange={e => setRating(Number(e.target.value))}>
-                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} star{n > 1 ? 's' : ''}</option>)}
-                  </select>
-                  <textarea className="form-input" rows={2} placeholder="How was the session?" value={comment} onChange={e => setComment(e.target.value)} />
-                  <button className="job-apply-btn" onClick={() => sendReview(b.id)}>Submit review</button>
+    <div style={{ marginTop: 32 }}>
+      <h3 style={{ fontSize: '1.05rem', marginBottom: 14 }}>My Booked Sessions</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {bookings.map(b => {
+          const isPast = new Date(b.scheduled_end) <= new Date()
+          const already = submittedReviews[b.id]
+          return (
+            <div key={b.id} className="job-card" style={{ padding: '16px 18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '1rem' }}>{b.subject}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginTop: 2 }}>with {b.teacher_name || 'Tutor'}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 4 }}>📅 {formatSlot(b.scheduled_start)}</div>
                 </div>
-              ) : (
-                <button className="job-apply-btn" style={{ marginTop: 8 }} onClick={() => setReviewFor(b.id)}>Rate this session</button>
-              )
-            )}
-          </div>
-        ))}
+                <span className="job-mode-badge" style={{
+                  color: b.status === 'confirmed' ? '#10b981' : '#f59e0b',
+                  background: (b.status === 'confirmed' ? '#10b981' : '#f59e0b') + '22',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {b.status === 'confirmed' ? '✓ Confirmed' : 'Awaiting payment'}
+                </span>
+              </div>
+
+              {b.status === 'confirmed' && (
+                <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+                  <JoinCallButton booking={b} user={user} />
+                </div>
+              )}
+
+              {b.status === 'confirmed' && !isPast && (
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 10 }}>
+                  ⏳ Session hasn't happened yet — you'll be able to rate it once it's over.
+                </div>
+              )}
+
+              {b.status === 'confirmed' && isPast && (
+                already ? (
+                  <div style={{
+                    marginTop: 12, padding: '10px 12px', borderRadius: 10,
+                    background: '#10b98115', border: '1px solid #10b98130',
+                  }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#10b981' }}>✓ Thanks for your feedback!</div>
+                    <div style={{ marginTop: 4, color: '#f59e0b', fontSize: '1rem' }}>
+                      {'★'.repeat(already.rating)}{'☆'.repeat(5 - already.rating)}
+                    </div>
+                    {already.comment && <div style={{ fontSize: '0.82rem', color: 'var(--text-dim)', marginTop: 4 }}>"{already.comment}"</div>}
+                  </div>
+                ) : reviewFor === b.id ? (
+                  <div style={{
+                    marginTop: 12, padding: '14px 14px', borderRadius: 10,
+                    background: 'var(--bg-soft, rgba(139,92,246,0.06))', border: '1px solid var(--border)',
+                    display: 'flex', flexDirection: 'column', gap: 10,
+                  }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>How was the session?</div>
+                    <StarInput value={rating} onChange={setRating} />
+                    <textarea
+                      className="form-input" rows={2} placeholder="Anything you'd like to add (optional)…"
+                      value={comment} onChange={e => setComment(e.target.value)}
+                    />
+                    {reviewError && <div style={{ fontSize: '0.8rem', color: '#ef4444' }}>{reviewError}</div>}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="job-apply-btn" onClick={() => sendReview(b.id)} disabled={submitting}>
+                        {submitting ? 'Submitting…' : 'Submit review'}
+                      </button>
+                      <button
+                        onClick={() => { setReviewFor(null); setReviewError('') }}
+                        style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', color: 'var(--text-dim)', fontSize: '0.85rem' }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button className="job-apply-btn" style={{ marginTop: 10 }} onClick={() => setReviewFor(b.id)}>⭐ Rate this session</button>
+                )
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
