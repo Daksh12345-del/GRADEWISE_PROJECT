@@ -224,7 +224,12 @@ function MyBookings({ user }) {
                 Video call link wasn't generated — coordinate directly with your tutor.
               </div>
             )}
-            {b.status === 'confirmed' && (
+            {b.status === 'confirmed' && new Date(b.scheduled_end) > new Date() && (
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 8 }}>
+                Session hasn't happened yet — you'll be able to rate it once it's over.
+              </div>
+            )}
+            {b.status === 'confirmed' && new Date(b.scheduled_end) <= new Date() && (
               reviewFor === b.id ? (
                 <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <select className="form-select" value={rating} onChange={e => setRating(Number(e.target.value))}>
