@@ -229,6 +229,13 @@ export function loadRazorpayCheckout() {
   return _razorpayScriptPromise
 }
 
+/** GET /api/tuition/bookings/{id}/join?user_id= — mints a fresh, time-boxed
+ * join link right when someone clicks Join (not fetched/stored earlier). */
+export async function fetchTuitionJoinLink(bookingId, userId) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  return getJson(`${PYTHON_BACKEND_URL}/api/tuition/bookings/${bookingId}/join?user_id=${encodeURIComponent(userId)}`)
+}
+
 export async function fetchTranscribeAudio(audioBlob) {
   if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
   const url = `${PYTHON_BACKEND_URL}/api/ai/transcribe`

@@ -9,7 +9,7 @@ import { useSidebarToggle } from '../lib/useSidebarToggle'
 import { useTheme } from '../lib/useTheme'
 import {
   fetchTutors, fetchTutorSlots, createTuitionBooking, verifyTuitionPayment,
-  loadRazorpayCheckout, fetchMyTuitionBookings, submitTutorReview,
+  loadRazorpayCheckout, fetchMyTuitionBookings, submitTutorReview, fetchTuitionJoinLink,
 } from '../lib/api'
 
 // URL of the separate Teacher Portal deployment (gradewise-tutor-portal/),
@@ -177,6 +177,37 @@ function TutorCard({ tutor, user, onBooked }) {
   )
 }
 
+// Fetches a fresh, time-boxed join link the moment the button is clicked
+// (never pre-fetched or cached — see GET /api/tuition/bookings/{id}/join),
+// so it always reflects "is the session's window open right now" and
+// "am I the teacher or the student" at the actual moment of joining.
+function JoinCallButton({ booking, user }) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function join() {
+    setError('')
+    setLoading(true)
+    try {
+      const { join_url } = await fetchTuitionJoinLink(booking.id, user.id)
+      window.open(join_url, '_blank', 'noopener,noreferrer')
+    } catch (e) {
+      setError(e.message || 'Could not open the video call')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      <button className="job-apply-btn" onClick={join} disabled={loading}>
+        {loading ? 'Opening…' : 'Join Video Call →'}
+      </button>
+      {error && <div style={{ fontSize: '0.8rem', color: '#ef4444', marginTop: 6 }}>{error}</div>}
+    </div>
+  )
+}
+
 function MyBookings({ user }) {
   const [bookings, setBookings] = useState([])
   const [status, setStatus] = useState('loading')
@@ -226,15 +257,8 @@ function MyBookings({ user }) {
                 {b.status === 'confirmed' ? 'Confirmed' : 'Awaiting payment'}
               </span>
             </div>
-            {b.status === 'confirmed' && b.meet_link && (
-              <a href={b.meet_link} target="_blank" rel="noopener noreferrer" className="job-apply-btn" style={{ marginTop: 8, display: 'inline-block' }}>
-                Join Video Call →
-              </a>
-            )}
-            {b.status === 'confirmed' && !b.meet_link && (
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 8 }}>
-                Video call link wasn't generated — coordinate directly with your tutor.
-              </div>
+            {b.status === 'confirmed' && (
+              <JoinCallButton booking={b} user={user} />
             )}
             {b.status === 'confirmed' && new Date(b.scheduled_end) > new Date() && (
               <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 8 }}>
