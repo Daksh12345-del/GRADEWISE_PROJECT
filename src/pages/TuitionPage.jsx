@@ -216,12 +216,12 @@ function MyBookings({ user }) {
             </div>
             {b.status === 'confirmed' && b.meet_link && (
               <a href={b.meet_link} target="_blank" rel="noopener noreferrer" className="job-apply-btn" style={{ marginTop: 8, display: 'inline-block' }}>
-                Join Google Meet →
+                Join Video Call →
               </a>
             )}
             {b.status === 'confirmed' && !b.meet_link && (
               <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 8 }}>
-                Meet link wasn't auto-generated — coordinate directly with your tutor.
+                Video call link wasn't generated — coordinate directly with your tutor.
               </div>
             )}
             {b.status === 'confirmed' && (
