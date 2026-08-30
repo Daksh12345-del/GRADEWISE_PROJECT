@@ -317,7 +317,7 @@ export default function TuitionPage() {
         <div className="res-body">
           <input
             className="form-input"
-            style={{ width: '100%', maxWidth: 640, marginBottom: 16 }}
+            style={{ display: 'block', width: '100%', maxWidth: 640, margin: '0 auto 16px' }}
             placeholder="Search by subject (e.g. Calculus, DBMS, Physics)…"
             value={search}
             onChange={e => setSearch(e.target.value)}
