@@ -157,6 +157,11 @@ function TutorCard({ tutor, user, onBooked }) {
       </div>
 
       {tutor.bio && <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', margin: '8px 0' }}>{tutor.bio}</div>}
+      {(tutor.qualifications || tutor.college) && (
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginBottom: 8 }}>
+          🎓 {[tutor.qualifications, tutor.college].filter(Boolean).join(' · ')}
+        </div>
+      )}
 
       {Array.isArray(tutor.subjects) && tutor.subjects.length > 0 && (
         <div className="job-skills">
@@ -165,7 +170,7 @@ function TutorCard({ tutor, user, onBooked }) {
       )}
 
       <div className="job-card-bottom">
-        <span className="job-posted">{tutor.experience_years || 0} yrs experience</span>
+        <span className="job-posted">{tutor.experience_level || 'Experience not specified'}</span>
         <button className="job-apply-btn" onClick={toggleExpand}>
           {expanded ? 'Hide slots' : 'View slots →'}
         </button>
