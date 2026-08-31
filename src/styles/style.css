@@ -8106,8 +8106,14 @@ body.light-mode .dash-hero-badge-lbl { color: #64748b !important; }
 
 /* ── PAGE TRANSITION (pure CSS — see PageTransition.jsx for why) ── */
 @keyframes pageTransitionIn {
-  from { opacity: 0.6; transform: translateY(16px); }
-  to   { opacity: 1;   transform: translateY(0); }
+  /* Opacity floor raised from 0.6 to 0.88 — 0.6 was hard to read on dark
+     backgrounds specifically (a light background keeps decent contrast
+     even at reduced opacity, but a dark background loses most of its
+     already-low contrast at 0.6, making text look washed out/blurry for
+     the ~0.35s the animation runs). 0.88 keeps the same subtle fade-in
+     feel while staying legible in both themes throughout. */
+  from { opacity: 0.88; transform: translateY(16px); }
+  to   { opacity: 1;    transform: translateY(0); }
 }
 .page-transition-in {
   animation: pageTransitionIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;

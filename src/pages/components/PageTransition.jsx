@@ -9,10 +9,13 @@
 // something forces a re-render (navigating away and back). Slide + opacity
 // don't have this problem: at any intermediate value they still look sharp.
 //
-// Opacity is also kept in a SAFE range (0.6 -> 1), never 0 -> 1, so a page
+// Opacity is also kept in a SAFE range (0.88 -> 1, never 0 -> 1), so a page
 // that loads in a background/unfocused tab (where the browser throttles
 // requestAnimationFrame) is never fully invisible even if the animation
-// frame never fires.
+// frame never fires. Raised from an earlier 0.6 floor after dark-mode text
+// looked washed out/hard-to-read partway through the animation — a light
+// background keeps contrast fine even at 0.6 opacity, but a dark
+// background doesn't have that headroom to spare.
 //
 // This used to be done with framer-motion, but that pulled the whole
 // ~70KB(gzip) animation library into the *eager* load path — App.jsx wraps
