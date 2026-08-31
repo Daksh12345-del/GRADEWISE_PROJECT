@@ -4,12 +4,19 @@ import { useState, useEffect } from 'react'
 // Reusable animation building blocks — drop these into any page instead of
 // writing framer-motion boilerplate every time.
 //
-// SAFETY RULE followed everywhere here: nothing ever animates FROM
-// opacity:0. A page that loads in a background/unfocused tab can have its
-// animation frames throttled by the browser, and content stuck at
-// opacity:0 looks like a blank/broken page until the tab is focused. Every
-// variant below starts at a soft-but-visible opacity (0.5–0.7) instead, so
-// worst case (animation never plays) content is still clearly there.
+// SAFETY RULE followed everywhere here: nothing ever animates opacity at
+// all — only position (translateY). An earlier version of this file
+// started every animation from a reduced opacity (0.5–0.7) on the theory
+// that "worst case it's still visible" — but in practice a dimmed
+// state is genuinely hard to read on dark backgrounds specifically (a
+// light background keeps enough contrast even dimmed; a dark background
+// doesn't have that headroom to spare), and if an animation frame is ever
+// throttled or an IntersectionObserver never fires (backgrounded tab,
+// slow device, etc.), content can visibly get STUCK at that dim state
+// indefinitely instead of just "mid-transition". Animating only position
+// sidesteps the whole class of bug: content is always at full, readable
+// opacity from the very first frame, in every theme, no matter what the
+// animation is doing.
 
 // ── Stagger a list of cards in one-by-one ──────────────────────────────
 // Usage:
@@ -39,8 +46,8 @@ export function StaggerItem({ children, className, style }) {
       className={className}
       style={style}
       variants={{
-        hidden: { opacity: 0.6, y: 16 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+        hidden: { y: 16 },
+        show: { y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
       }}
     >
       {children}
@@ -55,8 +62,8 @@ export function RevealOnScroll({ children, className, style, delay = 0 }) {
     <motion.div
       className={className}
       style={style}
-      initial={{ opacity: 0.6, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ y: 24 }}
+      whileInView={{ y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay }}
     >

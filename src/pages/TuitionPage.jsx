@@ -373,19 +373,45 @@ export default function TuitionPage() {
   const [status, setStatus] = useState('loading')
   const [search, setSearch] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedSubject, setSelectedSubject] = useState(null) // null = browsing subjects
 
+  // Fetch the full, unfiltered tutor list once — subject grouping and
+  // search filtering both happen client-side from here, so picking a
+  // subject or typing a search term doesn't need another round-trip.
   useEffect(() => {
     setStatus('loading')
-    fetchTutors(search.trim())
+    fetchTutors('')
       .then(data => { setTutors(data); setStatus('ready') })
       .catch(() => setStatus('error'))
-  }, [search, refreshKey])
+  }, [refreshKey])
 
-  const subjectsOnPlatform = useMemo(() => {
-    const set = new Set()
-    tutors.forEach(t => (t.subjects || []).forEach(s => set.add(s)))
-    return Array.from(set).sort()
+  // Group tutors by subject, ranked by how many tutors teach it — the
+  // "priority" a student sees a subject in is just how well-covered that
+  // subject is on the platform, so widely-taught subjects surface first.
+  const subjectGroups = useMemo(() => {
+    const map = new Map()
+    tutors.forEach(t => {
+      (t.subjects || []).forEach(subj => {
+        if (!map.has(subj)) map.set(subj, [])
+        map.get(subj).push(t)
+      })
+    })
+    return Array.from(map.entries())
+      .map(([subject, subjectTutors]) => ({
+        subject,
+        tutors: subjectTutors,
+        minRate: Math.min(...subjectTutors.map(t => t.hourly_rate || Infinity)),
+      }))
+      .sort((a, b) => b.tutors.length - a.tutors.length || a.subject.localeCompare(b.subject))
   }, [tutors])
+
+  const visibleSubjectGroups = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return subjectGroups
+    return subjectGroups.filter(g => g.subject.toLowerCase().includes(q))
+  }, [subjectGroups, search])
+
+  const activeGroup = subjectGroups.find(g => g.subject === selectedSubject) || null
 
   return (
     <div className="page active" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} id="tuitionPage">
@@ -419,37 +445,96 @@ export default function TuitionPage() {
         <div className="res-body">
           <input
             className="form-input"
-            style={{ display: 'block', width: '100%', maxWidth: 640, margin: '0 auto 16px' }}
-            placeholder="Search by subject (e.g. Calculus, DBMS, Physics)…"
+            style={{ display: 'block', width: '100%', maxWidth: 640, margin: '0 auto 20px' }}
+            placeholder={selectedSubject ? `Search tutors in ${selectedSubject}…` : 'Search subjects (e.g. Calculus, DBMS, Physics)…'}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            list="tuition-subjects"
           />
-          <datalist id="tuition-subjects">
-            {subjectsOnPlatform.map(s => <option key={s} value={s} />)}
-          </datalist>
 
           {status === 'loading' && <div className="job-state-msg"><div className="ai-spinner" /><div>Loading tutors…</div></div>}
           {status === 'error' && <div className="job-state-msg" style={{ color: '#ef4444' }}>Could not load tutors. Try again shortly.</div>}
+
           {status === 'ready' && tutors.length === 0 && (
             <div className="job-state-msg">
-              No tutors {search ? `for "${search}"` : 'listed'} yet.
+              No tutors listed yet.
               {TUTOR_PORTAL_URL && (
                 <> <a href={TUTOR_PORTAL_URL} target="_blank" rel="noopener noreferrer" className="job-apply-btn" style={{ marginLeft: 6 }}>Be the first to sign up as a tutor →</a></>
               )}
             </div>
           )}
 
-          {status === 'ready' && tutors.length > 0 && (
-            <StaggerGroup>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
-                {tutors.map(t => (
-                  <StaggerItem key={t.id}>
-                    <TutorCard tutor={t} user={user} onBooked={() => setRefreshKey(k => k + 1)} />
-                  </StaggerItem>
-                ))}
-              </div>
-            </StaggerGroup>
+          {/* Level 1: browse subjects — the most-taught subjects (i.e. the
+              ones with the most tutors) surface first, so a student sees
+              what's actually well-covered on the platform before anything
+              else. */}
+          {status === 'ready' && tutors.length > 0 && !selectedSubject && (
+            visibleSubjectGroups.length === 0 ? (
+              <div className="job-state-msg">No subjects match "{search}".</div>
+            ) : (
+              <StaggerGroup>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+                  {visibleSubjectGroups.map(g => (
+                    <StaggerItem key={g.subject}>
+                      <button
+                        onClick={() => { setSelectedSubject(g.subject); setSearch('') }}
+                        className="job-card"
+                        style={{
+                          width: '100%', textAlign: 'left', cursor: 'pointer', border: '1px solid var(--border)',
+                          background: 'var(--bg-card)', font: 'inherit', color: 'inherit',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div className="job-logo" style={{ background: '#8b5cf622', border: '1.5px solid #8b5cf644', color: '#8b5cf6', fontSize: '1.1rem' }}>
+                            📘
+                          </div>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div className="job-title">{g.subject}</div>
+                            <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                              {g.tutors.length} tutor{g.tutors.length > 1 ? 's' : ''}
+                              {Number.isFinite(g.minRate) && <> · from ₹{g.minRate}/hr</>}
+                            </div>
+                          </div>
+                          <span style={{ color: 'var(--text-dim)', fontSize: '1.1rem' }}>→</span>
+                        </div>
+                      </button>
+                    </StaggerItem>
+                  ))}
+                </div>
+              </StaggerGroup>
+            )
+          )}
+
+          {/* Level 2: a subject's tutors, with full bio/experience/rating —
+              clicking a tutor card still expands to their slots inline
+              (see TutorCard), same as before. */}
+          {status === 'ready' && selectedSubject && activeGroup && (
+            <>
+              <button
+                onClick={() => { setSelectedSubject(null); setSearch('') }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent, #8b5cf6)', fontSize: '0.85rem', padding: 0, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 4 }}
+              >
+                ← All subjects
+              </button>
+              <h2 style={{ fontSize: '1.2rem', marginBottom: 14 }}>📘 {selectedSubject}</h2>
+              {(() => {
+                const q = search.trim().toLowerCase()
+                const visibleTutors = q
+                  ? activeGroup.tutors.filter(t => t.name.toLowerCase().includes(q))
+                  : activeGroup.tutors
+                if (visibleTutors.length === 0) return <div className="job-state-msg">No tutors match "{search}".</div>
+                return (
+                  <StaggerGroup>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+                      {visibleTutors.map(t => (
+                        <StaggerItem key={t.id}>
+                          <TutorCard tutor={t} user={user} onBooked={() => setRefreshKey(k => k + 1)} />
+                        </StaggerItem>
+                      ))}
+                    </div>
+                  </StaggerGroup>
+                )
+              })()}
+            </>
           )}
 
           <MyBookings user={user} />
