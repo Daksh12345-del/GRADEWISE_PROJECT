@@ -38,6 +38,17 @@
     </noscript>
   </head>
   <body>
+    <script>
+      // Default new visitors to LIGHT mode; only an explicit 'dark' choice is dark.
+      // Runs before React/JS loads (and before the CSS below it applies) so the
+      // very first paint for a first-time user is already light — no flash of
+      // dark mode. Stays in sync with useTheme() in src/lib/useTheme.js.
+      try {
+        if (localStorage.getItem('aktu_theme') !== 'dark') {
+          document.body.classList.add('light-mode')
+        }
+      } catch (e) {}
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
