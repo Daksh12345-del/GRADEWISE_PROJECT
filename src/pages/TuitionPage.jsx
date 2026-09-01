@@ -170,7 +170,10 @@ function TutorCard({ tutor, user, onBooked }) {
       )}
 
       <div className="job-card-bottom">
-        <span className="job-posted">{tutor.experience_level || 'Experience not specified'}</span>
+        <span className="job-posted">
+          {tutor.experience_level || 'Experience not specified'}
+          {tutor.experience_level === 'Currently studying (not yet graduated)' && tutor.year_of_study ? ` · ${tutor.year_of_study}` : ''}
+        </span>
         <button className="job-apply-btn" onClick={toggleExpand}>
           {expanded ? 'Hide slots' : 'View slots →'}
         </button>
