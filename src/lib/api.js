@@ -230,7 +230,16 @@ export function loadRazorpayCheckout() {
 }
 
 /** GET /api/tuition/bookings/{id}/join?user_id= — mints a fresh, time-boxed
- * join link right when someone clicks Join (not fetched/stored earlier). */
+ * join link right when someone clicks Join (not fetched/stored earlier).
+ *
+ * GRACE PERIOD FEATURE:
+ * - Teachers can join up to 15 minutes after the scheduled start time
+ * - If a teacher joins late (e.g., 10 min after scheduled start), the session
+ *   duration is adjusted: it runs from join time until the original end time
+ * - Example: Slot 4:30-5:30 PM, teacher joins at 4:40 PM → session runs 4:40-5:30 PM (50 min)
+ * - The backend should validate the grace period and track actual join time
+ * - Frontend shows countdown and adjusts UI based on grace period status
+ */
 export async function fetchTuitionJoinLink(bookingId, userId) {
   if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
   return getJson(`${PYTHON_BACKEND_URL}/api/tuition/bookings/${bookingId}/join?user_id=${encodeURIComponent(userId)}`)

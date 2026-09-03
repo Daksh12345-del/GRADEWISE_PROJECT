@@ -215,6 +215,11 @@ function TutorCard({ tutor, user, onBooked }) {
   )
 }
 
+// Grace period in minutes — teachers can join up to this many minutes after
+// the scheduled start time. The session duration is adjusted to start from
+// the actual join time rather than the scheduled time.
+const GRACE_PERIOD_MINUTES = 15
+
 // Fetches a fresh, time-boxed join link the moment the button is clicked
 // (never pre-fetched or cached — see GET /api/tuition/bookings/{id}/join),
 // so it always reflects "is the session's window open right now" and
@@ -222,6 +227,42 @@ function TutorCard({ tutor, user, onBooked }) {
 function JoinCallButton({ booking, user }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [timeLeft, setTimeLeft] = useState(null) // minutes until grace period ends
+  const [status, setStatus] = useState('pending') // pending | active | grace | ended
+
+  // Calculate time status and countdown
+  useEffect(() => {
+    function updateStatus() {
+      const now = new Date()
+      const scheduledStart = new Date(booking.scheduled_start)
+      const scheduledEnd = new Date(booking.scheduled_end)
+      const graceEnd = new Date(scheduledStart.getTime() + GRACE_PERIOD_MINUTES * 60 * 1000)
+
+      if (now < scheduledStart) {
+        // Session hasn't started yet
+        const minsUntilStart = Math.ceil((scheduledStart - now) / (60 * 1000))
+        setStatus('pending')
+        setTimeLeft(minsUntilStart)
+      } else if (now < graceEnd) {
+        // Within grace period — teacher can still join
+        const minsLeft = Math.ceil((graceEnd - now) / (60 * 1000))
+        setStatus('grace')
+        setTimeLeft(minsLeft)
+      } else if (now < scheduledEnd) {
+        // Grace period ended but session is still ongoing
+        setStatus('ended')
+        setTimeLeft(0)
+      } else {
+        // Session is over
+        setStatus('ended')
+        setTimeLeft(0)
+      }
+    }
+
+    updateStatus()
+    const interval = setInterval(updateStatus, 30000) // Update every 30 seconds
+    return () => clearInterval(interval)
+  }, [booking.scheduled_start, booking.scheduled_end])
 
   async function join() {
     setError('')
@@ -236,11 +277,85 @@ function JoinCallButton({ booking, user }) {
     }
   }
 
+  // Determine button state and message
+  const getButtonProps = () => {
+    if (loading) return { text: 'Opening…', disabled: true, color: '#8b5cf6' }
+
+    switch (status) {
+      case 'pending':
+        return {
+          text: `Join in ${timeLeft} min${timeLeft !== 1 ? 's' : ''}`,
+          disabled: true,
+          color: '#f59e0b',
+        }
+      case 'grace':
+        return {
+          text: `Join Now (${timeLeft} min left)`,
+          disabled: false,
+          color: '#10b981',
+        }
+      case 'ended':
+        return {
+          text: 'Grace period ended',
+          disabled: true,
+          color: '#ef4444',
+        }
+      default:
+        return {
+          text: 'Join Video Call →',
+          disabled: false,
+          color: '#8b5cf6',
+        }
+    }
+  }
+
+  const btnProps = getButtonProps()
+
   return (
     <div style={{ marginTop: 8 }}>
-      <button className="job-apply-btn" onClick={join} disabled={loading}>
-        {loading ? 'Opening…' : 'Join Video Call →'}
+      <button
+        className="job-apply-btn"
+        onClick={join}
+        disabled={btnProps.disabled || loading}
+        style={{
+          background: btnProps.color + '22',
+          color: btnProps.color,
+          border: `1px solid ${btnProps.color}44`,
+        }}
+      >
+        {btnProps.text}
       </button>
+
+      {/* Grace period info banner */}
+      {status === 'grace' && (
+        <div style={{
+          fontSize: '0.78rem',
+          color: '#f59e0b',
+          marginTop: 6,
+          padding: '6px 10px',
+          background: '#f59e0b11',
+          borderRadius: 6,
+          border: '1px solid #f59e0b22',
+        }}>
+          ⏰ You're joining {Math.ceil((new Date() - new Date(booking.scheduled_start)) / (60 * 1000))} min late.
+          Session will run until {new Date(new Date(booking.scheduled_end).getTime() - (new Date() - new Date(booking.scheduled_start))).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+        </div>
+      )}
+
+      {status === 'ended' && (
+        <div style={{
+          fontSize: '0.78rem',
+          color: '#ef4444',
+          marginTop: 6,
+          padding: '6px 10px',
+          background: '#ef444411',
+          borderRadius: 6,
+          border: '1px solid #ef444422',
+        }}>
+          ❌ Grace period ended. You can no longer join this session.
+        </div>
+      )}
+
       {error && <div style={{ fontSize: '0.8rem', color: '#ef4444', marginTop: 6 }}>{error}</div>}
     </div>
   )
@@ -286,13 +401,48 @@ function MyBookings({ user }) {
   if (status === 'loading') return null
   if (bookings.length === 0) return null
 
+  // Calculate session duration in minutes
+  function getSessionDuration(b) {
+    const start = new Date(b.scheduled_start)
+    const end = new Date(b.scheduled_end)
+    return Math.round((end - start) / (60 * 1000))
+  }
+
+  // Get grace period end time
+  function getGraceEndTime(b) {
+    const start = new Date(b.scheduled_start)
+    return new Date(start.getTime() + GRACE_PERIOD_MINUTES * 60 * 1000)
+  }
+
   return (
     <div style={{ marginTop: 32 }}>
       <h3 style={{ fontSize: '1.05rem', marginBottom: 14 }}>My Booked Sessions</h3>
+
+      {/* Grace period info banner */}
+      <div style={{
+        padding: '10px 14px',
+        borderRadius: 8,
+        background: 'var(--bg-soft, rgba(139,92,246,0.06))',
+        border: '1px solid var(--border)',
+        marginBottom: 14,
+        fontSize: '0.82rem',
+        color: 'var(--text-dim)',
+      }}>
+        <span style={{ fontWeight: 600, color: 'var(--text)' }}>📋 Join Policy: </span>
+        Teachers can join up to {GRACE_PERIOD_MINUTES} minutes after the scheduled time.
+        If you join late, your session duration will be adjusted to end at the original scheduled time.
+      </div>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {bookings.map(b => {
           const isPast = new Date(b.scheduled_end) <= new Date()
           const already = submittedReviews[b.id]
+          const duration = getSessionDuration(b)
+          const graceEnd = getGraceEndTime(b)
+          const now = new Date()
+          const isInGracePeriod = now >= new Date(b.scheduled_start) && now < graceEnd
+          const isBeforeStart = now < new Date(b.scheduled_start)
+
           return (
             <div key={b.id} className="job-card" style={{ padding: '16px 18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
@@ -300,6 +450,9 @@ function MyBookings({ user }) {
                   <div style={{ fontWeight: 700, fontSize: '1rem' }}>{b.subject}</div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginTop: 2 }}>with {b.teacher_name || 'Tutor'}</div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 4 }}>📅 {formatSlot(b.scheduled_start)}</div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: 2 }}>
+                    ⏱️ Duration: {duration} min | Grace until: {formatSlot(graceEnd.toISOString())}
+                  </div>
                 </div>
                 <span className="job-mode-badge" style={{
                   color: b.status === 'confirmed' ? '#10b981' : '#f59e0b',
@@ -309,6 +462,32 @@ function MyBookings({ user }) {
                   {b.status === 'confirmed' ? '✓ Confirmed' : 'Awaiting payment'}
                 </span>
               </div>
+
+              {/* Grace period status indicator */}
+              {b.status === 'confirmed' && !isPast && (
+                <div style={{
+                  marginTop: 10,
+                  padding: '8px 12px',
+                  borderRadius: 6,
+                  background: isInGracePeriod ? '#f59e0b11' : isBeforeStart ? '#8b5cf611' : '#ef444411',
+                  border: `1px solid ${isInGracePeriod ? '#f59e0b22' : isBeforeStart ? '#8b5cf622' : '#ef444422'}`,
+                  fontSize: '0.78rem',
+                }}>
+                  {isInGracePeriod ? (
+                    <span style={{ color: '#f59e0b' }}>
+                      ⏰ Grace period active — join within {Math.ceil((graceEnd - now) / (60 * 1000))} min
+                    </span>
+                  ) : isBeforeStart ? (
+                    <span style={{ color: '#8b5cf6' }}>
+                      🔜 Starts in {Math.ceil((new Date(b.scheduled_start) - now) / (60 * 1000))} min
+                    </span>
+                  ) : (
+                    <span style={{ color: '#ef4444' }}>
+                      ❌ Grace period ended — session closed
+                    </span>
+                  )}
+                </div>
+              )}
 
               {b.status === 'confirmed' && (
                 <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
