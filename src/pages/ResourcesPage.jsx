@@ -133,6 +133,18 @@ function tileStyle(color, active, disabled) {
   }
 }
 
+// Small segmented toggle for choosing a quick summary vs a detailed
+// walkthrough inside the AI Explain panel.
+function explainToggleStyle(active) {
+  const base = {
+    padding: '0.35rem 0.9rem', borderRadius: 8, fontSize: '0.8rem', cursor: 'pointer',
+    border: '1.5px solid', transition: 'all 0.15s ease', lineHeight: 1.2,
+  }
+  return active
+    ? { ...base, background: '#06b6d4', color: '#fff', borderColor: '#06b6d4' }
+    : { ...base, background: 'transparent', color: 'var(--text-dim)', borderColor: 'currentColor' }
+}
+
 // Global-search result card: click the subject → a little "folder" opens with
 // three tiles (🎥 Videos / 📝 Notes / 📄 PYQ). Click a tile to open just that
 // resource — Videos/Notes expand inline, PYQ opens straight in a new tab.
@@ -140,18 +152,32 @@ function AllSubjectCard({ subj }) {
   const [open, setOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(null) // null | 'videos' | 'notes' | 'pyq' | 'explain'
   const [explainState, setExplainState] = useState({ status: 'idle' }) // idle | loading | ready | error
+  const [explainDetail, setExplainDetail] = useState(false) // false = quick summary, true = detailed walkthrough
+
+  // Fetch an explanation for a given mode (detail passed in to avoid stale closure).
+  async function fetchExplanation(detail) {
+    setExplainState({ status: 'loading' })
+    try {
+      const explanation = await fetchAiExplain(subj.name, detail)
+      setExplainState({ status: 'ready', text: explanation })
+    } catch (e) {
+      setExplainState({ status: 'error', error: e.message || 'Failed to get explanation' })
+    }
+  }
 
   async function handleExplainClick() {
     const willOpen = activeTab !== 'explain'
     setActiveTab(willOpen ? 'explain' : null)
-    if (willOpen && explainState.status === 'idle') {
-      setExplainState({ status: 'loading' })
-      try {
-        const explanation = await fetchAiExplain(subj.name)
-        setExplainState({ status: 'ready', text: explanation })
-      } catch (e) {
-        setExplainState({ status: 'error', error: e.message || 'Failed to get explanation' })
-      }
+    if (willOpen) {
+      fetchExplanation(explainDetail)
+    }
+  }
+
+  // Switching Quick ↔ Detailed refetches the explanation in the new mode.
+  function handleDetailToggle(detail) {
+    setExplainDetail(detail)
+    if (activeTab === 'explain') {
+      fetchExplanation(detail)
     }
   }
   const vd = getVideoData(subj.code)
@@ -211,7 +237,7 @@ function AllSubjectCard({ subj }) {
                 <button
                   onClick={handleExplainClick}
                   style={tileStyle('#06b6d4', activeTab === 'explain', false)}
-                  title="Get a quick AI explanation of this subject"
+                  title="Get an AI explanation of this subject"
                 >
                   ✨<div style={{ fontSize: '0.7rem', marginTop: 2 }}>Explain</div>
                 </button>
@@ -219,10 +245,26 @@ function AllSubjectCard({ subj }) {
 
               {activeTab === 'explain' && (
                 <div style={{ marginTop: '1rem', padding: '0.9rem 1rem', borderRadius: 10, background: 'var(--bg-card2)', border: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.7rem' }}>
+                    <button
+                      onClick={() => handleDetailToggle(false)}
+                      style={explainToggleStyle(explainDetail === false)}
+                      title="2-3 line quick summary"
+                    >
+                      ⚡ Quick
+                    </button>
+                    <button
+                      onClick={() => handleDetailToggle(true)}
+                      style={explainToggleStyle(explainDetail === true)}
+                      title="Proper, detailed walkthrough"
+                    >
+                      📖 Detailed
+                    </button>
+                  </div>
                   {explainState.status === 'loading' && <div className="dsa-idle">Asking AI Coach…</div>}
                   {explainState.status === 'error' && <div className="dsa-error">⚠️ {explainState.error}</div>}
                   {explainState.status === 'ready' && (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.6 }}>{explainState.text}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{explainState.text}</div>
                   )}
                 </div>
               )}
@@ -262,16 +304,32 @@ function AllSubjectCard({ subj }) {
               <button
                 onClick={handleExplainClick}
                 style={tileStyle('#06b6d4', activeTab === 'explain', false)}
-                title="Get a quick AI explanation of this subject"
+                title="Get an AI explanation of this subject"
               >
                 ✨<div style={{ fontSize: '0.7rem', marginTop: 2 }}>Explain</div>
               </button>
               {activeTab === 'explain' && (
                 <div style={{ marginTop: '1rem', padding: '0.9rem 1rem', borderRadius: 10, background: 'var(--bg-card2)', border: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.7rem' }}>
+                    <button
+                      onClick={() => handleDetailToggle(false)}
+                      style={explainToggleStyle(explainDetail === false)}
+                      title="2-3 line quick summary"
+                    >
+                      ⚡ Quick
+                    </button>
+                    <button
+                      onClick={() => handleDetailToggle(true)}
+                      style={explainToggleStyle(explainDetail === true)}
+                      title="Proper, detailed walkthrough"
+                    >
+                      📖 Detailed
+                    </button>
+                  </div>
                   {explainState.status === 'loading' && <div className="dsa-idle">Asking AI Coach…</div>}
                   {explainState.status === 'error' && <div className="dsa-error">⚠️ {explainState.error}</div>}
                   {explainState.status === 'ready' && (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.6 }}>{explainState.text}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{explainState.text}</div>
                   )}
                 </div>
               )}

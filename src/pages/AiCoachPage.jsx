@@ -18,6 +18,18 @@ const QUICK_PROMPTS = [
   { label: '🗺️ DSA roadmap', mode: 'roadmap' },
 ]
 
+// Segmented toggle for choosing a quick summary vs a detailed walkthrough
+// when explaining a subject in the AI Coach.
+function explainModeStyle(active) {
+  const base = {
+    padding: '6px 14px', borderRadius: 20, border: '1px solid var(--border)', cursor: 'pointer',
+    fontWeight: 600, fontSize: '0.78rem', transition: 'all 0.15s ease',
+  }
+  return active
+    ? { ...base, background: 'var(--cyan)', color: '#04202a' }
+    : { ...base, background: 'var(--bg-card2)', color: 'var(--text)' }
+}
+
 function ChatBubble({ role, text, error }) {
   const isUser = role === 'user'
   return (
@@ -48,6 +60,7 @@ export default function AiCoachPage() {
 
   const [mode, setMode] = useState('ask') // 'ask' | 'explain' | 'roadmap'
   const [level, setLevel] = useState('beginner')
+  const [explainDetail, setExplainDetail] = useState(false) // false = quick summary, true = detailed walkthrough
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([
     { role: 'assistant', text: "Hi! I'm your AI Career Coach. Ask me anything, get a subject explained in a couple of lines, or get a personalized DSA roadmap based on your level." },
@@ -91,7 +104,7 @@ export default function AiCoachPage() {
       if (mode === 'roadmap') {
         reply = await fetchAiDsaRoadmap(level, [text])
       } else if (mode === 'explain') {
-        reply = await fetchAiExplain(text)
+        reply = await fetchAiExplain(text, explainDetail)
       } else {
         reply = await fetchAskCoach(text, buildContext())
       }
@@ -170,6 +183,24 @@ export default function AiCoachPage() {
                   {p.label}
                 </button>
               ))}
+              {mode === 'explain' && (
+                <>
+                  <button
+                    onClick={() => setExplainDetail(false)}
+                    style={explainModeStyle(explainDetail === false)}
+                    title="2-3 line quick summary"
+                  >
+                    ⚡ Quick
+                  </button>
+                  <button
+                    onClick={() => setExplainDetail(true)}
+                    style={explainModeStyle(explainDetail === true)}
+                    title="Proper, detailed walkthrough"
+                  >
+                    📖 Detailed
+                  </button>
+                </>
+              )}
               {mode === 'roadmap' && (
                 <>
                   <select

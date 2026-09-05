@@ -117,11 +117,13 @@ export async function fetchUpcomingContests() {
 }
 
 // ── AI Career Coach (real Groq completions, see app/ai/coach.py) ────────
-/** POST /api/ai/explain — 2-3 line explanation of a subject/topic */
-export async function fetchAiExplain(topic) {
+/** POST /api/ai/explain — 2-3 line explanation of a subject/topic.
+ * Pass detail=true for a proper, deeper teach-me walkthrough instead of
+ * the quick summary (uses a bigger model server-side). */
+export async function fetchAiExplain(topic, detail = false) {
   if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
   const url = `${PYTHON_BACKEND_URL}/api/ai/explain`
-  const data = await postJson(url, { topic }, { timeoutMs: 30000 })
+  const data = await postJson(url, { topic, detail }, { timeoutMs: 60000 })
   return data.explanation
 }
 
