@@ -7,74 +7,6 @@
 /* ── IMPORT FONTS ── */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap');
 
-:root {
-  /* Core palette — deep indigo-navy, not cold black */
-  --bg-deep:    #06071a;
-  --bg-card:    #0c0e2b;
-  --bg-card2:   #111440;
-  --bg-card3:   #0e1035;
-
-  /* Borders */
-  --border:        rgba(139,92,246,0.12);
-  --border-bright: rgba(139,92,246,0.28);
-
-  /* Accent — Violet primary, Gold secondary */
-  --violet:        #7c3aed;
-  --violet-bright: #9d5ff5;
-  --violet-glow:   rgba(124,58,237,0.35);
-  --gold:          #f59e0b;
-  --gold-bright:   #fbbf24;
-  --gold-glow:     rgba(245,158,11,0.3);
-
-  /* Keep legacy names mapped so JS/HTML inline styles still work */
-  --cyan:         #818cf8;   /* remapped to indigo */
-  --cyan-bright:  #a5b4fc;
-  --cyan-glow:    rgba(129,140,248,0.3);
-  --purple:       #9d5ff5;
-  --purple-glow:  rgba(157,95,245,0.3);
-  --green:        #10b981;
-  --yellow:       #f59e0b;
-  --red:          #ef4444;
-
-  /* Text */
-  --text:       #e8eaf6;
-  --text-dim:   #5c6494;
-  --text-muted: #8892c8;
-
-  /* Fonts */
-  --font-display: 'Sora', 'Plus Jakarta Sans', sans-serif;
-  --font-body:    'Plus Jakarta Sans', 'Inter', sans-serif;
-  --font-mono:    'Fira Code', monospace;
-
-  /* Animation timing */
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* ── LIGHT MODE ── */
-body.light-mode {
-  --bg-deep:    #f0f0ff;
-  --bg-card:    #ffffff;
-  --bg-card2:   #f5f4ff;
-  --bg-card3:   #ede9ff;
-  --border:     rgba(124,58,237,0.15);
-  --border-bright: rgba(124,58,237,0.3);
-  --violet:        #6d28d9;
-  --violet-bright: #7c3aed;
-  --cyan:          #6d28d9;
-  --cyan-bright:   #7c3aed;
-  --cyan-glow:     rgba(109,40,217,0.2);
-  --purple:        #7c3aed;
-  --gold:          #d97706;
-  --gold-bright:   #f59e0b;
-  --green:         #059669;
-  --yellow:        #d97706;
-  --red:           #dc2626;
-  --text:          #1e1b4b;
-  --text-dim:      #6b7280;
-  --text-muted:    #5b5ea6;
-}
-
 body.light-mode::before {
   background-image:
     linear-gradient(rgba(109,40,217,0.025) 1px, transparent 1px),
@@ -205,24 +137,6 @@ body::before {
   50%       { transform: translate(-50%, -60%) scale(1.2); opacity: 0.8; }
 }
 
-/* ── ONBOARDING WRAPPER ── */
-.onboard-wrap {
-  width: 100%;
-  max-width: 780px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-  position: relative;
-  z-index: 2;
-  animation: slideUp 0.7s var(--ease-out);
-}
-
-/* ── HERO GREETING ── */
-.hero-greet {
-  text-align: center;
-  padding: 0 1rem;
-}
-
 .hero-emoji {
   margin-bottom: 0.9rem;
   position: relative;
@@ -296,22 +210,6 @@ body::before {
   box-shadow: 0 4px 14px rgba(124,58,237,0.2);
 }
 
-/* ── ONBOARD CARD ── */
-.onboard-card {
-  background: linear-gradient(160deg, rgba(16,18,65,0.95) 0%, rgba(12,14,43,0.98) 100%);
-  border: 1px solid var(--border-bright);
-  border-radius: 28px;
-  padding: 2.2rem 2.6rem;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(20px);
-  box-shadow:
-    0 0 0 1px rgba(124,58,237,0.08),
-    0 8px 60px rgba(0,0,0,0.5),
-    0 0 80px rgba(124,58,237,0.08) inset;
-  animation: cardEntrance 0.8s var(--ease-out);
-}
 @keyframes cardEntrance {
   from { opacity: 0; transform: translateY(30px) scale(0.98); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -493,20 +391,6 @@ body.light-mode select.form-select option { background: #fff; color: #1e1b4b; }
 }
 .btn-next:active { transform: translateY(0); }
 
-/* ── LOGIN CARD (old class compat) ── */
-.login-card {
-  background: linear-gradient(155deg, rgba(16,18,65,0.95) 0%, rgba(12,14,43,0.98) 100%);
-  border: 1px solid var(--border-bright);
-  border-radius: 28px;
-  padding: 2.2rem 3rem;
-  width: 100%;
-  max-width: 760px;
-  position: relative;
-  box-shadow: 0 0 80px rgba(124,58,237,0.12), 0 0 0 1px rgba(124,58,237,0.06);
-  animation: slideUp 0.7s var(--ease-out);
-  overflow: hidden;
-  backdrop-filter: blur(20px);
-}
 body.light-mode .login-card {
   background: rgba(255,255,255,0.96);
   border-color: rgba(109,40,217,0.2);
@@ -646,27 +530,6 @@ body.light-mode .form-select option { background: #fff; color: #1e1b4b; }
 
 /* ═══ MAIN APP ═══ */
 #appPage { flex-direction: column; min-height: 100vh; width: 100%; }
-
-/* ── HEADER ── */
-.header {
-  background: rgba(6,7,26,0.94) !important;
-  border-bottom: 1px solid rgba(124,58,237,0.12) !important;
-  padding: 0 2rem;
-  height: 70px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 1000;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  width: 100%; left: 0; right: 0; box-sizing: border-box;
-  box-shadow: 0 1px 0 rgba(124,58,237,0.08), 0 4px 24px rgba(0,0,0,0.4) !important;
-  transition: background 0.3s;
-}
-
-body.light-mode .header {
-  background: rgba(255,255,255,0.96) !important;
-  border-bottom: 1px solid rgba(109,40,217,0.12) !important;
-  box-shadow: 0 1px 0 rgba(109,40,217,0.08), 0 4px 20px rgba(0,0,0,0.06) !important;
-}
 
 .header-logo { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; flex-shrink: 0; }
 
@@ -832,10 +695,6 @@ body.light-mode .h-logo-text {
 }
 
 body.light-mode .sidebar,
-body.light-mode .app-sidebar {
-  background: linear-gradient(180deg, #f8f7ff 0%, #f0effe 100%) !important;
-  border-right: 1px solid rgba(109,40,217,0.1) !important;
-}
 
 .sem-btn {
   border-left-color: transparent !important;
@@ -851,62 +710,7 @@ body.light-mode .app-sidebar {
   color: #c4b5fd !important;
 }
 
-/* ── RIGHT PANEL ── */
-.right-panel {
-  background: linear-gradient(180deg, rgba(7,8,25,0.98) 0%, rgba(10,8,30,1) 100%) !important;
-  border-left: 1px solid rgba(124,58,237,0.08) !important;
-  box-shadow: -2px 0 20px rgba(0,0,0,0.2) !important;
-}
 
-body.light-mode .right-panel {
-  background: linear-gradient(180deg, #f8f7ff 0%, #f0effe 100%) !important;
-  border-left: 1px solid rgba(109,40,217,0.1) !important;
-}
-
-.panel-section {
-  background: rgba(124,58,237,0.04) !important;
-  border: 1px solid rgba(124,58,237,0.1) !important;
-  border-radius: 16px !important;
-  transition: border-color 0.3s;
-}
-.panel-section:hover { border-color: rgba(124,58,237,0.2) !important; }
-
-body.light-mode .panel-section {
-  background: #ffffff !important;
-  border-color: rgba(109,40,217,0.1) !important;
-  box-shadow: 0 2px 8px rgba(109,40,217,0.05) !important;
-}
-
-.panel-title {
-  font-size: 0.63rem !important;
-  letter-spacing: 2px !important;
-  color: var(--text-dim) !important;
-  text-transform: uppercase;
-}
-
-/* ── DASHBOARD HERO ── */
-.dash-hero {
-  background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(245,158,11,0.04) 100%) !important;
-  border: 1px solid rgba(124,58,237,0.15) !important;
-  border-radius: 0 !important;
-  position: relative; overflow: hidden;
-}
-.dash-hero::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(124,58,237,0.6), rgba(245,158,11,0.4), transparent);
-  pointer-events: none;
-}
-body.light-mode .dash-hero {
-  background: linear-gradient(135deg, rgba(109,40,217,0.06), rgba(217,119,6,0.03)) !important;
-  border-color: rgba(109,40,217,0.14) !important;
-}
-
-.dash-greeting {
-  font-size: 1.8rem !important; font-weight: 800 !important;
-  color: var(--text) !important;
-  letter-spacing: -0.5px !important; line-height: 1.2 !important;
-}
 .dash-subtitle { color: var(--text-muted) !important; font-size: 0.88rem !important; }
 
 /* CGPA hero number — glowing gold */
@@ -930,111 +734,11 @@ body.light-mode .dash-hero {
   text-transform: uppercase;
 }
 
-/* ── STAT CARDS ── */
-.dash-stat {
-  background: linear-gradient(145deg, rgba(12,14,43,1), rgba(9,10,30,1)) !important;
-  border: 1px solid rgba(124,58,237,0.1) !important;
-  border-radius: 18px !important;
-  transition: all 0.3s !important;
-}
-.dash-stat:hover {
-  border-color: rgba(124,58,237,0.25) !important;
-  transform: translateY(-3px) !important;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 20px rgba(124,58,237,0.08) !important;
-}
-body.light-mode .dash-stat {
-  background: #ffffff !important;
-  border-color: rgba(109,40,217,0.08) !important;
-  box-shadow: 0 2px 12px rgba(109,40,217,0.05) !important;
-}
-
-.dash-stat-lbl {
-  font-size: 0.65rem !important; letter-spacing: 1.8px !important;
-  text-transform: uppercase; color: var(--text-dim) !important; font-weight: 700 !important;
-}
-.dash-stat-val { font-size: 2rem !important; font-weight: 900 !important; line-height: 1.1 !important; }
-.dash-stat-sub { font-size: 0.73rem !important; color: var(--text-dim) !important; }
-
-/* ── ACTION CARDS ── */
-.dash-action-card {
-  background: linear-gradient(155deg, rgba(12,14,43,1) 0%, rgba(8,9,24,1) 100%) !important;
-  border: 1px solid rgba(124,58,237,0.1) !important;
-  border-radius: 20px !important;
-  transition: all 0.35s var(--ease-out) !important;
-}
-.dash-action-card:hover {
-  border-color: rgba(124,58,237,0.3) !important;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.35), 0 0 30px rgba(124,58,237,0.08) !important;
-  transform: translateY(-5px) !important;
-}
-body.light-mode .dash-action-card {
-  background: #ffffff !important;
-  border-color: rgba(109,40,217,0.08) !important;
-}
 
 .dash-action-icon { font-size: 2.2rem !important; }
 .dash-action-name { font-size: 0.9rem !important; font-weight: 800 !important; color: var(--text) !important; }
 .dash-action-desc { font-size: 0.8rem !important; color: var(--text-muted) !important; line-height: 1.5 !important; }
 
-/* ── SEMESTER CHIPS ── */
-.dash-sem-chip {
-  background: linear-gradient(145deg, rgba(12,14,43,1), rgba(9,10,30,1)) !important;
-  border: 1px solid rgba(124,58,237,0.08) !important;
-  border-radius: 14px !important;
-  transition: all 0.25s !important;
-}
-.dash-sem-chip:hover { border-color: rgba(124,58,237,0.22) !important; }
-.dash-sem-chip.done { border-color: rgba(16,185,129,0.2) !important; }
-.dash-sem-chip.active-sem {
-  border-color: rgba(124,58,237,0.4) !important;
-  background: linear-gradient(145deg, rgba(124,58,237,0.08), rgba(12,14,43,1)) !important;
-  box-shadow: 0 0 16px rgba(124,58,237,0.12) !important;
-}
-.dash-sem-chip-lbl { font-size: 0.6rem !important; color: var(--text-dim) !important; font-weight: 700 !important; letter-spacing: 1.5px !important; }
-.dash-sem-chip-val { font-size: 1rem !important; font-weight: 800 !important; }
-
-/* ── SUBJECT CARDS ── */
-.subject-card {
-  background: linear-gradient(145deg, rgba(12,14,43,0.9), rgba(9,10,30,0.95)) !important;
-  border: 1px solid rgba(124,58,237,0.1) !important;
-  border-radius: 16px !important;
-  transition: all 0.3s !important;
-}
-.subject-card:hover {
-  border-color: rgba(124,58,237,0.25) !important;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25), 0 0 16px rgba(124,58,237,0.06) !important;
-  transform: translateY(-2px) !important;
-}
-body.light-mode .subject-card {
-  background: #ffffff !important;
-  border-color: rgba(109,40,217,0.1) !important;
-  box-shadow: 0 2px 10px rgba(109,40,217,0.06) !important;
-}
-
-/* ── MARKS INPUT ── */
-.marks-input {
-  background: rgba(124,58,237,0.05) !important;
-  border: 1px solid rgba(124,58,237,0.15) !important;
-  border-radius: 10px !important;
-  color: var(--text) !important;
-  transition: all 0.25s !important;
-}
-.marks-input:focus {
-  border-color: var(--violet) !important;
-  background: rgba(124,58,237,0.1) !important;
-  box-shadow: 0 0 0 3px rgba(124,58,237,0.1) !important;
-}
-.marks-input::placeholder { color: var(--text-dim) !important; }
-
-body.light-mode .marks-input {
-  background: rgba(109,40,217,0.04) !important;
-  border-color: rgba(109,40,217,0.15) !important;
-  color: var(--text) !important;
-}
-body.light-mode .marks-input:focus {
-  background: rgba(109,40,217,0.08) !important;
-  border-color: var(--violet) !important;
-}
 
 /* ── LIVE SGPA BADGE ── */
 .live-sgpa-mini {
@@ -1049,21 +753,6 @@ body.light-mode .marks-input:focus {
   border-radius: 10px !important;
 }
 
-/* ── SEM BARS ── */
-.sem-bar-wrap { background: rgba(124,58,237,0.06) !important; }
-
-/* ── JOURNEY CARDS ── */
-.journey-card {
-  background: linear-gradient(145deg, rgba(12,14,43,1), rgba(9,10,30,1)) !important;
-  border: 1px solid rgba(124,58,237,0.1) !important;
-  transition: all 0.25s !important;
-}
-.journey-card:hover { border-color: rgba(124,58,237,0.22) !important; }
-.journey-card.done { border-color: rgba(16,185,129,0.2) !important; }
-.journey-card.active-sem {
-  border-color: rgba(124,58,237,0.38) !important;
-  background: linear-gradient(145deg, rgba(124,58,237,0.06), rgba(12,14,43,1)) !important;
-}
 
 /* ── TYPE BADGES ── */
 .badge-theory    { background: rgba(124,58,237,0.12) !important; color: #c4b5fd !important; }
@@ -1077,16 +766,6 @@ body.light-mode .marks-input:focus {
   font-weight: 700 !important;
   letter-spacing: 0.3px !important;
 }
-
-/* ── ANALYSER CARDS ── */
-.weak-card {
-  border: 1px solid rgba(124,58,237,0.1) !important;
-  border-radius: 20px !important;
-  background: linear-gradient(155deg, rgba(12,14,43,1), rgba(8,9,24,1)) !important;
-  transition: all 0.25s !important;
-}
-.weak-card:hover { border-color: rgba(239,68,68,0.2) !important; }
-.weak-card.borderline { border-color: rgba(245,158,11,0.18) !important; }
 
 /* ── INTERNSHIP & PLACEMENT CARDS ── */
 .intern-card {
@@ -1109,11 +788,6 @@ body.light-mode .marks-input:focus {
 /* ── APP NAV BUTTONS ── */
 .app-nav-btn { color: var(--text-dim) !important; transition: all 0.2s !important; }
 .app-nav-btn:hover { background: rgba(124,58,237,0.08) !important; color: var(--text) !important; }
-.app-nav-btn.active {
-  background: rgba(124,58,237,0.1) !important;
-  color: #c4b5fd !important;
-  border-left-color: var(--violet) !important;
-}
 
 /* ── THEME TOGGLE ── */
 .theme-toggle {
@@ -1333,22 +1007,12 @@ body.light-mode .dash-sem-chip,
 body.light-mode .weak-card,
 body.light-mode .intern-card,
 body.light-mode .place-card,
-body.light-mode .journey-card {
-  background: #ffffff !important;
-  border-color: rgba(109,40,217,0.09) !important;
-  box-shadow: 0 2px 10px rgba(109,40,217,0.05) !important;
-}
+
 body.light-mode .app-sidebar { background: linear-gradient(180deg,#f8f7ff,#f0effe) !important; border-right-color: rgba(109,40,217,0.1) !important; }
 body.light-mode .right-panel { background: linear-gradient(180deg,#f8f7ff,#f0effe) !important; border-left-color: rgba(109,40,217,0.1) !important; }
 body.light-mode .panel-section { background: #ffffff !important; border-color: rgba(109,40,217,0.08) !important; }
 body.light-mode .sem-btn.active { background: rgba(109,40,217,0.08) !important; color: var(--violet) !important; border-left-color: var(--violet) !important; }
 body.light-mode .dash-hero { background: linear-gradient(135deg,rgba(109,40,217,0.06),rgba(217,119,6,0.03)) !important; border-color: rgba(109,40,217,0.12) !important; }
-body.light-mode #dash-cgpa-hero {
-  background: linear-gradient(135deg, #7c3aed 0%, #d97706 100%) !important;
-  -webkit-background-clip: text !important; background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  filter: none;
-}
 
 /* ── ANIMATED PULSE for loading states ── */
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
@@ -1359,22 +1023,9 @@ body.light-mode #dash-cgpa-hero {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.dash-stat     { animation: fadeInUp 0.5s var(--ease-out) both; }
-.dash-stat:nth-child(1) { animation-delay: 0.05s; }
-.dash-stat:nth-child(2) { animation-delay: 0.1s; }
-.dash-stat:nth-child(3) { animation-delay: 0.15s; }
-.dash-stat:nth-child(4) { animation-delay: 0.2s; }
-
-.dash-action-card { animation: fadeInUp 0.5s var(--ease-out) both; }
-.dash-action-card:nth-child(1) { animation-delay: 0.1s; }
-.dash-action-card:nth-child(2) { animation-delay: 0.18s; }
-.dash-action-card:nth-child(3) { animation-delay: 0.26s; }
-.dash-action-card:nth-child(4) { animation-delay: 0.34s; }
-
 /* ── GROUP SELECTOR ── */
 #group-selector-wrap { transition: all 0.3s; }
 
-/* ═══ END GRADEWALLAH AURORA THEME v3 ═══ */
 :root {
     --bg-deep: #030712;
     --bg-card: #0d1117;
@@ -1391,6 +1042,19 @@ body.light-mode #dash-cgpa-hero {
     --text: #e2e8f0;
     --text-dim: #64748b;
     --text-muted: #94a3b8;
+    /* Legacy accent aliases — mapped to active palette so kept var() refs stay defined */
+    --violet: #8b5cf6;
+    --violet-bright: #a78bfa;
+    --violet-glow: rgba(139,92,246,0.3);
+    --gold: #f59e0b;
+    --gold-bright: #fbbf24;
+    --gold-glow: rgba(245,158,11,0.3);
+    --bg-card3: #0e1035;
+    /* Legacy helpers still referenced by kept rules */
+    --border-bright: rgba(139,92,246,0.28);
+    --text-main: #e2e8f0;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --font-display: 'Sora', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'Fira Code', monospace;
@@ -1412,6 +1076,18 @@ body.light-mode #dash-cgpa-hero {
     --text: #0f172a;
     --text-dim: #64748b;
     --text-muted: #475569;
+    /* Legacy accent aliases mapped for light mode */
+    --violet: #7c3aed;
+    --violet-bright: #8b5cf6;
+    --violet-glow: rgba(124,58,237,0.25);
+    --gold: #d97706;
+    --gold-bright: #f59e0b;
+    --gold-glow: rgba(217,119,6,0.2);
+    --bg-card3: #ede9ff;
+    --border-bright: rgba(124,58,237,0.3);
+    --text-main: #0f172a;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   body.light-mode::before {
@@ -2352,16 +2028,6 @@ body.light-mode #dash-cgpa-hero {
     gap: 1.5rem;
   }
 
-  .subject-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 1.6rem 1.4rem;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-    animation: fadeIn 0.4s ease forwards;
-  }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -2378,11 +2044,6 @@ body.light-mode #dash-cgpa-hero {
     transition: transform 0.3s;
   }
 
-  .subject-card:hover { border-color: rgba(6,182,212,0.4); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(6,182,212,0.08); }
-  .subject-card:hover::before { transform: scaleX(1); }
-
-  .subject-card.filled { border-color: rgba(6,182,212,0.3); }
-  .subject-card.filled::before { transform: scaleX(1); }
 
   .subj-code { font-family: var(--font-mono); font-size: 0.88rem; color: var(--cyan); font-weight: 500; }
   .subj-type-badge {
@@ -2475,28 +2136,6 @@ body.light-mode #dash-cgpa-hero {
     font-weight: 400;
   }
 
-  .marks-input {
-    flex: 1;
-    background: rgba(6,182,212,0.04);
-    border: 1px solid rgba(6,182,212,0.15);
-    border-radius: 8px;
-    padding: 0.65rem 0.9rem;
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 1.05rem;
-    font-weight: 500;
-    outline: none;
-    transition: all 0.2s;
-    width: 100%;
-  }
-
-  .marks-input:focus {
-    border-color: var(--cyan);
-    background: rgba(6,182,212,0.08);
-    box-shadow: 0 0 0 3px rgba(6,182,212,0.1);
-  }
-
-  .marks-input.audit-input { opacity: 0.5; cursor: not-allowed; }
 
   /* AUDIT PASS/FAIL BUTTONS */
   .audit-pf-btn {
@@ -2557,7 +2196,6 @@ body.light-mode #dash-cgpa-hero {
   .grade-E  { background: rgba(251,146,60,0.2); color: #fb923c; }   /* E  – bare pass */
   .grade-EH { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px dashed rgba(251,146,60,0.6); }  /* E# – grace pass */
 
-
   /* ELECTIVE SELECTOR */
   .elective-select {
     background: rgba(6,182,212,0.04);
@@ -2603,29 +2241,6 @@ body.light-mode #dash-cgpa-hero {
   /* ═══════════════════════════════════════
      RIGHT PANEL — FULL REDESIGN
   ═══════════════════════════════════════ */
-  .right-panel {
-    background: linear-gradient(180deg, #0a0f1a 0%, #0d1117 100%);
-    border-left: 1px solid rgba(6,182,212,0.12);
-    padding: 0;
-    position: sticky;
-    top: 0;
-    height: calc(100vh - 70px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(6,182,212,0.2) transparent;
-    flex-shrink: 0;
-    align-self: start;
-    grid-column: 3;
-    grid-row: 1;
-  }
-  .right-panel::-webkit-scrollbar { width: 4px; }
-  .right-panel::-webkit-scrollbar-track { background: transparent; }
-  .right-panel::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.2); border-radius: 10px; }
-
   /* Panel inner wrapper — padding lives here */
   .rp-inner {
     display: flex;
@@ -2634,38 +2249,8 @@ body.light-mode #dash-cgpa-hero {
     padding: 0.4rem 0.85rem 1.2rem;
   }
 
-  /* Section cards */
-  .panel-section {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 16px;
-    padding: 1rem 1.1rem;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .panel-section:hover { border-color: rgba(6,182,212,0.2); }
-  .panel-section::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(6,182,212,0.3), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
   .panel-section:hover::before { opacity: 1; }
 
-  /* Panel title */
-  .panel-title {
-    font-size: 0.68rem;
-    letter-spacing: 2.5px;
-    color: rgba(100,116,139,0.9);
-    text-transform: uppercase;
-    margin-bottom: 0.85rem;
-    font-weight: 700;
-    font-family: var(--font-body);
-  }
 
   /* ── SGPA Section — horizontal layout ── */
   .sgpa-gauge {
@@ -2735,7 +2320,6 @@ body.light-mode #dash-cgpa-hero {
     padding-bottom: 0.8rem;
     border-bottom: 1px solid rgba(255,255,255,0.05);
   }
-  .cgpa-hero-left {}
   .cgpa-num {
     font-family: var(--font-display);
     font-size: 2.6rem;
@@ -2777,14 +2361,6 @@ body.light-mode #dash-cgpa-hero {
   .sem-list { display: flex; flex-direction: column; gap: 0.45rem; }
   .sem-item { display: flex; align-items: center; gap: 7px; }
   .sem-label { font-size: 0.72rem; color: var(--text-dim); width: 44px; font-family: var(--font-mono); }
-  .sem-bar-wrap {
-    flex: 1;
-    background: rgba(255,255,255,0.04);
-    border-radius: 6px;
-    height: 5px;
-    overflow: hidden;
-    position: relative;
-  }
   .sem-bar {
     height: 100%;
     background: linear-gradient(90deg, var(--cyan), var(--purple));
@@ -2864,12 +2440,11 @@ body.light-mode #dash-cgpa-hero {
     justify-content: space-between;
     padding: 0.75rem 0.9rem;
   }
-  .trb-left {}
   .trb-needed-label {
     font-size: 0.62rem;
     letter-spacing: 0.3px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
+    color: var(--text-dim);
     font-weight: 700;
     margin-bottom: 2px;
   }
@@ -2889,7 +2464,7 @@ body.light-mode #dash-cgpa-hero {
   .trb-status-icon { font-size: 1.6rem; line-height: 1; }
   .trb-sems-info {
     font-size: 0.6rem;
-    color: rgba(255,255,255,0.35);
+    color: var(--text-dim);
     text-align: right;
     letter-spacing: 0.5px;
   }
@@ -3391,15 +2966,12 @@ body.light-mode #dash-cgpa-hero {
   .grade-pill { font-size: 0.75rem; min-width: 38px; }
   .subj-code { font-size: 0.72rem; }
   .subj-credits { font-size: 0.75rem; }
-  .marks-input { padding: 0.5rem 0.6rem; font-size: 0.88rem; }
-  .floating-cgpa { padding: 0.4rem 0.7rem; }
   .fc-val { font-size: 1rem; }
   .fc-label { font-size: 0.55rem; }
   .marks-split-row { gap: 5px; }
   .marks-split-label { font-size: 0.62rem; }
   .marks-total-disp { font-size: 0.66rem; }
   .marks-split-result { min-width: 48px; }
-
 
   /* GRADING TOOLTIP */
   .tooltip-container { position: relative; }
@@ -3565,16 +3137,6 @@ body.light-mode #dash-cgpa-hero {
     font-weight: 600;
   }
 
-  /* Individual subject analysis card */
-  .weak-card {
-    background: var(--bg-card);
-    border: 1px solid rgba(239,68,68,0.25);
-    border-radius: 20px;
-    overflow: hidden;
-    animation: fadeIn 0.4s ease forwards;
-  }
-
-  .weak-card.borderline { border-color: rgba(245,158,11,0.3); }
 
   .wc-top {
     display: flex;
@@ -4140,19 +3702,6 @@ body.light-mode #dash-cgpa-hero {
     justify-content: center;
   }
 
-  .journey-card {
-    background: var(--bg-card2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1rem 1.2rem;
-    text-align: center;
-    min-width: 110px;
-    flex: 1;
-    transition: all 0.3s;
-  }
-
-  .journey-card.done { border-color: rgba(6,182,212,0.4); }
-  .journey-card.active-sem { border-color: var(--cyan); box-shadow: 0 0 20px rgba(6,182,212,0.15); }
 
   .jc-sem { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.3px; text-transform: uppercase; }
   .jc-icon { font-size: 1.6rem; margin: 4px 0; }
@@ -5228,10 +4777,6 @@ img, svg { max-width: 100%; height: auto; }
   flex-shrink: 0;
 }
 
-/* Sem bar — back paper overlay bar (second bar, green, positioned absolute) */
-.sem-bar-wrap {
-  position: relative;
-}
 .sem-bar-back {
   position: absolute !important;
   top: 0;
@@ -5259,8 +4804,6 @@ body.light-mode .back-paper-row {
 body.light-mode .marks-input-back {
   background: rgba(16,185,129,0.04) !important;
 }
-
-
 
 /* ═══════════════════════════════════════════
    INTERNSHIPS PAGE STYLES — FIXED LAYOUT
@@ -5949,7 +5492,6 @@ body.light-mode #internshipsPage .intern-header {
 
 /* Intern page scoped — rules above */
 
-
 /* ═══════════════════════════════════════════════════════
    DASHBOARD PAGE
 ═══════════════════════════════════════════════════════ */
@@ -6108,11 +5650,6 @@ body.light-mode #internshipsPage .intern-header {
   font-family: var(--font-body); font-size: 0.98rem; font-weight: 500;
 }
 .app-nav-btn:hover { background: rgba(6,182,212,0.05); color: var(--text); }
-.app-nav-btn.active {
-  border-left-color: var(--cyan);
-  background: rgba(6,182,212,0.08);
-  color: var(--cyan); font-weight: 700;
-}
 .app-nav-divider {
   border: none; border-top: 1px solid var(--border);
   margin: 0.8rem 1.5rem;
@@ -6129,8 +5666,6 @@ body.light-mode #internshipsPage .intern-header {
   background: rgba(6,182,212,0.15); color: var(--cyan);
   border-radius: 4px; padding: 2px 6px;
 }
-.app-nav-btn.active .nav-badge { background: var(--cyan); color: var(--bg-deep); }
-
 /* ── Dashboard body layout ── */
 .dash-layout {
   display: flex;
@@ -6152,20 +5687,9 @@ body.light-mode #internshipsPage .intern-header {
   box-sizing: border-box;
 }
 
-/* ── Dashboard hero ── */
-.dash-hero {
-  display: flex; align-items: flex-end; justify-content: space-between;
-  margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
-  animation: dashFadeUp 0.5s cubic-bezier(0.16,1,0.3,1);
-}
 @keyframes dashFadeUp {
   from { opacity:0; transform:translateY(18px); }
   to   { opacity:1; transform:translateY(0); }
-}
-.dash-greeting {
-  font-family: var(--font-display);
-  font-size: 1.6rem; font-weight: 800;
-  color: var(--cyan); letter-spacing: 1px;
 }
 .dash-subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
 .dash-hero-badge {
@@ -6178,31 +5702,6 @@ body.light-mode #internshipsPage .intern-header {
 }
 .dash-hero-badge-lbl { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.3px; text-transform: uppercase; }
 
-/* ── Stats row ── */
-.dash-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1rem; margin-bottom: 2rem;
-}
-.dash-stat {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 14px; padding: 1.1rem 1.3rem;
-  transition: all 0.2s;
-  animation: dashFadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
-}
-.dash-stat:hover { border-color: rgba(6,182,212,0.35); transform: translateY(-2px); }
-.dash-stat:nth-child(1){animation-delay:0.05s}
-.dash-stat:nth-child(2){animation-delay:0.1s}
-.dash-stat:nth-child(3){animation-delay:0.15s}
-.dash-stat:nth-child(4){animation-delay:0.2s}
-.dash-stat-lbl { font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.3px; text-transform: uppercase; font-weight: 600; }
-.dash-stat-val { font-family: var(--font-display); font-size: 1.5rem; color: var(--cyan); margin-top: 4px; font-weight: 800; }
-.dash-stat-val.purple { color: var(--purple); }
-.dash-stat-val.green { color: var(--green); }
-.dash-stat-val.yellow { color: var(--yellow); }
-.dash-stat-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 2px; }
-
 /* ── Quick action cards ── */
 .dash-actions-title {
   font-size: 0.7rem; color: var(--text-dim);
@@ -6214,28 +5713,6 @@ body.light-mode #internshipsPage .intern-header {
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem; margin-bottom: 2rem;
 }
-.dash-action-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 18px; padding: 1.4rem;
-  cursor: pointer; transition: all 0.25s;
-  position: relative; overflow: hidden;
-  text-align: left; color: var(--text);
-  font-family: var(--font-body);
-  animation: dashFadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
-}
-.dash-action-card:nth-child(1){animation-delay:0.1s}
-.dash-action-card:nth-child(2){animation-delay:0.15s}
-.dash-action-card:nth-child(3){animation-delay:0.2s}
-.dash-action-card:nth-child(4){animation-delay:0.25s}
-.dash-action-card::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background: var(--card-accent, linear-gradient(90deg, var(--cyan), var(--purple)));
-  opacity:0; transition:opacity 0.3s;
-}
-.dash-action-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.3); border-color:rgba(6,182,212,0.35); }
-.dash-action-card:hover::before { opacity:1; }
-.dash-action-icon { font-size: 2rem; margin-bottom: 0.7rem; }
 .dash-action-name {
   font-family: var(--font-display); font-size: 0.8rem;
   font-weight: 800; letter-spacing: 0.2px; color: var(--text);
@@ -6246,8 +5723,6 @@ body.light-mode #internshipsPage .intern-header {
   position: absolute; bottom: 1rem; right: 1.1rem;
   font-size: 1rem; color: var(--text-dim); transition: transform 0.2s;
 }
-.dash-action-card:hover .dash-action-arrow { transform: translateX(4px); color: var(--cyan); }
-
 /* ── Semester progress strip ── */
 .dash-sem-strip-title {
   font-size: 0.7rem; color: var(--text-dim);
@@ -6257,21 +5732,6 @@ body.light-mode #internshipsPage .intern-header {
 .dash-sem-strip {
   display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 2rem;
 }
-.dash-sem-chip {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px; padding: 0.6rem 0.9rem;
-  cursor: pointer; transition: all 0.2s;
-  display: flex; flex-direction: column; gap: 3px;
-  min-width: 80px;
-}
-.dash-sem-chip:hover { border-color: rgba(6,182,212,0.4); }
-.dash-sem-chip.done { border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.04); }
-.dash-sem-chip.active-sem { border-color: var(--cyan); background: rgba(6,182,212,0.08); }
-.dash-sem-chip-lbl { font-size: 0.65rem; color: var(--text-dim); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-.dash-sem-chip-val { font-family: var(--font-display); font-size: 0.9rem; color: var(--cyan); }
-.dash-sem-chip.done .dash-sem-chip-val { color: var(--green); }
-
 /* ── Recent activity / AI section ── */
 .dash-bottom-row {
   display: grid;
@@ -6322,9 +5782,6 @@ body.light-mode #internshipsPage .intern-header {
 .dash-intern-co { font-size: 0.75rem; color: var(--text-dim); }
 .dash-intern-match { font-family: var(--font-display); font-size: 0.75rem; color: var(--green); font-weight: 700; flex-shrink: 0; }
 
-
-
-
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     background: #ffffff;
@@ -6338,8 +5795,6 @@ body.light-mode #internshipsPage .intern-header {
     .no-print { display: none !important; visibility: hidden !important; }
     button { display: none !important; }
   }
-
-
 
 .admin-tab {
   background: var(--bg-card);
@@ -6359,8 +5814,6 @@ body.light-mode #internshipsPage .intern-header {
 .admin-tr-row:last-child { border-bottom: none; }
 .admin-tr-row:hover { background: rgba(6,182,212,0.03); }
 .admin-tr-row td { padding: 9px 14px; color: var(--text); vertical-align: middle; }
-
-
 
 /* ══════════════════════════════════════════════════════
    PLACEMENTS PAGE — CLEAN REBUILD
@@ -6698,7 +6151,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
 #placementsPage .place-src-pill.indeed     { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
 #placementsPage .place-src-pill.glassdoor  { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
 
-
 #placementsPage .place-card-tags {
   display: flex; flex-wrap: wrap; gap: 5px;
 }
@@ -6757,7 +6209,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
 @media (max-width: 420px) {
   #placementsPage .place-stats { grid-template-columns: 1fr 1fr; }
 }
-
 
   /* ═══════════════════════════════════════════
      PREMIUM LIGHT MODE POLISH
@@ -6845,7 +6296,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
     box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(139,92,246,0.15);
   }
 
-
   /* Right panel panel-sections in light mode */
   body.light-mode .panel-section {
     background: #ffffff;
@@ -6893,7 +6343,11 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
     box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 2px 12px rgba(0,0,0,0.04);
   }
   body.light-mode .dash-stat-lbl { color: #64748b; }
-  body.light-mode .dash-stat-sub { color: #94a3b8; }
+  body.light-mode .dash-stat-sub { color: #64748b; }
+  /* Darken muted dashboard text so it stays readable on white cards */
+  body.light-mode .dash-subtitle { color: #475569 !important; }
+  body.light-mode .dash-action-desc { color: #64748b !important; }
+  body.light-mode .badge-audit { background: rgba(100,116,139,0.1) !important; color: #64748b !important; }
   body.light-mode .dash-stat-val { color: #0284c7; }
   body.light-mode .dash-stat-val.purple { color: #7c3aed; }
   body.light-mode .dash-stat-val.green { color: #059669; }
@@ -6919,9 +6373,6 @@ body.light-mode #placementsPage .place-filter option { background: #fff; color: 
   }
   body.light-mode .sem-progress-label { color: #64748b; }
   body.light-mode .sem-progress-val { color: #0284c7; }
-
-
-
 
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -7597,16 +7048,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
    Pure visual upgrades. Zero functional changes.
 ═══════════════════════════════════════════════════════ */
 
-/* 1. REDUCED CARD BORDERS — neutral, not cyan everywhere */
-.subject-card {
-  border-color: rgba(255,255,255,0.07) !important;
-  background: linear-gradient(155deg, #0d1117 0%, #08101c 100%) !important;
-}
-.subject-card:hover {
-  border-color: rgba(255,255,255,0.12) !important;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.28) !important;
-  transform: translateY(-2px) !important;
-}
 .subject-card.filled {
   border-color: rgba(6,182,212,0.2) !important;
 }
@@ -7629,16 +7070,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
   color: var(--cyan) !important;
 }
 
-/* 3. DASHBOARD HERO — student-first, CGPA dominant */
-.dash-hero {
-  background: linear-gradient(145deg, #0d1117 0%, #08101c 100%) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  border-radius: 20px !important;
-  padding: 1.6rem 1.8rem !important;
-  margin-bottom: 1.6rem !important;
-  position: relative;
-  overflow: hidden;
-}
 .dash-hero::before {
   content: '';
   position: absolute;
@@ -7673,40 +7104,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
   text-transform: uppercase;
 }
 
-/* 4. STAT CARDS — depth, hierarchy */
-.dash-stat {
-  background: linear-gradient(145deg, #0d1117, #090e18) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  border-radius: 18px !important;
-}
-.dash-stat:hover {
-  border-color: rgba(255,255,255,0.12) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.25) !important;
-}
-.dash-stat-lbl {
-  font-size: 0.65rem !important;
-  letter-spacing: 1.8px !important;
-  text-transform: uppercase;
-  color: #64748b !important;
-  font-weight: 700 !important;
-}
-.dash-stat-val {
-  font-size: 2rem !important;
-  font-weight: 900 !important;
-  line-height: 1.1 !important;
-}
 .dash-stat-sub {
   font-size: 0.73rem !important;
   color: #64748b !important;
 }
 
-/* 5. ACTION CARDS — student-friendly labels */
-.dash-action-card {
-  background: linear-gradient(155deg, #0d1117 0%, #08101c 100%) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  border-radius: 20px !important;
-}
 .dash-action-card:hover {
   border-color: rgba(255,255,255,0.14) !important;
   box-shadow: 0 16px 48px rgba(0,0,0,0.35) !important;
@@ -7719,17 +7121,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
   line-height: 1.5 !important;
 }
 
-/* 6. SEMESTER CHIPS */
-.dash-sem-chip {
-  background: linear-gradient(145deg, #0d1117, #090e18) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  border-radius: 12px !important;
-}
-.dash-sem-chip:hover { border-color: rgba(6,182,212,0.25) !important; }
-.dash-sem-chip.done { border-color: rgba(16,185,129,0.2) !important; }
-.dash-sem-chip.active-sem { border-color: rgba(6,182,212,0.4) !important; background: linear-gradient(145deg, rgba(6,182,212,0.06), #0d1117) !important; }
-.dash-sem-chip-lbl { font-size: 0.6rem !important; color: #64748b !important; font-weight: 700 !important; letter-spacing: 1.5px !important; }
-.dash-sem-chip-val { font-size: 1rem !important; font-weight: 800 !important; }
 
 /* 7. RIGHT PANEL */
 .right-panel {
@@ -7747,12 +7138,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
   color: #64748b !important;
 }
 
-/* 8. MARKS INPUTS */
-.marks-input {
-  background: rgba(255,255,255,0.03) !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  border-radius: 10px !important;
-}
 .marks-input:focus {
   border-color: var(--cyan) !important;
   background: rgba(6,182,212,0.05) !important;
@@ -7777,16 +7162,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
   background: rgba(255,255,255,0.04) !important;
 }
 
-/* 12. JOURNEY CARDS */
-.journey-card {
-  background: linear-gradient(145deg, #0d1117, #090e18) !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
-}
-.journey-card.done { border-color: rgba(16,185,129,0.2) !important; }
-.journey-card.active-sem {
-  border-color: rgba(6,182,212,0.35) !important;
-  background: linear-gradient(145deg, rgba(6,182,212,0.05), #0d1117) !important;
-}
 
 /* 13. TYPE BADGES */
 .badge-theory { background: rgba(139,92,246,0.12) !important; color: #a78bfa !important; }
@@ -7800,14 +7175,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
   font-weight: 700 !important;
 }
 
-/* 14. ANALYSER CARDS */
-.weak-card {
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  border-radius: 20px !important;
-  background: linear-gradient(155deg, #0d1117, #08101c) !important;
-}
-.weak-card:hover { border-color: rgba(239,68,68,0.2) !important; }
-.weak-card.borderline { border-color: rgba(245,158,11,0.15) !important; }
 
 /* 15. INTERNSHIP & PLACEMENT CARDS */
 .intern-card {
@@ -7965,7 +7332,6 @@ body.light-mode .dash-hero-badge-lbl { color: #64748b !important; }
   animation: gw-pulse 1.6s ease-in-out infinite;
 }
 @keyframes gw-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
 
 .job-filter-bar {
   display: flex;
