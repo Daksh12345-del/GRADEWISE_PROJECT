@@ -1,0 +1,351 @@
+/* ============================================================
+   04-dashboard.css — Dashboard hero, stat/action cards, subject cards, marks input, journey cards, app loader
+   Split out of the original monolithic style.css for maintainability.
+   ============================================================ */
+
+/* ── DASHBOARD HERO ── */
+.dash-hero {
+  background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(245,158,11,0.04) 100%) !important;
+  border: 1px solid rgba(124,58,237,0.15) !important;
+  border-radius: 0 !important;
+  position: relative; overflow: hidden;
+}
+.dash-hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(124,58,237,0.6), rgba(245,158,11,0.4), transparent);
+  pointer-events: none;
+}
+body.light-mode .dash-hero {
+  background: linear-gradient(135deg, rgba(109,40,217,0.06), rgba(217,119,6,0.03)) !important;
+  border-color: rgba(109,40,217,0.14) !important;
+}
+
+.dash-greeting {
+  font-size: 1.8rem !important; font-weight: 800 !important;
+  color: var(--text) !important;
+  letter-spacing: -0.5px !important; line-height: 1.2 !important;
+}
+.dash-subtitle { color: var(--text-muted) !important; font-size: 0.88rem !important; }
+
+/* CGPA hero number — glowing gold */
+#dash-cgpa-hero {
+  font-size: 3.8rem !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #c4b5fd 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  letter-spacing: -2px !important;
+  line-height: 1 !important;
+  filter: drop-shadow(0 0 20px rgba(245,158,11,0.3));
+}
+
+.dash-hero-badge-lbl {
+  font-size: 0.62rem !important;
+  letter-spacing: 2.5px !important;
+  color: var(--text-dim) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+}
+
+/* ── STAT CARDS ── */
+.dash-stat {
+  background: linear-gradient(145deg, rgba(12,14,43,1), rgba(9,10,30,1)) !important;
+  border: 1px solid rgba(124,58,237,0.1) !important;
+  border-radius: 18px !important;
+  transition: all 0.3s !important;
+}
+.dash-stat:hover {
+  border-color: rgba(124,58,237,0.25) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 20px rgba(124,58,237,0.08) !important;
+}
+body.light-mode .dash-stat {
+  background: #ffffff !important;
+  border-color: rgba(109,40,217,0.08) !important;
+  box-shadow: 0 2px 12px rgba(109,40,217,0.05) !important;
+}
+
+.dash-stat-lbl {
+  font-size: 0.65rem !important; letter-spacing: 1.8px !important;
+  text-transform: uppercase; color: var(--text-dim) !important; font-weight: 700 !important;
+}
+.dash-stat-val { font-size: 2rem !important; font-weight: 900 !important; line-height: 1.1 !important; }
+.dash-stat-sub { font-size: 0.73rem !important; color: var(--text-dim) !important; }
+
+/* ── ACTION CARDS ── */
+.dash-action-card {
+  background: linear-gradient(155deg, rgba(12,14,43,1) 0%, rgba(8,9,24,1) 100%) !important;
+  border: 1px solid rgba(124,58,237,0.1) !important;
+  border-radius: 20px !important;
+  transition: all 0.35s var(--ease-out) !important;
+}
+.dash-action-card:hover {
+  border-color: rgba(124,58,237,0.3) !important;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.35), 0 0 30px rgba(124,58,237,0.08) !important;
+  transform: translateY(-5px) !important;
+}
+body.light-mode .dash-action-card {
+  background: #ffffff !important;
+  border-color: rgba(109,40,217,0.08) !important;
+}
+
+.dash-action-icon { font-size: 2.2rem !important; }
+.dash-action-name { font-size: 0.9rem !important; font-weight: 800 !important; color: var(--text) !important; }
+.dash-action-desc { font-size: 0.8rem !important; color: var(--text-muted) !important; line-height: 1.5 !important; }
+
+/* ── SEMESTER CHIPS ── */
+.dash-sem-chip {
+  background: linear-gradient(145deg, rgba(12,14,43,1), rgba(9,10,30,1)) !important;
+  border: 1px solid rgba(124,58,237,0.08) !important;
+  border-radius: 14px !important;
+  transition: all 0.25s !important;
+}
+.dash-sem-chip:hover { border-color: rgba(124,58,237,0.22) !important; }
+.dash-sem-chip.done { border-color: rgba(16,185,129,0.2) !important; }
+.dash-sem-chip.active-sem {
+  border-color: rgba(124,58,237,0.4) !important;
+  background: linear-gradient(145deg, rgba(124,58,237,0.08), rgba(12,14,43,1)) !important;
+  box-shadow: 0 0 16px rgba(124,58,237,0.12) !important;
+}
+.dash-sem-chip-lbl { font-size: 0.6rem !important; color: var(--text-dim) !important; font-weight: 700 !important; letter-spacing: 1.5px !important; }
+.dash-sem-chip-val { font-size: 1rem !important; font-weight: 800 !important; }
+
+/* ── SUBJECT CARDS ── */
+.subject-card {
+  background: linear-gradient(145deg, rgba(12,14,43,0.9), rgba(9,10,30,0.95)) !important;
+  border: 1px solid rgba(124,58,237,0.1) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s !important;
+}
+.subject-card:hover {
+  border-color: rgba(124,58,237,0.25) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25), 0 0 16px rgba(124,58,237,0.06) !important;
+  transform: translateY(-2px) !important;
+}
+body.light-mode .subject-card {
+  background: #ffffff !important;
+  border-color: rgba(109,40,217,0.1) !important;
+  box-shadow: 0 2px 10px rgba(109,40,217,0.06) !important;
+}
+
+/* ── MARKS INPUT ── */
+.marks-input {
+  background: rgba(124,58,237,0.05) !important;
+  border: 1px solid rgba(124,58,237,0.15) !important;
+  border-radius: 10px !important;
+  color: var(--text) !important;
+  transition: all 0.25s !important;
+}
+.marks-input:focus {
+  border-color: var(--violet) !important;
+  background: rgba(124,58,237,0.1) !important;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.1) !important;
+}
+.marks-input::placeholder { color: var(--text-dim) !important; }
+
+body.light-mode .marks-input {
+  background: rgba(109,40,217,0.04) !important;
+  border-color: rgba(109,40,217,0.15) !important;
+  color: var(--text) !important;
+}
+body.light-mode .marks-input:focus {
+  background: rgba(109,40,217,0.08) !important;
+  border-color: var(--violet) !important;
+}
+
+/* ── LIVE SGPA BADGE ── */
+.live-sgpa-mini {
+  background: rgba(245,158,11,0.08) !important;
+  border: 1px solid rgba(245,158,11,0.25) !important;
+}
+
+/* ── INSIGHT ITEMS ── */
+.insight-item {
+  background: rgba(124,58,237,0.04) !important;
+  border: 1px solid rgba(124,58,237,0.08) !important;
+  border-radius: 10px !important;
+}
+
+/* ── SEM BARS ── */
+.sem-bar-wrap { background: rgba(124,58,237,0.06) !important; }
+
+/* ── JOURNEY CARDS ── */
+.journey-card {
+  background: linear-gradient(145deg, rgba(12,14,43,1), rgba(9,10,30,1)) !important;
+  border: 1px solid rgba(124,58,237,0.1) !important;
+  transition: all 0.25s !important;
+}
+.journey-card:hover { border-color: rgba(124,58,237,0.22) !important; }
+.journey-card.done { border-color: rgba(16,185,129,0.2) !important; }
+.journey-card.active-sem {
+  border-color: rgba(124,58,237,0.38) !important;
+  background: linear-gradient(145deg, rgba(124,58,237,0.06), rgba(12,14,43,1)) !important;
+}
+
+/* ── TYPE BADGES ── */
+.badge-theory    { background: rgba(124,58,237,0.12) !important; color: #c4b5fd !important; }
+.badge-practical { background: rgba(16,185,129,0.12) !important; color: #34d399 !important; }
+.badge-elective  { background: rgba(245,158,11,0.12) !important; color: #fbbf24 !important; }
+.badge-audit     { background: rgba(100,116,139,0.12) !important; color: #94a3b8 !important; }
+.subj-type-badge {
+  font-size: 0.6rem !important;
+  padding: 2px 8px !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+}
+
+/* ── ANALYSER CARDS ── */
+.weak-card {
+  border: 1px solid rgba(124,58,237,0.1) !important;
+  border-radius: 20px !important;
+  background: linear-gradient(155deg, rgba(12,14,43,1), rgba(8,9,24,1)) !important;
+  transition: all 0.25s !important;
+}
+.weak-card:hover { border-color: rgba(239,68,68,0.2) !important; }
+.weak-card.borderline { border-color: rgba(245,158,11,0.18) !important; }
+
+/* ── INTERNSHIP & PLACEMENT CARDS ── */
+.intern-card {
+  background: linear-gradient(145deg, rgba(12,14,43,1), rgba(7,8,22,1)) !important;
+  border: 1px solid rgba(124,58,237,0.1) !important;
+  transition: all 0.3s !important;
+}
+.intern-card:hover {
+  border-color: rgba(124,58,237,0.22) !important;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.3) !important;
+  transform: translateY(-2px) !important;
+}
+.place-card {
+  background: linear-gradient(145deg, rgba(12,14,43,1), rgba(7,8,22,1)) !important;
+  border: 1px solid rgba(124,58,237,0.1) !important;
+  transition: all 0.25s !important;
+}
+.place-card:hover { border-color: rgba(124,58,237,0.22) !important; }
+
+/* ── APP NAV BUTTONS ── */
+.app-nav-btn { color: var(--text-dim) !important; transition: all 0.2s !important; }
+.app-nav-btn:hover { background: rgba(124,58,237,0.08) !important; color: var(--text) !important; }
+.app-nav-btn.active {
+  background: rgba(124,58,237,0.1) !important;
+  color: #c4b5fd !important;
+  border-left-color: var(--violet) !important;
+}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  width: 44px; height: 24px;
+  background: rgba(124,58,237,0.1);
+  border: 1.5px solid rgba(124,58,237,0.25);
+  border-radius: 30px; cursor: pointer;
+  position: relative; transition: all 0.3s;
+  flex-shrink: 0; display: flex; align-items: center; padding: 0 3px;
+}
+.theme-toggle:hover { border-color: var(--violet); }
+
+/* Login page has no header bar, so the toggle is pinned to the corner */
+.login-theme-toggle-wrap {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 1000;
+}
+@media (max-width: 480px) {
+  .login-theme-toggle-wrap { top: 0.85rem; right: 0.85rem; }
+}
+.toggle-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--violet);
+  transition: transform 0.3s var(--ease-spring);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; line-height: 1;
+  transform: translateX(0);
+  box-shadow: 0 0 10px rgba(124,58,237,0.5);
+}
+body.light-mode .toggle-thumb { transform: translateX(20px); }
+body.light-mode .theme-toggle { background: rgba(109,40,217,0.1); }
+
+/* ── APP LOADER — full-screen branded loading state ── */
+.app-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-deep);
+  overflow: hidden;
+}
+body.light-mode .app-loader { background: #f8f8fc; }
+
+.app-loader-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 380px at 50% 42%, rgba(124,58,237,0.28) 0%, rgba(99,102,241,0.12) 45%, transparent 72%),
+    radial-gradient(circle 320px at 62% 60%, rgba(245,158,11,0.14) 0%, transparent 70%);
+  filter: blur(10px);
+  animation: appLoaderGlowPulse 2.6s ease-in-out infinite;
+}
+body.light-mode .app-loader-glow {
+  background:
+    radial-gradient(circle 380px at 50% 42%, rgba(124,58,237,0.14) 0%, rgba(99,102,241,0.07) 45%, transparent 72%),
+    radial-gradient(circle 320px at 62% 60%, rgba(245,158,11,0.08) 0%, transparent 70%);
+}
+@keyframes appLoaderGlowPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.08); }
+}
+
+.app-loader-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.app-loader-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: appLoaderLogoBreathe 2.6s ease-in-out infinite;
+}
+.app-loader-logo-img { height: 52px; width: auto; object-fit: contain; }
+@keyframes appLoaderLogoBreathe {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 14px rgba(124,58,237,0.35)); }
+  50%      { transform: scale(1.06); filter: drop-shadow(0 0 22px rgba(124,58,237,0.55)); }
+}
+
+.app-loader-bar {
+  width: 132px;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(124,58,237,0.14);
+  overflow: hidden;
+}
+body.light-mode .app-loader-bar { background: rgba(124,58,237,0.1); }
+.app-loader-bar-fill {
+  height: 100%;
+  width: 40%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--violet), var(--gold));
+  animation: appLoaderBarSlide 1.3s cubic-bezier(0.4,0,0.2,1) infinite;
+}
+@keyframes appLoaderBarSlide {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(360%); }
+}
+
+.app-loader-text {
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--text-dim, rgba(255,255,255,0.6));
+  opacity: 0.8;
+}
+body.light-mode .app-loader-text { color: rgba(30,30,50,0.6); }
+

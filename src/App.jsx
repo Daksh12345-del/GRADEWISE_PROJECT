@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import { ProtectedRoute } from './lib/ProtectedRoute'
 import { ContentProtectedRoute } from './lib/ContentProtectedRoute'
+import { ErrorBoundary } from './lib/ErrorBoundary'
 import { loadLiveContent } from './lib/liveContent'
 import PageLoader from './pages/components/AppLoader'
 import PageTransition from './pages/components/PageTransition'
@@ -36,20 +37,30 @@ function SsoCallbackPage() {
 // lazy(Suspense)-loaded pages (the exit-complete signal doesn't always fire
 // cleanly), so each page instead animates itself in on mount via
 // PageTransition below, with no coordination with the previous page's exit.
+// Each route gets its OWN ErrorBoundary (in addition to the top-level one in
+// main.jsx). Previously a single global boundary meant a crash on any one
+// page — say, a bad response shape in DsaTrackerPage — tore down the entire
+// React tree (BrowserRouter, ClerkProvider, everything), forcing a full
+// reload just to get back to a page that was working fine. Scoping the
+// boundary per-route keeps that failure local to the page that broke.
+function withBoundary(element) {
+  return <ErrorBoundary>{element}</ErrorBoundary>
+}
+
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<PageTransition><LoginPage /></PageTransition>} />
-      <Route path="/sso-callback" element={<PageTransition><SsoCallbackPage /></PageTransition>} />
-      <Route path="/dashboard" element={<ContentProtectedRoute><DashboardPage /></ContentProtectedRoute>} />
-      <Route path="/app" element={<PageTransition><ContentProtectedRoute><AppPage /></ContentProtectedRoute></PageTransition>} />
-      <Route path="/analyser" element={<PageTransition><ContentProtectedRoute><AnalyserPage /></ContentProtectedRoute></PageTransition>} />
-      <Route path="/resources" element={<PageTransition><ContentProtectedRoute><ResourcesPage /></ContentProtectedRoute></PageTransition>} />
-      <Route path="/internships" element={<PageTransition><ProtectedRoute><InternshipsPage /></ProtectedRoute></PageTransition>} />
-      <Route path="/placements" element={<PageTransition><ProtectedRoute><PlacementsPage /></ProtectedRoute></PageTransition>} />
-      <Route path="/dsa-tracker" element={<PageTransition><ProtectedRoute><DsaTrackerPage /></ProtectedRoute></PageTransition>} />
-      <Route path="/ai-coach" element={<PageTransition><ContentProtectedRoute><AiCoachPage /></ContentProtectedRoute></PageTransition>} />
-      <Route path="/tuition" element={<PageTransition><ProtectedRoute><TuitionPage /></ProtectedRoute></PageTransition>} />
+      <Route path="/" element={withBoundary(<PageTransition><LoginPage /></PageTransition>)} />
+      <Route path="/sso-callback" element={withBoundary(<PageTransition><SsoCallbackPage /></PageTransition>)} />
+      <Route path="/dashboard" element={withBoundary(<ContentProtectedRoute><DashboardPage /></ContentProtectedRoute>)} />
+      <Route path="/app" element={withBoundary(<PageTransition><ContentProtectedRoute><AppPage /></ContentProtectedRoute></PageTransition>)} />
+      <Route path="/analyser" element={withBoundary(<PageTransition><ContentProtectedRoute><AnalyserPage /></ContentProtectedRoute></PageTransition>)} />
+      <Route path="/resources" element={withBoundary(<PageTransition><ContentProtectedRoute><ResourcesPage /></ContentProtectedRoute></PageTransition>)} />
+      <Route path="/internships" element={withBoundary(<PageTransition><ProtectedRoute><InternshipsPage /></ProtectedRoute></PageTransition>)} />
+      <Route path="/placements" element={withBoundary(<PageTransition><ProtectedRoute><PlacementsPage /></ProtectedRoute></PageTransition>)} />
+      <Route path="/dsa-tracker" element={withBoundary(<PageTransition><ProtectedRoute><DsaTrackerPage /></ProtectedRoute></PageTransition>)} />
+      <Route path="/ai-coach" element={withBoundary(<PageTransition><ContentProtectedRoute><AiCoachPage /></ContentProtectedRoute></PageTransition>)} />
+      <Route path="/tuition" element={withBoundary(<PageTransition><ProtectedRoute><TuitionPage /></ProtectedRoute></PageTransition>)} />
     </Routes>
   )
 }

@@ -1,0 +1,212 @@
+/* ============================================================
+   01-base.css — Fonts, CSS variables, light-mode overrides, reset, background grid, aurora orbs
+   Split out of the original monolithic style.css for maintainability.
+   ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════
+   GRADEWALLAH — AURORA DESIGN SYSTEM v3
+   Theme: "Deep Space Study" — Indigo nebula bg, gold+violet accents
+   Signature: Animated aurora orbs on login, glowing CGPA counter
+═══════════════════════════════════════════════════════════════ */
+
+/* ── IMPORT FONTS ── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap');
+
+:root {
+  /* Core palette — deep indigo-navy, not cold black */
+  --bg-deep:    #06071a;
+  --bg-card:    #0c0e2b;
+  --bg-card2:   #111440;
+  --bg-card3:   #0e1035;
+
+  /* Borders */
+  --border:        rgba(139,92,246,0.12);
+  --border-bright: rgba(139,92,246,0.28);
+
+  /* Accent — Violet primary, Gold secondary */
+  --violet:        #7c3aed;
+  --violet-bright: #9d5ff5;
+  --violet-glow:   rgba(124,58,237,0.35);
+  --gold:          #f59e0b;
+  --gold-bright:   #fbbf24;
+  --gold-glow:     rgba(245,158,11,0.3);
+
+  /* Keep legacy names mapped so JS/HTML inline styles still work */
+  --cyan:         #818cf8;   /* remapped to indigo */
+  --cyan-bright:  #a5b4fc;
+  --cyan-glow:    rgba(129,140,248,0.3);
+  --purple:       #9d5ff5;
+  --purple-glow:  rgba(157,95,245,0.3);
+  --green:        #10b981;
+  --yellow:       #f59e0b;
+  --red:          #ef4444;
+
+  /* Text */
+  --text:       #e8eaf6;
+  --text-dim:   #5c6494;
+  --text-muted: #8892c8;
+
+  /* Fonts */
+  --font-display: 'Sora', 'Plus Jakarta Sans', sans-serif;
+  --font-body:    'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-mono:    'Fira Code', monospace;
+
+  /* Animation timing */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── LIGHT MODE ── */
+body.light-mode {
+  --bg-deep:    #f0f0ff;
+  --bg-card:    #ffffff;
+  --bg-card2:   #f5f4ff;
+  --bg-card3:   #ede9ff;
+  --border:     rgba(124,58,237,0.15);
+  --border-bright: rgba(124,58,237,0.3);
+  --violet:        #6d28d9;
+  --violet-bright: #7c3aed;
+  --cyan:          #6d28d9;
+  --cyan-bright:   #7c3aed;
+  --cyan-glow:     rgba(109,40,217,0.2);
+  --purple:        #7c3aed;
+  --gold:          #d97706;
+  --gold-bright:   #f59e0b;
+  --green:         #059669;
+  --yellow:        #d97706;
+  --red:           #dc2626;
+  --text:          #1e1b4b;
+  --text-dim:      #6b7280;
+  --text-muted:    #5b5ea6;
+}
+
+body.light-mode::before {
+  background-image:
+    linear-gradient(rgba(109,40,217,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(109,40,217,0.025) 1px, transparent 1px) !important;
+}
+
+body.light-mode .login-glow {
+  background: radial-gradient(ellipse at center, rgba(109,40,217,0.12) 0%, rgba(245,158,11,0.06) 50%, transparent 70%) !important;
+}
+
+/* ── BASE RESET ── */
+html {
+  font-size: 16px;
+  background: var(--bg-deep);
+  margin: 0; padding: 0; width: 100%; min-height: 100%;
+  box-sizing: border-box;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  margin: 0 !important; padding: 0 !important;
+  width: 100%; max-width: 100%;
+  display: flex; flex-direction: column;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* ── GRID BACKGROUND — subtle hexagonal dot pattern ── */
+body::before {
+  content: '';
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: var(--bg-deep);
+  background-image:
+    radial-gradient(circle, rgba(124,58,237,0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══ LOGIN PAGE ═══ */
+.page { display: none; min-height: 100vh; position: relative; z-index: 1; width: 100%; }
+.page.active {
+  display: flex; flex-direction: column; width: 100%;
+  /* Forces Chrome to promote this to its own GPU compositing layer up-front
+     instead of lazily. Without this, pages that stack a lot of
+     backdrop-filter blur elements can hit a Chrome compositor bug where the
+     painted pixels never get flushed to screen until something forces a
+     reflow/repaint (like opening/closing DevTools, which resizes the
+     viewport). translateZ(0) sidesteps that by keeping the layer "live". */
+  transform: translateZ(0);
+}
+
+#loginPage {
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-y: auto;
+  background: var(--bg-deep);
+  position: relative;
+}
+
+/* ── AURORA ORBS — the signature element ── */
+.login-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.login-glow::before,
+.login-glow::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: auroraFloat 10s ease-in-out infinite;
+}
+
+.login-glow::before {
+  width: 600px; height: 500px;
+  background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, rgba(99,102,241,0.12) 50%, transparent 70%);
+  top: -100px; left: -100px;
+  animation-delay: 0s;
+}
+
+.login-glow::after {
+  width: 500px; height: 450px;
+  background: radial-gradient(circle, rgba(245,158,11,0.15) 0%, rgba(251,191,36,0.08) 50%, transparent 70%);
+  bottom: -80px; right: -80px;
+  animation-delay: -5s;
+  animation-name: auroraFloat2;
+}
+
+/* Third aurora orb via body pseudo */
+#loginPage::after {
+  content: '';
+  position: fixed;
+  width: 400px; height: 350px;
+  background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%);
+  top: 40%; left: 50%; transform: translate(-50%, -50%);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  animation: auroraFloat3 14s ease-in-out infinite;
+}
+
+@keyframes auroraFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+  25%       { transform: translate(60px, 40px) scale(1.08); opacity: 1; }
+  50%       { transform: translate(30px, 80px) scale(0.95); opacity: 0.7; }
+  75%       { transform: translate(-30px, 30px) scale(1.05); opacity: 0.9; }
+}
+@keyframes auroraFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+  33%       { transform: translate(-50px, -60px) scale(1.1); opacity: 1; }
+  66%       { transform: translate(-20px, -30px) scale(0.92); opacity: 0.6; }
+}
+@keyframes auroraFloat3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+  50%       { transform: translate(-50%, -60%) scale(1.2); opacity: 0.8; }
+}
+

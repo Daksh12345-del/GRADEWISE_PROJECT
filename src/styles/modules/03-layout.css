@@ -1,0 +1,242 @@
+/* ============================================================
+   03-layout.css — Header, header buttons/stats, sidebar, right panel
+   Split out of the original monolithic style.css for maintainability.
+   ============================================================ */
+
+/* ── HEADER ── */
+.header {
+  background: rgba(6,7,26,0.94) !important;
+  border-bottom: 1px solid rgba(124,58,237,0.12) !important;
+  padding: 0 2rem;
+  height: 70px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 1000;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  width: 100%; left: 0; right: 0; box-sizing: border-box;
+  box-shadow: 0 1px 0 rgba(124,58,237,0.08), 0 4px 24px rgba(0,0,0,0.4) !important;
+  transition: background 0.3s;
+}
+
+body.light-mode .header {
+  background: rgba(255,255,255,0.96) !important;
+  border-bottom: 1px solid rgba(109,40,217,0.12) !important;
+  box-shadow: 0 1px 0 rgba(109,40,217,0.08), 0 4px 20px rgba(0,0,0,0.06) !important;
+}
+
+.header-logo { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; flex-shrink: 0; }
+
+.h-logo-icon {
+  width: auto; height: 42px; background: none; border: none;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; margin: 0; flex-shrink: 0; overflow: visible;
+}
+.h-logo-icon-img {
+  height: 38px; width: auto; object-fit: contain; display: block;
+  border-radius: 0;
+}
+
+/* Logo theme swap: two static images, CSS decides which is visible.
+   No filter/blend-mode math at runtime -> identical on every OS. */
+.logo-swap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.logo-swap .logo-swap-light { display: none; }
+.logo-swap .logo-swap-dark { display: block; }
+body.light-mode .logo-swap .logo-swap-dark { display: none; }
+body.light-mode .logo-swap .logo-swap-light { display: block; }
+
+.h-logo-text {
+  font-family: var(--font-display);
+  font-size: 1rem; font-weight: 800;
+  background: linear-gradient(135deg, #c4b5fd, #fbbf24);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: 0.5px;
+}
+body.light-mode .h-logo-text {
+  background: linear-gradient(135deg, var(--violet), #d97706);
+  -webkit-background-clip: text; background-clip: text;
+}
+
+.header-user { display: flex; align-items: center; gap: 1rem; }
+
+.user-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(124,58,237,0.08);
+  border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 30px;
+  padding: 6px 16px 6px 8px;
+  transition: border-color 0.3s;
+}
+.user-badge:hover { border-color: rgba(124,58,237,0.35); }
+
+.user-avatar {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--violet), var(--gold));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: white;
+  box-shadow: 0 0 10px rgba(124,58,237,0.3);
+}
+
+.user-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+
+.btn-logout {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 10px; color: var(--red);
+  padding: 6px 14px;
+  font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-logout:hover { background: rgba(239,68,68,0.18); transform: translateY(-1px); }
+
+/* ── HEADER BUTTONS ── */
+.hdr-res-btn, .hdr-analyse-btn, .hdr-scan-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 10px;
+  font-family: var(--font-body); font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+  border: 1.5px solid; letter-spacing: 0.5px; white-space: nowrap;
+}
+.hdr-res-btn {
+  background: rgba(16,185,129,0.08);
+  border-color: rgba(16,185,129,0.35);
+  color: #10b981;
+}
+.hdr-res-btn:hover {
+  background: rgba(16,185,129,0.18);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16,185,129,0.2);
+}
+.hdr-analyse-btn {
+  background: rgba(245,158,11,0.08);
+  border-color: rgba(245,158,11,0.35);
+  color: var(--gold-bright);
+}
+.hdr-analyse-btn:hover {
+  background: rgba(245,158,11,0.18);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(245,158,11,0.2);
+}
+.hdr-scan-btn {
+  background: rgba(124,58,237,0.1);
+  border-color: rgba(124,58,237,0.4);
+  color: #c4b5fd;
+}
+.hdr-scan-btn:hover {
+  background: rgba(124,58,237,0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(124,58,237,0.25);
+}
+@media (max-width: 767px) {
+  .hdr-res-btn span, .hdr-analyse-btn span, .hdr-scan-btn span { display: none; }
+  .hdr-res-btn, .hdr-analyse-btn { padding: 5px 8px; font-size: 1rem; }
+  .hdr-scan-btn { padding: 5px 8px; font-size: 1rem; border: none; background: none; }
+}
+@media (max-width: 479px) { .hdr-scan-btn { display: none; } }
+
+/* ── HEADER STATS / EXPORT BUTTONS ──
+   Same visual family as .hdr-scan-btn, but intentionally NOT hidden at
+   ≤479px like .hdr-scan-btn is — these open the CGPA panel and trigger the
+   PDF export, both of which used to be reachable only by scrolling all the
+   way down to the floating button, so they stay visible (icon-only) even
+   on the smallest phones. */
+.hdr-stats-btn, .hdr-export-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 10px;
+  font-family: var(--font-body); font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+  border: 1.5px solid; letter-spacing: 0.5px; white-space: nowrap;
+}
+.hdr-stats-btn {
+  background: rgba(6,182,212,0.1);
+  border-color: rgba(6,182,212,0.4);
+  color: #67e8f9;
+}
+.hdr-stats-btn:hover {
+  background: rgba(6,182,212,0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(6,182,212,0.25);
+}
+.hdr-export-btn {
+  background: rgba(16,185,129,0.1);
+  border-color: rgba(16,185,129,0.4);
+  color: #6ee7b7;
+}
+.hdr-export-btn:hover {
+  background: rgba(16,185,129,0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+}
+.hdr-export-btn:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+@media (max-width: 767px) {
+  .hdr-stats-btn span, .hdr-export-btn span { display: none; }
+  .hdr-stats-btn, .hdr-export-btn { padding: 5px 8px; font-size: 1rem; border: none; background: none; }
+}
+@media (max-width: 479px) {
+  .hdr-stats-btn, .hdr-export-btn { padding: 4px 6px; font-size: 0.95rem; }
+}
+
+/* ── SIDEBAR ── */
+.sidebar, .app-sidebar {
+  background: linear-gradient(180deg, rgba(9,10,30,0.98) 0%, rgba(6,7,22,1) 100%) !important;
+  border-right: 1px solid rgba(124,58,237,0.1) !important;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.3) !important;
+}
+
+body.light-mode .sidebar,
+body.light-mode .app-sidebar {
+  background: linear-gradient(180deg, #f8f7ff 0%, #f0effe 100%) !important;
+  border-right: 1px solid rgba(109,40,217,0.1) !important;
+}
+
+.sem-btn {
+  border-left-color: transparent !important;
+  transition: all 0.2s !important;
+}
+.sem-btn:hover {
+  background: rgba(124,58,237,0.06) !important;
+  border-left-color: rgba(124,58,237,0.2) !important;
+}
+.sem-btn.active {
+  border-left-color: var(--violet) !important;
+  background: rgba(124,58,237,0.1) !important;
+  color: #c4b5fd !important;
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  background: linear-gradient(180deg, rgba(7,8,25,0.98) 0%, rgba(10,8,30,1) 100%) !important;
+  border-left: 1px solid rgba(124,58,237,0.08) !important;
+  box-shadow: -2px 0 20px rgba(0,0,0,0.2) !important;
+}
+
+body.light-mode .right-panel {
+  background: linear-gradient(180deg, #f8f7ff 0%, #f0effe 100%) !important;
+  border-left: 1px solid rgba(109,40,217,0.1) !important;
+}
+
+.panel-section {
+  background: rgba(124,58,237,0.04) !important;
+  border: 1px solid rgba(124,58,237,0.1) !important;
+  border-radius: 16px !important;
+  transition: border-color 0.3s;
+}
+.panel-section:hover { border-color: rgba(124,58,237,0.2) !important; }
+
+body.light-mode .panel-section {
+  background: #ffffff !important;
+  border-color: rgba(109,40,217,0.1) !important;
+  box-shadow: 0 2px 8px rgba(109,40,217,0.05) !important;
+}
+
+.panel-title {
+  font-size: 0.63rem !important;
+  letter-spacing: 2px !important;
+  color: var(--text-dim) !important;
+  text-transform: uppercase;
+}
+
