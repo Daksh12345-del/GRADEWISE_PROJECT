@@ -1501,7 +1501,11 @@
     font-size: 0.62rem;
     letter-spacing: 0.3px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
+    /* Was a hardcoded rgba(255,255,255,0.45) — invisible in light mode
+       (near-white text on a near-white card). Switched to the existing
+       theme-aware --text-dim variable, which is already redefined for
+       light mode elsewhere in this file. */
+    color: var(--text-dim);
     font-weight: 700;
     margin-bottom: 2px;
   }
@@ -1521,7 +1525,9 @@
   .trb-status-icon { font-size: 1.6rem; line-height: 1; }
   .trb-sems-info {
     font-size: 0.6rem;
-    color: rgba(255,255,255,0.35);
+    /* Same fix as .trb-needed-label above — was hardcoded white,
+       invisible on the light-mode card background. */
+    color: var(--text-muted);
     text-align: right;
     letter-spacing: 0.5px;
   }

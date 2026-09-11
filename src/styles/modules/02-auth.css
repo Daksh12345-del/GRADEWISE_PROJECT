@@ -258,6 +258,11 @@ select.compact-input option, select.form-select option { background: #0c0e2b; co
 body.light-mode select.compact-input option,
 body.light-mode select.form-select option { background: #fff; color: #1e1b4b; }
 
+/* .err-msg was hardcoded white text on a translucent red tint — invisible
+   in light mode where the ambient background is light, same class of bug
+   as the CGPA planner labels. Dark, readable red for light mode instead. */
+body.light-mode .err-msg { color: #991b1b; }
+
 /* ── CONTINUE BUTTON ── */
 .btn-next {
   width: 100%;
