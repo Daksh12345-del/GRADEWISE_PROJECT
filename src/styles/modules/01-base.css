@@ -99,6 +99,15 @@ html {
 }
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Browsers give form controls their own default (system) font instead of
+   inheriting from <body> — that's why every input/button/select/textarea
+   across the site (marks inputs, CGPA planner, scan/export buttons, etc.)
+   was rendering in a plain system font instead of the custom Sora / Plus
+   Jakarta Sans family, in both light and dark mode. */
+input, button, select, textarea {
+  font-family: inherit;
+}
+
 body {
   font-family: var(--font-body);
   background: var(--bg-deep);
