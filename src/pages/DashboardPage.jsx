@@ -12,6 +12,7 @@ import Logo from './components/Logo'
 import { useSidebarToggle } from '../lib/useSidebarToggle'
 import AskAiWidget from './components/AskAiWidget'
 import { fetchMyDsaStats } from '../lib/leaderboard'
+import { fetchMyResumeScore } from '../lib/api'
 import CgpaLeaderboard from './components/CgpaLeaderboard'
 import { DsaLeaderboardModal } from './components/DsaInsights'
 
@@ -45,6 +46,7 @@ export default function DashboardPage() {
   const [internships, setInternships] = useState(null) // null = loading, [] = empty, [...] = data
   const [scanOpen, setScanOpen] = useState(false)
   const [dsaStats, setDsaStats] = useState(undefined) // undefined = loading, null = no data yet, {...} = real stats
+  const [resumeScore, setResumeScore] = useState(undefined) // undefined = loading, null = no data yet, {...} = saved score
   const [cgpaLeaderboardOpen, setCgpaLeaderboardOpen] = useState(false)
   const [dsaLeaderboardOpen, setDsaLeaderboardOpen] = useState(false)
 
@@ -53,6 +55,15 @@ export default function DashboardPage() {
     fetchMyDsaStats().then(d => { if (!cancelled) setDsaStats(d) }).catch(() => { if (!cancelled) setDsaStats(null) })
     return () => { cancelled = true }
   }, [])
+
+  useEffect(() => {
+    if (!user?.id) { setResumeScore(null); return }
+    let cancelled = false
+    fetchMyResumeScore(user.id)
+      .then(d => { if (!cancelled) setResumeScore(d) })
+      .catch(() => { if (!cancelled) setResumeScore(null) })
+    return () => { cancelled = true }
+  }, [user?.id])
 
   useEffect(() => {
     let cancelled = false
@@ -252,6 +263,50 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* Resume Score row — mirrors CGPA/DSA rows above so a student's
+              resume health sits right next to their academic + DSA
+              progress instead of being buried on its own page. Pulls the
+              LAST saved analysis (see /api/resume/mine); re-runs itself
+              automatically next time they analyze a new resume, since
+              that overwrites the same saved row. */}
+          <div className="dash-actions-title" style={{ marginTop: 20 }}>📄 Resume Score</div>
+          {resumeScore === undefined && (
+            <div className="dash-stats"><div className="dash-stat"><div className="dsa-idle">Loading…</div></div></div>
+          )}
+          {resumeScore === null && (
+            <div className="panel-section" style={{ padding: '1rem 1.2rem', fontSize: '0.85rem', color: 'var(--text-dim)' }}>
+              Check your resume on the <button onClick={() => navigate('/resume-checker')} style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontWeight: 600, padding: 0 }}>Resume Checker</button> to see your ATS score, detected skills, and matching internships here.
+            </div>
+          )}
+          {resumeScore && (
+            <div className="dash-stats">
+              <div className="dash-stat">
+                <div className="dash-stat-lbl">ATS Score</div>
+                <div className="dash-stat-val" style={{ color: resumeScore.ats_score >= 75 ? '#10b981' : resumeScore.ats_score >= 50 ? '#f59e0b' : '#ef4444' }}>
+                  {resumeScore.ats_score}<span style={{ fontSize: '1rem', color: 'var(--text-dim)' }}>/100</span>
+                </div>
+                <div className="dash-stat-sub">{resumeScore.resume_filename || 'Latest resume'}</div>
+              </div>
+              <div className="dash-stat">
+                <div className="dash-stat-lbl">Skills Detected</div>
+                <div className="dash-stat-val purple">{(resumeScore.skills || []).length}</div>
+                <div className="dash-stat-sub">From your latest resume</div>
+              </div>
+              <div className="dash-stat">
+                <div className="dash-stat-lbl">Top Internship Match</div>
+                <div className="dash-stat-val green">
+                  {(resumeScore.matched_internships || [])[0]?.match_score ?? 0}<span style={{ fontSize: '1rem', color: 'var(--text-dim)' }}>%</span>
+                </div>
+                <div className="dash-stat-sub">{(resumeScore.matched_internships || [])[0]?.title || 'No strong match yet'}</div>
+              </div>
+              <div className="dash-stat">
+                <button className="hdr-stats-btn" onClick={() => navigate('/resume-checker')} style={{ width: '100%', justifyContent: 'center' }}>
+                  🔄 Update Resume
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Quick Actions */}
           <div className="dash-actions-title">⚡ What do you want to do today?</div>
           <div className="dash-actions">
@@ -277,6 +332,12 @@ export default function DashboardPage() {
               <div className="dash-action-icon">🏢</div>
               <div className="dash-action-name">🏢 My Career</div>
               <div className="dash-action-desc">Campus & off-campus placement drives posted by Gradewallah team.</div>
+              <span className="dash-action-arrow">→</span>
+            </button>
+            <button className="dash-action-card" onClick={() => navigate('/resume-checker')} style={{ '--card-accent': 'linear-gradient(90deg, #7c3aed, #ec4899)' }}>
+              <div className="dash-action-icon">📄</div>
+              <div className="dash-action-name">📄 Resume Checker</div>
+              <div className="dash-action-desc">Get your ATS score & see which internships you match.</div>
               <span className="dash-action-arrow">→</span>
             </button>
             <button className="dash-action-card" onClick={() => navigate('/analyser')} style={{ '--card-accent': 'linear-gradient(90deg, var(--yellow), #f97316)' }}>

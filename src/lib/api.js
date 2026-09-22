@@ -270,3 +270,55 @@ export async function fetchTranscribeAudio(audioBlob) {
   }
   return json.text
 }
+
+// ── Resume Checker ──────────────────────────────────────────────────────
+// ATS-style resume score + skill extraction + live internship/placement
+// matching. See gradewise-backend/app/ai/resume.py and app/main.py's
+// "Resume Checker" section. Every re-upload overwrites the student's
+// single saved row (keyed by user_id), so the score and matched
+// internships always reflect the LATEST resume, not a stale first upload.
+
+/** POST /api/resume/analyze — upload a PDF/DOCX resume, get back the ATS
+ * score breakdown, detected skills, strengths/improvements, and the top
+ * matching live internships/placements. Also persists the result server-side
+ * so fetchMyResumeScore() can show it on the Dashboard without re-uploading. */
+export async function analyzeResume(file, userId) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  if (!userId) throw new Error('Not signed in')
+  const url = `${PYTHON_BACKEND_URL}/api/resume/analyze?user_id=${encodeURIComponent(userId)}`
+  const form = new FormData()
+  form.append('file', file, file.name)
+  let res
+  try {
+    res = await fetchWithTimeout(url, { method: 'POST', body: form }, 60000)
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      // Backend may be waking up (Render free tier) — retry once.
+      await new Promise(r => setTimeout(r, 4000))
+      res = await fetchWithTimeout(url, { method: 'POST', body: form }, 60000)
+    } else {
+      throw new Error(err.message || 'Network error')
+    }
+  }
+  let json
+  try {
+    json = await res.json()
+  } catch {
+    throw new Error(`Backend returned an invalid response (HTTP ${res.status})`)
+  }
+  if (!res.ok) {
+    throw new Error(json.error || `HTTP ${res.status}`)
+  }
+  return json
+}
+
+/** GET /api/resume/mine — the student's last saved resume score, for the
+ * Dashboard's compact "Resume Score" card. Returns null if they've never
+ * uploaded one yet. */
+export async function fetchMyResumeScore(userId) {
+  if (!PYTHON_BACKEND_URL) throw new Error('VITE_PYTHON_BACKEND_URL is not set')
+  if (!userId) return null
+  const url = `${PYTHON_BACKEND_URL}/api/resume/mine?user_id=${encodeURIComponent(userId)}`
+  const json = await getJson(url)
+  return json.data || null
+}
