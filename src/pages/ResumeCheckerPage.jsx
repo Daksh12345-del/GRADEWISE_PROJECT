@@ -77,7 +77,7 @@ function MatchedInternshipRow({ item }) {
       <div className="job-card-top">
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="job-title" title={item.title}>{item.title}</div>
-          <div className="job-company">{item.company} {item._type === 'placement' && '· Placement'}</div>
+          <div className="job-company">{item.company}</div>
         </div>
         <span className="job-mode-badge" style={{ color: '#10b981', background: '#10b9811f' }}>
           🎯 {item.match_score}% match
@@ -167,6 +167,10 @@ export default function ResumeCheckerPage() {
     setError(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
+
+  const allMatches = result?.matched_internships || []
+  const matchedInternshipsOnly = allMatches.filter((item) => item._type !== 'placement')
+  const matchedPlacementsOnly = allMatches.filter((item) => item._type === 'placement')
 
   return (
     <div className="page active" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} id="resumeCheckerPage">
@@ -277,6 +281,23 @@ export default function ResumeCheckerPage() {
                 </div>
               </div>
 
+              {Array.isArray(result.quick_checks) && result.quick_checks.length > 0 && (
+                <div className="dsa-card" style={{ borderColor: 'var(--border-bright)', marginBottom: 20 }}>
+                  <div className="dsa-card-head"><span>🔍</span> Quick checks</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10, marginTop: 4 }}>
+                    {result.quick_checks.map((c, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: '0.78rem' }}>
+                        <span style={{ color: c.ok ? '#10b981' : '#ef4444', fontWeight: 700, flexShrink: 0 }}>{c.ok ? '✓' : '✗'}</span>
+                        <div>
+                          <div style={{ fontWeight: 600, color: 'var(--text)' }}>{c.label}</div>
+                          <div style={{ color: 'var(--text-dim)' }}>{c.detail}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 20 }}>
                 <div className="dsa-card" style={{ borderColor: '#10b98133' }}>
                   <div className="dsa-card-head" style={{ color: '#10b981' }}><span>✅</span> Strengths</div>
@@ -302,20 +323,38 @@ export default function ResumeCheckerPage() {
                 </div>
               </div>
 
-              <div className="dsa-card" style={{ borderColor: 'var(--border-bright)' }}>
+              <div className="dsa-card" style={{ borderColor: 'var(--border-bright)', marginBottom: 20 }}>
                 <div className="dsa-card-head">
-                  <span>💼</span> Matching internships &amp; placements
+                  <span>🎓</span> Matching internships
                   <span style={{ fontSize: '0.68rem', fontWeight: 400, color: 'var(--text-dim)', marginLeft: 8 }}>
                     (live, matched against your detected skills)
                   </span>
                 </div>
-                {(result.matched_internships || []).length === 0 ? (
+                {matchedInternshipsOnly.length === 0 ? (
                   <div className="dsa-idle">
-                    No strong matches right now — add more specific technical skills to your resume, or check back as new postings come in.
+                    No strong internship matches right now — add more specific technical skills to your resume, or check back as new postings come in.
                   </div>
                 ) : (
                   <div style={{ marginTop: 6 }}>
-                    {result.matched_internships.map((item, i) => <MatchedInternshipRow key={i} item={item} />)}
+                    {matchedInternshipsOnly.map((item, i) => <MatchedInternshipRow key={i} item={item} />)}
+                  </div>
+                )}
+              </div>
+
+              <div className="dsa-card" style={{ borderColor: 'var(--border-bright)' }}>
+                <div className="dsa-card-head">
+                  <span>🏢</span> Matching placements
+                  <span style={{ fontSize: '0.68rem', fontWeight: 400, color: 'var(--text-dim)', marginLeft: 8 }}>
+                    (live, matched against your detected skills)
+                  </span>
+                </div>
+                {matchedPlacementsOnly.length === 0 ? (
+                  <div className="dsa-idle">
+                    No strong placement matches right now — add more specific technical skills to your resume, or check back as new postings come in.
+                  </div>
+                ) : (
+                  <div style={{ marginTop: 6 }}>
+                    {matchedPlacementsOnly.map((item, i) => <MatchedInternshipRow key={i} item={item} />)}
                   </div>
                 )}
               </div>
