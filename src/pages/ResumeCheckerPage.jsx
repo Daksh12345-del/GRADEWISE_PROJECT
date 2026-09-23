@@ -41,10 +41,10 @@ function ScoreRing({ score }) {
         />
       </svg>
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: '2rem', fontWeight: 800, color, lineHeight: 1 }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.1rem', fontWeight: 800, color, lineHeight: 1 }}>
           <AnimatedNumber value={score} />
         </div>
-        <div style={{ fontSize: '0.62rem', color: 'var(--text-dim)', letterSpacing: 1 }}>ATS SCORE</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '0.62rem', fontWeight: 600, color: 'var(--text-dim)', letterSpacing: 1.2, marginTop: 4 }}>ATS SCORE</div>
       </div>
     </div>
   )
@@ -177,7 +177,7 @@ export default function ResumeCheckerPage() {
             <Logo />
           </div>
           <div>
-            <span style={{ fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>Resume Checker</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text)', fontSize: '1.05rem' }}>Resume Checker</span>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)', letterSpacing: 1 }}>
               ATS score + live internship matching
             </div>
