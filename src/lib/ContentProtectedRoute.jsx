@@ -1,5 +1,6 @@
 import { ProtectedRoute } from './ProtectedRoute'
 import { LiveContentGate } from './LiveContentGate'
+import { SchemeGate } from './SchemeGate'
 import { GradesProvider } from './GradesContext'
 
 // For routes that need both a signed-in session AND the CMS-sourced
@@ -11,9 +12,11 @@ export function ContentProtectedRoute({ children }) {
   return (
     <ProtectedRoute>
       <LiveContentGate>
-        <GradesProvider>
-          {children}
-        </GradesProvider>
+        <SchemeGate>
+          <GradesProvider>
+            {children}
+          </GradesProvider>
+        </SchemeGate>
       </LiveContentGate>
     </ProtectedRoute>
   )

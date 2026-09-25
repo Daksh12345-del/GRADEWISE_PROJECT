@@ -19,6 +19,16 @@ export { getClerkUserId } from './clerkUser'
 export function useAuthUser() {
   const { isLoaded, isSignedIn, user: clerkUser } = useUser()
 
+  // A profile is complete once the student has told us where they study.
+  // Google/GitHub sign-ins arrive with a name + email only, so they have to
+  // pass through the "complete your profile" step before reaching the app.
+  // (`name` isn't checked: OAuth always supplies one and the form prefills it.)
+  const profileComplete = useMemo(() => {
+    if (!isSignedIn || !clerkUser) return false
+    const meta = clerkUser.unsafeMetadata || {}
+    return !!(meta.university && meta.course && meta.college && meta.branch)
+  }, [isSignedIn, clerkUser])
+
   const user = useMemo(() => {
     if (!isSignedIn || !clerkUser) return null
     const meta = clerkUser.unsafeMetadata || {}
@@ -39,7 +49,7 @@ export function useAuthUser() {
 
   const status = !isLoaded ? 'checking' : (isSignedIn ? 'authenticated' : 'unauthenticated')
 
-  return { user, status }
+  return { user, status, profileComplete }
 }
 
 export function useLogout() {

@@ -12,7 +12,17 @@
 //    entering a back mark recalculates that subject properly.
 // ============================================================
 
-import { GRADING, GRADE_EH, SEMESTERS } from './gradesData';
+import { GRADING, GRADE_EH, GRADE_RULES, SEMESTERS } from './gradesData';
+
+// The grade scale, marks split, grace rule and thresholds below all come from
+// the ACTIVE university scheme (GRADING / GRADE_RULES are swapped in place by
+// schemes.js), so the same engine serves AKTU, GGSIPU, etc.
+
+// Highest band whose minimum the marks reach. Uses only `min` (bands are listed
+// highest-first) so fractional marks like 74.5 don't fall between two bands.
+function findBand(m) {
+  return GRADING.find(g => m >= g.min) || GRADING[GRADING.length - 1];
+}
 
 // ── Marks helpers ────────────────────────────────────────────
 // entry shape: { internal: '', external: '' } (or legacy plain number/string = total)
@@ -37,14 +47,16 @@ export function isFilled(entry) {
 
 // Max marks per subject type (used for grading & for normalizing back marks)
 export function getMaxMarks(subj) {
+  const marks = GRADE_RULES.marks;
+  if (subj.maxMarks) return subj.maxMarks; // per-subject override from the scheme data
   if (subj.internalOnly) {
-    if (subj.code === 'BCS851') return { internal: 100, external: 350 }; // Project-II
-    if (subj.code === 'BCS753') return { internal: 150, external: 0 };   // Project-I
-    return { internal: 100, external: 0 };
+    if (subj.code === 'BCS851') return { internal: 100, external: 350 }; // AKTU Project-II
+    if (subj.code === 'BCS753') return { internal: 150, external: 0 };   // AKTU Project-I
+    return marks.internalOnly;
   }
-  if (subj.type === 'Practical') return { internal: 50, external: 50 };
-  if (subj.type === 'Audit') return { internal: 100, external: 0 };
-  return { internal: 30, external: 70 }; // Theory, Elective
+  if (subj.type === 'Practical') return marks.practical;
+  if (subj.type === 'Audit') return marks.audit;
+  return marks.theory; // Theory, Elective
 }
 
 // ── GRACE MARKS LOGIC (AKTU rules, Theory/Elective only) ───────────────────
@@ -66,17 +78,19 @@ export function getGrade(marks, subj) {
   }
   if (isNaN(m) || m < 0 || m > 100) return null;
 
-  if (subj && (subj.type === 'Theory' || subj.type === 'Elective')
-      && external_val !== null && !isNaN(external_val) && external_val < 21) {
-    const deficit = 40 - m;
+  // Grace marks exist only for universities whose scheme defines `rules.grace` (AKTU).
+  const graceRule = GRADE_RULES.grace;
+  if (graceRule && subj && (subj.type === 'Theory' || subj.type === 'Elective')
+      && external_val !== null && !isNaN(external_val) && external_val < graceRule.externalBelow) {
+    const deficit = graceRule.passTotal - m;
     if (deficit <= 0) return GRADE_EH;
-    const grace = Math.min(deficit, 7);
+    const grace = Math.min(deficit, graceRule.maxGrace);
     const gracedTotal = m + grace;
-    if (gracedTotal >= 40) return GRADE_EH;
+    if (gracedTotal >= graceRule.passTotal) return GRADE_EH;
     return GRADING[GRADING.length - 1]; // F
   }
 
-  return GRADING.find(g => m >= g.min && m <= g.max) || GRADING[GRADING.length - 1];
+  return findBand(m);
 }
 
 // Grade lookup with NO grace — used for back paper results (fresh attempt)
@@ -91,7 +105,7 @@ export function getGradeNoGrace(marksOrPct) {
     m = parseFloat(marksOrPct);
   }
   if (isNaN(m) || m < 0) return null;
-  return GRADING.find(g => m >= g.min && m <= g.max) || GRADING[GRADING.length - 1];
+  return findBand(m);
 }
 
 export function getEffectivePoints(grade) {
@@ -108,23 +122,21 @@ export function getEffectiveCredits(subj) {
 // Grade for internalOnly subjects (Internship, Mini Project, Project, etc.)
 export function getGradeForInternalOnly(entry, subj) {
   if (!entry || typeof entry !== 'object') return null;
-  if (subj && subj.code === 'BCS851') {
-    const intV = parseFloat(entry.internal);
+  const max = getMaxMarks(subj || { internalOnly: true });
+  const maxTotal = (max.internal || 0) + (max.external || 0);
+  if (maxTotal <= 0) return null;
+  const intV = parseFloat(entry.internal);
+
+  if (max.external > 0) {
+    // Split subject (e.g. AKTU Project-II: internal + external)
     const extV = parseFloat(entry.external);
     if (isNaN(intV) && isNaN(extV)) return null;
     const total = (isNaN(intV) ? 0 : intV) + (isNaN(extV) ? 0 : extV);
-    const pct = (total / 450) * 100;
-    return GRADING.find(g => pct >= g.min && pct <= g.max) || GRADING[GRADING.length - 1];
+    return findBand((total / maxTotal) * 100);
   }
-  if (subj && subj.code === 'BCS753') {
-    const val = parseFloat(entry.internal);
-    if (isNaN(val) || val < 0 || val > 150) return null;
-    const pct = (val / 150) * 100;
-    return GRADING.find(g => pct >= g.min && pct <= g.max) || GRADING[GRADING.length - 1];
-  }
-  const val = parseFloat(entry.internal);
-  if (isNaN(val) || val < 0 || val > 100) return null;
-  return GRADING.find(g => val >= g.min && val <= g.max) || GRADING[GRADING.length - 1];
+  // Single-mark subject (Internship, Mini Project, NUES papers ...)
+  if (isNaN(intV) || intV < 0 || intV > maxTotal) return null;
+  return findBand((intV / maxTotal) * 100);
 }
 
 function gradeOf(entry, subj) {
@@ -307,9 +319,10 @@ export function calcCGPA(marksData) {
 // student-context builder) can reuse the exact same definition instead of
 // re-implementing/duplicating it and risking drift.
 export function getThreshold(credits) {
-  if (credits >= 4) return 70
-  if (credits === 3) return 65
-  return 60
+  const t = GRADE_RULES.thresholds
+  if (credits >= 4) return t['4']
+  if (credits === 3) return t['3']
+  return t.default
 }
 
 // Simplified weak-subject list — real subject names below their minimum
@@ -331,4 +344,65 @@ export function getWeakSubjectNames(marksData, limit = 5) {
   })
   weak.sort((a, b) => a.gap - b.gap)
   return weak.slice(0, limit).map(w => w.name)
+}
+
+// ── Scheme-aware display helpers ────────────────────────────────────────────
+// Colors/emoji follow the grade POINTS (not the letter), so they work for any
+// university's letters (AKTU "A+" = 10, GGSIPU "O" = 10, ...).
+const POINT_STYLE = {
+  10: { color: '#06b6d4', report: '#0284c7', emoji: '🏆' },
+  9: { color: '#8b5cf6', report: '#7c3aed', emoji: '⭐' },
+  8: { color: '#818cf8', report: '#4f46e5', emoji: '✅' },
+  7: { color: '#10b981', report: '#059669', emoji: '👍' },
+  6: { color: '#f59e0b', report: '#d97706', emoji: '📚' },
+  5: { color: '#f97316', report: '#ea580c', emoji: '⚠️' },
+  4: { color: '#fb923c', report: '#c2410c', emoji: '🔶' },
+  0: { color: '#ef4444', report: '#dc2626', emoji: '❌' },
+}
+
+export function gradeVisual(letter) {
+  if (letter === GRADE_EH.grade) return { color: '#fb923c', report: '#c2410c', emoji: '🔶' }
+  const g = GRADING.find(x => x.grade === letter)
+  return POINT_STYLE[g ? g.points : -1] || { color: '#64748b', report: '#374151', emoji: '' }
+}
+
+// Letter grade for a CGPA/SGPA using the active scale (percentage-equivalent = value × 10).
+export function gradeForCgpa(value) {
+  if (!(value > 0)) return null
+  return GRADING.find(g => value * 10 >= g.min) || GRADING[GRADING.length - 1]
+}
+
+// Lowest passing grade that still gives at least `points` (e.g. "you need ~A+ grades").
+export function gradeNeededFor(points) {
+  const passing = GRADING.filter(g => g.points > 0).sort((a, b) => a.points - b.points)
+  return passing.find(g => g.points >= points) || passing[passing.length - 1] || null
+}
+
+// Rows for the "Grading System" legends (side panel + PDF report).
+export function getGradingLegend() {
+  const rows = GRADING.map((g, i) => {
+    const isFail = g.points === 0
+    
+    return {
+      letter: g.grade,
+      points: g.points,
+      range: isFail && i > 0 ? `<${GRADING[i - 1].min}` : `${g.min}–${g.max}`,
+      note: isFail ? 'full cr' : '',
+    }
+  })
+  if (GRADE_RULES.grace) {
+    rows.splice(rows.length - 1, 0, { letter: GRADE_EH.grade, points: 0, range: 'Grace', note: 'full cr' })
+  }
+  return rows
+}
+
+// Actual (not averaged) credits still to be earned, from semesters not yet complete.
+export function getRemainingCredits(marksData) {
+  let credits = 0, sems = 0
+  SEMESTERS.forEach((_, si) => {
+    if (isSemComplete(si, marksData)) return
+    credits += getSemCredits(si)
+    sems++
+  })
+  return { credits, sems }
 }

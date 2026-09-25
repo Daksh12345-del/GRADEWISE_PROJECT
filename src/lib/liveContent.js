@@ -3,7 +3,9 @@
 //
 // How it works: src/lib/gradesData.js, resourcesData.js, subjectKB.js and
 // loginFormData.js export EMPTY constants at build time (no hardcoded
-// content in the bundle). On app startup, this module:
+// content in the bundle). The login University → College → Branch directory
+// lives in its own tables (universities / colleges / college_branches) and is
+// fetched alongside `site_content`. On app startup, this module:
 //
 //   1. Immediately applies whatever snapshot is sitting in IndexedDB from
 //      the last successful load (if any) — synchronously, before any
@@ -29,10 +31,11 @@
 
 import { supabase } from './supabase'
 import { idbGet, idbSet } from './offlineCache'
-import { SEMESTERS } from './gradesData'
 import { VIDEO_DATA, PYQ_LINKS, SUBJECT_NOTES } from './resourcesData'
 import { SUBJECT_KB } from './subjectKB'
-import { COLLEGES_BY_CITY, BRANCHES, DOMAIN_GROUPS } from './loginFormData'
+import { UNIVERSITY_DIRECTORY, DOMAIN_GROUPS } from './loginFormData'
+import { fetchUniversityDirectory } from './universityDirectory'
+import { fetchUniversitySchemes, setBaseSemesters, setSchemeRows } from './schemes'
 
 const CACHE_KEY = 'site_content_v1'
 
@@ -50,13 +53,17 @@ function replaceObjectContents(obj, newObj) {
 
 // key in the `site_content` table -> how to apply its value
 const APPLIERS = {
-  SEMESTERS: v => replaceArrayContents(SEMESTERS, v),
+  // site_content SEMESTERS is the AKTU base curriculum; schemes.js decides which
+  // semesters are actually active for the signed-in student's university.
+  SEMESTERS: v => setBaseSemesters(v),
+  // From the `university_schemes` table (grading scale + credit rules + semesters)
+  UNIVERSITY_SCHEMES: v => setSchemeRows(v),
   VIDEO_DATA: v => replaceObjectContents(VIDEO_DATA, v),
   PYQ_LINKS: v => replaceObjectContents(PYQ_LINKS, v),
   SUBJECT_NOTES: v => replaceObjectContents(SUBJECT_NOTES, v),
   SUBJECT_KB: v => replaceObjectContents(SUBJECT_KB, v),
-  COLLEGES_BY_CITY: v => replaceArrayContents(COLLEGES_BY_CITY, v),
-  BRANCHES: v => replaceObjectContents(BRANCHES, v),
+  // Comes from the universities/colleges/college_branches tables, not site_content
+  UNIVERSITY_DIRECTORY: v => replaceArrayContents(UNIVERSITY_DIRECTORY, v),
   DOMAIN_GROUPS: v => replaceArrayContents(DOMAIN_GROUPS, v),
 }
 
@@ -139,7 +146,13 @@ export function loadLiveContent() {
     }
 
     // Step 2 — fetch fresh data in the background.
-    const { data, error } = await supabase.from('site_content').select('key, value')
+    const [contentRes, directoryRes, schemesRes] = await Promise.all([
+      supabase.from('site_content').select('key, value'),
+      fetchUniversityDirectory(),
+      fetchUniversitySchemes(),
+    ])
+    const { data } = contentRes
+    const error = contentRes.error || directoryRes.error || schemesRes.error
 
     if (error) {
       if (hadCache) {
@@ -160,6 +173,10 @@ export function loadLiveContent() {
     const rows = data || []
     const map = {}
     rows.forEach(row => { map[row.key] = row.value })
+    // An empty directory means the seed SQL hasn't been run — report it as
+    // missing rather than showing a login form with no universities.
+    if (directoryRes.data && directoryRes.data.length > 0) map.UNIVERSITY_DIRECTORY = directoryRes.data
+    if (schemesRes.data && schemesRes.data.length > 0) map.UNIVERSITY_SCHEMES = schemesRes.data
     const missing = applyContentMap(map)
 
     if (missing.length > 0) {

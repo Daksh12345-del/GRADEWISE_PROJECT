@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import { ProtectedRoute } from './lib/ProtectedRoute'
 import { ContentProtectedRoute } from './lib/ContentProtectedRoute'
+import { LiveContentGate } from './lib/LiveContentGate'
 import { ErrorBoundary } from './lib/ErrorBoundary'
 import { loadLiveContent } from './lib/liveContent'
 import PageLoader from './pages/components/AppLoader'
@@ -12,6 +13,7 @@ import './styles/style.css'
 // Lazy load all pages — they'll only load when the user actually visits them,
 // which makes the very first load of the site much faster.
 const LoginPage = lazy(() => import('./pages/LoginPage'))
+const ProfileSetupPage = lazy(() => import('./pages/ProfileSetupPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const AppPage = lazy(() => import('./pages/AppPage'))
 const AnalyserPage = lazy(() => import('./pages/AnalyserPage'))
@@ -53,6 +55,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={withBoundary(<PageTransition><LoginPage /></PageTransition>)} />
       <Route path="/sso-callback" element={withBoundary(<PageTransition><SsoCallbackPage /></PageTransition>)} />
+      <Route path="/complete-profile" element={withBoundary(<PageTransition><ProtectedRoute allowIncompleteProfile><LiveContentGate><ProfileSetupPage /></LiveContentGate></ProtectedRoute></PageTransition>)} />
       <Route path="/dashboard" element={withBoundary(<ContentProtectedRoute><DashboardPage /></ContentProtectedRoute>)} />
       <Route path="/app" element={withBoundary(<PageTransition><ContentProtectedRoute><AppPage /></ContentProtectedRoute></PageTransition>)} />
       <Route path="/analyser" element={withBoundary(<PageTransition><ContentProtectedRoute><AnalyserPage /></ContentProtectedRoute></PageTransition>)} />

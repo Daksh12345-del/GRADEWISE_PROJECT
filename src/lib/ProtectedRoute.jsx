@@ -15,16 +15,21 @@ import { useAuthUser } from './useAuthUser'
 //   'unauthenticated' -> redirect to '/' (login)
 //   'authenticated'   -> render the wrapped page
 //
-// (There used to be an intermediate "complete your profile"
-// college/branch/semester step gating this — that step has been removed,
-// so authenticated users go straight to the page they asked for.)
-export function ProtectedRoute({ children }) {
+//   'authenticated' but no university/college/branch yet (typical for a first
+//                       Google/GitHub sign-in) -> redirect to /complete-profile,
+//                       so every student's university is known before they see
+//                       any grades (the university decides the grading system).
+//                       The /complete-profile route itself passes
+//                       `allowIncompleteProfile`.
+export function ProtectedRoute({ children, allowIncompleteProfile = false }) {
   const navigate = useNavigate()
-  const { status } = useAuthUser()
+  const { status, profileComplete } = useAuthUser()
+  const needsProfile = status === 'authenticated' && !profileComplete && !allowIncompleteProfile
 
   useEffect(() => {
     if (status === 'unauthenticated') navigate('/', { replace: true })
-  }, [status, navigate])
+    else if (needsProfile) navigate('/complete-profile', { replace: true })
+  }, [status, needsProfile, navigate])
 
   if (status === 'checking') {
     return (
@@ -37,7 +42,7 @@ export function ProtectedRoute({ children }) {
     )
   }
 
-  if (status === 'unauthenticated') return null
+  if (status === 'unauthenticated' || needsProfile) return null
 
   return children
 }

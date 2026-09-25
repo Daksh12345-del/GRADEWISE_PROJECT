@@ -2,23 +2,16 @@ import { SEMESTERS } from '../../lib/gradesData'
 import {
   calcAllSGPAs, calcCGPAWithBack, calcSGPAWithBack,
   getGrade, getGradeNoGrace, getGradeForInternalOnly,
+  gradeForCgpa, gradeVisual,
 } from '../../lib/gradesEngine'
 
 const BIG_CIRCUMFERENCE = 534 // matches r=85 SVG ring, same as original
 const BAR_COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#22d3ee', '#a78bfa']
 const JOURNEY_ICONS = ['🌱', '📖', '🔥', '💡', '🚀', '⚡', '🎯', '🏁']
-const GRADE_COLORS = { 'A+': '#06b6d4', 'A': '#8b5cf6', 'B+': '#818cf8', 'B': '#10b981', 'C': '#f59e0b', 'D': '#f97316', 'E#': '#fb923c', 'F': '#ef4444' }
-const GRADE_EMOJI = { 'A+': '🏆', 'A': '⭐', 'B+': '✅', 'B': '👍', 'C': '📚', 'D': '⚠️', 'E#': '🔶', 'F': '❌' }
-
+// Letters, colors and emoji all follow the ACTIVE university's grade scale.
 function cgpaGradeLabel(cgpa) {
-  if (cgpa === 0) return '–'
-  if (cgpa >= 9) return 'A+'
-  if (cgpa >= 8) return 'A'
-  if (cgpa >= 7) return 'B+'
-  if (cgpa >= 6) return 'B'
-  if (cgpa >= 5) return 'C'
-  if (cgpa >= 4) return 'D'
-  return 'F'
+  const g = gradeForCgpa(cgpa)
+  return g ? g.grade : '–'
 }
 
 // SVG line graph of SGPA across semesters — segments are colored green when
@@ -241,11 +234,11 @@ export default function CgpaPictograph({ marksData, backData, currentSemIndex })
             </div>
           ) : (
             gradeEntries.map(([grade, cnt]) => {
-              const color = GRADE_COLORS[grade] || '#64748b'
+              const color = gradeVisual(grade).color
               const dotCount = Math.min(cnt, 12)
               return (
                 <div className="picto-grade-block" key={grade}>
-                  <div className="pgb-grade" style={{ color }}>{GRADE_EMOJI[grade] || ''} {grade}</div>
+                  <div className="pgb-grade" style={{ color }}>{gradeVisual(grade).emoji} {grade}</div>
                   <div className="pgb-icons">
                     {Array.from({ length: dotCount }).map((_, i) => (
                       <div className="pgb-dot" style={{ background: color }} key={i} />
@@ -267,7 +260,7 @@ export default function CgpaPictograph({ marksData, backData, currentSemIndex })
             const s = allSGPAs[i]
             const isDone = s > 0
             const isActive = i === currentSemIndex
-            const g = isDone ? (s >= 9 ? 'A+' : s >= 8 ? 'A' : s >= 7 ? 'B+' : s >= 6 ? 'B' : s >= 5 ? 'C' : 'F') : '–'
+            const g = isDone ? cgpaGradeLabel(s) : '–'
             return (
               <div className={`journey-card ${isDone ? 'done' : ''} ${isActive ? 'active-sem' : ''}`} key={i}>
                 <div className="jc-sem">SEM {i + 1}</div>

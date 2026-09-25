@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSignIn, useSignUp, useUser } from '@clerk/clerk-react'
-import { COLLEGES_BY_CITY, BRANCHES } from '../lib/loginFormData'
+import { getUniversityOptions, getCollegesByCity, getBranches } from '../lib/universityDirectory'
+import { getSchemeSummary } from '../lib/schemes'
+import { useAuthUser } from '../lib/useAuthUser'
 import { loadLiveContent, getLiveContentStatus } from '../lib/liveContent'
 import { checkAndConsumeLoginAttempt } from '../lib/loginRateLimit'
 import Logo from './components/Logo'
@@ -20,9 +22,12 @@ export default function LoginPage() {
   // If we land here already signed in (e.g. back-button after login, or
   // bounced back from an OAuth redirect), skip straight to the dashboard
   // instead of showing the form again.
+  // Google/GitHub sign-ins have no university/college/branch yet, so they go
+  // through /complete-profile first (it forwards complete profiles onwards).
+  const { profileComplete } = useAuthUser()
   useEffect(() => {
-    if (userLoaded && isSignedIn) navigate('/dashboard')
-  }, [userLoaded, isSignedIn, navigate])
+    if (userLoaded && isSignedIn) navigate(profileComplete ? '/dashboard' : '/complete-profile')
+  }, [userLoaded, isSignedIn, profileComplete, navigate])
 
   const [contentLoading, setContentLoading] = useState(false)
 
@@ -58,7 +63,12 @@ export default function LoginPage() {
   const [banner, setBanner] = useState({ text: '', color: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const branchOptions = BRANCHES[course] || []
+  // University -> College -> Branch are dependent dropdowns, all read from
+  // Supabase (see universityDirectory.js). Colleges are limited to the chosen
+  // university (and degree); branches to what the chosen college offers.
+  const universityOptions = getUniversityOptions()
+  const collegeGroups = getCollegesByCity(university, course)
+  const branchOptions = getBranches(university, college, course)
 
   // Make sure the college/branch dropdown content (loaded from CMS) is
   // ready before the user can submit — it normally finishes well before
@@ -78,10 +88,24 @@ export default function LoginPage() {
     setBanner({ text: '', color: '' })
   }
 
+  function handleUniversityChange(value) {
+    setUniversity(value)
+    setCollege('') // college list belongs to the university
+    setBranch('')
+    clearFieldErr('university')
+  }
+
   function handleCourseChange(value) {
     setCourse(value)
-    setBranch('') // reset branch when course changes
+    setCollege('') // college list is filtered by degree
+    setBranch('')
     clearFieldErr('course')
+  }
+
+  function handleCollegeChange(value) {
+    setCollege(value)
+    setBranch('') // branches belong to the college
+    clearFieldErr('college')
   }
 
   async function doLogin() {
@@ -222,7 +246,15 @@ export default function LoginPage() {
         })
         if (attempt.status === 'complete') {
           await setActiveSignIn({ session: attempt.createdSessionId })
-          try { await window.Clerk?.user?.update({ unsafeMetadata: profileMetaRef.current }) } catch { /* non-fatal */ }
+          // Only fill in the profile if the account doesn't have one yet. A
+          // returning student's saved university/college/branch must not be
+          // silently replaced: the university selects their grading scheme.
+          try {
+            const m = window.Clerk?.user?.unsafeMetadata || {}
+            if (!(m.university && m.course && m.college && m.branch)) {
+              await window.Clerk?.user?.update({ unsafeMetadata: { ...m, ...profileMetaRef.current } })
+            }
+          } catch { /* non-fatal */ }
           setIsSubmitting(false)
           navigate('/dashboard')
           return
@@ -257,7 +289,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: window.location.origin + '/sso-callback',
-        redirectUrlComplete: window.location.origin + '/dashboard',
+        redirectUrlComplete: window.location.origin + '/complete-profile',
       })
     } catch (error) {
       setBanner({ text: '⚠️ Google sign-in failed: ' + (error?.errors?.[0]?.message || error.message), color: '' })
@@ -272,7 +304,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_github',
         redirectUrl: window.location.origin + '/sso-callback',
-        redirectUrlComplete: window.location.origin + '/dashboard',
+        redirectUrlComplete: window.location.origin + '/complete-profile',
       })
     } catch (error) {
       setBanner({ text: '⚠️ GitHub sign-in failed: ' + (error?.errors?.[0]?.message || error.message), color: '' })
@@ -404,14 +436,16 @@ export default function LoginPage() {
                       id="login-university"
                       className="compact-input form-select"
                       value={university}
-                      onChange={(e) => { setUniversity(e.target.value); clearFieldErr('university') }}
+                      onChange={(e) => handleUniversityChange(e.target.value)}
                       style={errors.university ? { borderColor: '#ef4444' } : undefined}
                       aria-required="true"
                       aria-invalid={!!errors.university}
                       aria-describedby="login-university-err"
                     >
                       <option value="">— Select —</option>
-                      <option value="AKTU">AKTU (Dr. APJ Abdul Kalam Technical University)</option>
+                      {universityOptions.map((u) => (
+                        <option value={u.code} key={u.code}>{u.label}</option>
+                      ))}
                     </select>
                     <div className="field-err" id="login-university-err">{errors.university}</div>
                   </div>
@@ -434,6 +468,12 @@ export default function LoginPage() {
                   </div>
                 </div>
 
+                {getSchemeSummary(university) && (
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', margin: '-4px 0 10px', lineHeight: 1.45 }}>
+                    📘 {getSchemeSummary(university)}
+                  </div>
+                )}
+
                 <div className="compact-row-2">
                   <div className="compact-group">
                     <label className="compact-label" htmlFor="login-college">College Name <span className="req">*</span></label>
@@ -441,14 +481,14 @@ export default function LoginPage() {
                       id="login-college"
                       className="compact-input form-select"
                       value={college}
-                      onChange={(e) => { setCollege(e.target.value); clearFieldErr('college') }}
+                      onChange={(e) => handleCollegeChange(e.target.value)}
                       style={errors.college ? { borderColor: '#ef4444' } : undefined}
                       aria-required="true"
                       aria-invalid={!!errors.college}
                       aria-describedby="login-college-err"
                     >
-                      <option value="">— Select College —</option>
-                      {COLLEGES_BY_CITY.map(({ city, colleges }) => (
+                      <option value="">{university ? '— Select College —' : '— Select University first —'}</option>
+                      {collegeGroups.map(({ city, colleges }) => (
                         <optgroup label={city} key={city}>
                           {colleges.map((c) => (
                             <option value={c} key={c}>{c}</option>
@@ -471,7 +511,7 @@ export default function LoginPage() {
                       aria-invalid={!!errors.branch}
                       aria-describedby="login-branch-err"
                     >
-                      <option value="">— Select Branch —</option>
+                      <option value="">{college ? '— Select Branch —' : '— Select College first —'}</option>
                       {branchOptions.map((b) => (
                         <option value={b} key={b}>{b}</option>
                       ))}

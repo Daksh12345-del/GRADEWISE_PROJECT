@@ -166,7 +166,7 @@ const bannerDismissStyle = {
 
 // Use as a dependency in useMemo/useEffect for any derived data built from
 // SEMESTERS / VIDEO_DATA / PYQ_LINKS / SUBJECT_NOTES / SUBJECT_KB /
-// COLLEGES_BY_CITY / BRANCHES / DOMAIN_GROUPS. By the time children render
+// UNIVERSITY_DIRECTORY / DOMAIN_GROUPS. By the time children render
 // under the gate, this is already the "ready" version, but pages that
 // memoize derived data still need it as a dep so they recompute on retry.
 export function useLiveContentVersion() {

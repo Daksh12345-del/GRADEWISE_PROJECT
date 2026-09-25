@@ -1,12 +1,21 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SEMESTERS, GRADING } from '../../lib/gradesData'
-import { calcSGPA, calcAllSGPAs, calcCGPAWithBack, calcSGPAWithBack, isSemComplete, getSemCredits } from '../../lib/gradesEngine'
+import { calcSGPA, calcAllSGPAs, calcCGPAWithBack, calcSGPAWithBack, isSemComplete, getSemCredits, gradeVisual, getGradingLegend } from '../../lib/gradesEngine'
 import { useAuthUser } from '../../lib/useAuthUser'
 import { generateAndOpenReport } from '../../lib/exportReport'
 import { useLiveContentVersion } from '../../lib/LiveContentGate'
 
 const CIRCUMFERENCE = 232.5 // matches r=37 SVG ring, same as original
+
+// Legend chips shown in the "Grading System" panel — follows the ACTIVE
+// university's scale (letters, ranges and points all come from GRADING).
+function gradingChips() {
+  return getGradingLegend().map((row) => ({
+    letter: row.letter, range: row.range, pts: row.points,
+    color: gradeVisual(row.letter).color,
+  }))
+}
 
 function generateInsights(sgpa, cgpa, allSGPAs) {
   const insights = []
@@ -25,21 +34,10 @@ function generateInsights(sgpa, cgpa, allSGPAs) {
   if (sgpa > 0 && sgpa < cgpa - 0.3) insights.push({ color: '#ef4444', msg: '📉 Current semester SGPA is lower than your CGPA. Pick up the pace!' })
   if (sgpa > 0 && sgpa > cgpa + 0.3) insights.push({ color: '#10b981', msg: '📈 Current semester SGPA is higher than average — great improvement!' })
 
-  if (filledSems === 8) insights.push({ color: '#06b6d4', msg: `🎓 All 8 semesters complete! Final CGPA: ${cgpa.toFixed(2)}` })
+  if (SEMESTERS.length > 0 && filledSems === SEMESTERS.length) insights.push({ color: '#06b6d4', msg: `🎓 All ${SEMESTERS.length} semesters complete! Final CGPA: ${cgpa.toFixed(2)}` })
 
   return insights
 }
-
-const GRADING_CHIPS = [
-  { cls: 'g-o', letter: 'A+', range: '90–100', pts: 10 },
-  { cls: 'g-a', letter: 'A', range: '80–89', pts: 9 },
-  { cls: 'g-bp', letter: 'B+', range: '70–79', pts: 8 },
-  { cls: 'g-b', letter: 'B', range: '60–69', pts: 7 },
-  { cls: 'g-c', letter: 'C', range: '50–59', pts: 6 },
-  { cls: 'g-d', letter: 'D', range: '40–49', pts: 5 },
-  { cls: 'g-e', letter: 'E#', range: 'Grace', pts: 0 },
-  { cls: 'g-f', letter: 'F', range: '<40', pts: 0 },
-]
 
 function rankFor(cgpa) {
   if (cgpa === 0) return { label: '–', color: 'var(--text-dim)' }
@@ -83,7 +81,7 @@ function TargetPlanner({ marksData, backData, semestersDone, creditsEarned, curr
         cls: 'achievable',
         icon: '🎯',
         needed: targetCGPA.toFixed(2),
-        sems: 'Across all 8 semesters',
+        sems: `Across all ${totalSems} semesters`,
         msg: `Maintain an SGPA of ${targetCGPA.toFixed(2)} every semester to reach CGPA ${targetCGPA.toFixed(2)}.`,
       }
     }
@@ -472,9 +470,9 @@ export default function RightPanel({ marksData, backData, currentSemIndex, semes
           {gradingOpen && (
             <div style={{ marginTop: '0.8rem' }}>
               <div className="grading-compact">
-                {GRADING_CHIPS.map((g) => (
-                  <div className={`grade-chip ${g.cls}`} key={g.letter}>
-                    <span className="grade-chip-letter">{g.letter}</span>
+                {gradingChips().map((g) => (
+                  <div className="grade-chip" key={g.letter}>
+                    <span className="grade-chip-letter" style={{ color: g.color }}>{g.letter}</span>
                     <span className="grade-chip-range">{g.range}</span>
                     <span className="grade-chip-pts">{g.pts}</span>
                   </div>

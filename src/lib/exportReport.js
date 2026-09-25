@@ -1,24 +1,29 @@
-import { SEMESTERS } from './gradesData'
+import { SEMESTERS, GRADE_RULES, SCHEME_INFO } from './gradesData'
 import {
   getTotal, getGrade, getGradeNoGrace, getGradeForInternalOnly,
   calcSGPA, calcSGPAWithBack, calcCGPAWithBack, calcCGPA,
+  gradeVisual, gradeForCgpa, getGradingLegend,
 } from './gradesEngine'
 import { REPORT_FAVICON_DATA_URI, REPORT_LOGO_DATA_URI } from './exportAssets'
 
-const GRADE_COLORS = { 'A+': '#0284c7', 'A': '#7c3aed', 'B+': '#4f46e5', 'B': '#059669', 'C': '#d97706', 'D': '#ea580c', 'E#': '#c2410c', 'F': '#dc2626' }
+// Report colors, grade scale and (below) title/labels all follow the ACTIVE
+// university's scheme (SCHEME_INFO / GRADE_RULES / GRADING), so a GGSIPU
+// student's PDF shows GGSIPU's letters and grace rule, not AKTU's.
+function gradeColorFor(grade) { return gradeVisual(grade).report }
 
-// Graced total for E# subjects — same rule as the live grade engine
-// (deficit capped at 7 marks, only applies to Theory/Elective). Kept local
-// to the report since nothing else needs the raw graced total value.
+// Graced total — only applies to universities whose scheme has `rules.grace`
+// (AKTU). Kept local to the report since nothing else needs the raw graced
+// total value.
 function effectiveTotalFor(entry, subj) {
   const total = getTotal(entry)
   if (total === null) return null
-  if (subj.type !== 'Theory' && subj.type !== 'Elective') return total
+  const graceRule = GRADE_RULES.grace
+  if (!graceRule || (subj.type !== 'Theory' && subj.type !== 'Elective')) return total
   const ext = typeof entry === 'object' ? parseFloat(entry.external) : NaN
-  if (isNaN(ext) || ext >= 21) return total
-  const deficit = 40 - total
+  if (isNaN(ext) || ext >= graceRule.externalBelow) return total
+  const deficit = graceRule.passTotal - total
   if (deficit <= 0) return total
-  const grace = Math.min(deficit, 7)
+  const grace = Math.min(deficit, graceRule.maxGrace)
   return total + grace
 }
 
@@ -75,7 +80,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
         ? `${effTotal}*`
         : hasValidBack ? (backTotal !== null ? backTotal : total !== null ? total : '–') : (total !== null ? total : '–')
 
-      const gradeColor = effectiveGrade ? (GRADE_COLORS[effectiveGrade.grade] || '#374151') : '#6b7280'
+      const gradeColor = effectiveGrade ? gradeColorFor(effectiveGrade.grade) : '#6b7280'
 
       let rowBg = '#ffffff'
       if (hasValidBack) {
@@ -142,7 +147,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
 
   const sgpaBars = allSGPAs.map((s, i) => {
     if (s === 0) return ''
-    const barColor = s >= 9 ? '#0284c7' : s >= 8 ? '#7c3aed' : s >= 7 ? '#059669' : s >= 6 ? '#d97706' : '#dc2626'
+    const barColor = gradeColorFor(gradeForCgpa(s)?.grade)
     const barWidth = Math.round((s / 10) * 100)
     return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
       <div style="width:55px;font-size:13px;color:#1f2937;font-family:'Courier New',monospace;flex-shrink:0;font-weight:700;">Sem ${i + 1}</div>
@@ -153,26 +158,23 @@ export function generateAndOpenReport(marksData, backData, profile) {
     </div>`
   }).join('')
 
-  const gradingLegend = [
-    { range: '90–100', g: 'A+', c: '#0284c7', pts: 10 },
-    { range: '80–89', g: 'A', c: '#7c3aed', pts: 9 },
-    { range: '70–79', g: 'B+', c: '#4f46e5', pts: 8 },
-    { range: '60–69', g: 'B', c: '#059669', pts: 7 },
-    { range: '50–59', g: 'C', c: '#d97706', pts: 6 },
-    { range: '40–49', g: 'D', c: '#ea580c', pts: 5 },
-    { range: 'Grace', g: 'E#', c: '#c2410c', pts: 0, note: 'full cr' },
-    { range: '< 40', g: 'F', c: '#dc2626', pts: 0, note: 'full cr' },
-  ].map((r) => `<div style="display:flex;align-items:center;gap:8px;background:${r.c}18;border:1.5px solid ${r.c}55;border-radius:8px;padding:7px 14px;">
-      <span style="font-family:'Courier New',monospace;font-size:15px;font-weight:900;color:${r.c};">${r.g}</span>
+  const gradingLegend = getGradingLegend().map((r) => {
+    const c = gradeColorFor(r.letter)
+    return `<div style="display:flex;align-items:center;gap:8px;background:${c}18;border:1.5px solid ${c}55;border-radius:8px;padding:7px 14px;">
+      <span style="font-family:'Courier New',monospace;font-size:15px;font-weight:900;color:${c};">${r.letter}</span>
       <span style="font-size:13px;color:#475569;font-weight:600;">${r.range}</span>
-      <span style="font-size:12px;color:#64748b;font-weight:700;">${r.pts}pts${r.note ? ' · ' + r.note : ''}</span>
-    </div>`).join('')
+      <span style="font-size:12px;color:#64748b;font-weight:700;">${r.points}pts${r.note ? ' · ' + r.note : ''}</span>
+    </div>`
+  }).join('')
+
+  const uniCode = profile.university || SCHEME_INFO.universityCode || 'University'
+  const branchLabel = (profile.branch || '').toString().toUpperCase() || 'ENGINEERING'
 
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AKTU CGPA Report – ${profile.name || 'Student'}</title>
+<title>${uniCode} CGPA Report – ${profile.name || 'Student'}</title>
 <link rel="icon" type="image/png" href="${REPORT_FAVICON_DATA_URI}">
 <style>
   @media print {
@@ -207,14 +209,14 @@ export function generateAndOpenReport(marksData, backData, profile) {
             <img src="${REPORT_LOGO_DATA_URI}" alt="Gradewallah" style="width:36px;height:36px;object-fit:contain;">
           </div>
           <div>
-            <div style="font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:#06b6d4;letter-spacing:3px;">AKTU CSE CGPA REPORT</div>
+            <div style="font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:#06b6d4;letter-spacing:3px;">${uniCode} ${branchLabel} CGPA REPORT</div>
             <div style="font-size:12px;color:#64748b;letter-spacing:1px;margin-top:2px;">Dr. A.P.J. Abdul Kalam Technical University</div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;">
           <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Student</span><br><span style="font-size:16px;font-weight:800;color:#111827;">${profile.name || '–'}</span></div>
           <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">College</span><br><span style="font-size:14px;color:#1f2937;font-weight:600;">${profile.college || '–'}</span></div>
-          <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">University</span><br><span style="font-size:14px;color:#1f2937;font-weight:600;">${profile.university || 'AKTU'}</span></div>
+          <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">University</span><br><span style="font-size:14px;color:#1f2937;font-weight:600;">${uniCode}</span></div>
           <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Email</span><br><span style="font-size:13px;color:#1f2937;font-weight:600;">${profile.email || '–'}</span></div>
           <div><span style="font-size:11px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Generated On</span><br><span style="font-size:13px;color:#1f2937;font-weight:600;">${dateStr}</span></div>
         </div>
@@ -244,7 +246,7 @@ export function generateAndOpenReport(marksData, backData, profile) {
   ${semesterSections || '<div style="color:#64748b;padding:2rem;text-align:center;">No marks entered yet.</div>'}
 
   <div style="text-align:center;padding:20px;border-top:1px solid #e5e7eb;margin-top:10px;">
-    <div style="font-family:'Courier New',monospace;font-size:10px;color:#6b7280;letter-spacing:2px;">GENERATED BY AKTU CSE CGPA CALCULATOR · ${dateStr}</div>
+    <div style="font-family:'Courier New',monospace;font-size:10px;color:#6b7280;letter-spacing:2px;">GENERATED BY GRADEWALLAH · ${dateStr}</div>
   </div>
 
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;margin-top:8px;border-top:1px solid #cbd5e1;">
