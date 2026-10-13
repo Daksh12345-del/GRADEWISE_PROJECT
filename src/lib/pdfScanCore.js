@@ -20,12 +20,12 @@
 // ── Line grouping ──
 // O(tokens × lines-seen-so-far) per page — the actual hot loop for a
 // dense, many-row result table.
-export function groupIntoLines(items) {
+export function groupIntoLines(items, tol = 2) {
   const lines = []
   items.forEach((tok) => {
     let found = false
     for (const ln of lines) {
-      if (Math.abs(ln.y - tok.y) <= 2) {
+      if (Math.abs(ln.y - tok.y) <= tol) {
         ln.tokens.push(tok)
         ln.y = (ln.y + tok.y) / 2
         found = true
@@ -102,7 +102,7 @@ export function buildCodeIndex(semesters) {
 // grouping happens here (see groupIntoLines above), inside whichever
 // thread this function is called from.
 export function parseMarksFromPages(rawPages, semesters) {
-  const pages = rawPages.map((p) => ({ ...p, lines: groupIntoLines(p.items) }))
+  const pages = rawPages.map((p) => ({ ...p, lines: groupIntoLines(p.items, p.lineTol || 2) }))
   const codeIdx = buildCodeIndex(semesters)
   const bestResult = new Map()
   const CODE_RE = /^([A-Z]{2,5})-?(\d{3,4}[A-Z]?)$/
