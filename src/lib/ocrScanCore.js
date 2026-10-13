@@ -28,6 +28,13 @@ const STAR_LIKE = /^[*%xX#+\u00b0\u2022\u00a4]$/
 export function fixOcrToken(text) {
   let t = text.trim()
 
+  // Leftover scraps of a ruled line can stay glued to either end of a token
+  // ("BAS301_", "_47", "46."), which would stop the code lookup / number match.
+  // Strip them — hyphens are kept ("--" is the empty back-paper cell, and
+  // codes may legitimately be written "BCS-301").
+  const trimmed = t.replace(/^[_.,:;'"`~]+/, '').replace(/[_.,:;'"`~]+$/, '')
+  if (trimmed) t = trimmed
+
   const c = CODE_LIKE.exec(t)
   if (c && /[0-9]/.test(c[2])) {
     const digits = c[2].replace(/[OoIl|S]/g, (ch) => DIGIT_FIX[ch])
