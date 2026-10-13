@@ -218,9 +218,12 @@ async function decodeImage(file) {
 }
 
 // Returns a canvas ready for OCR: ~2000px wide, grayscale, evenly lit, with
-// the table grid removed.
-async function prepareImageForOcr(file) {
-  const bmp = await decodeImage(file)
+// the table grid removed. `source` is an image File, or an already-rendered
+// <canvas> (used for PDFs that have no text layer — see renderPdfPagesToCanvases).
+async function prepareImageForOcr(source) {
+  const bmp = typeof HTMLCanvasElement !== 'undefined' && source instanceof HTMLCanvasElement
+    ? source
+    : await decodeImage(source)
   const srcW = bmp.width
   const srcH = bmp.height
   const scale = Math.min(OCR_TARGET_WIDTH / srcW, OCR_MAX_HEIGHT / srcH)
@@ -251,7 +254,42 @@ async function prepareImageForOcr(file) {
   return canvas
 }
 
-async function extractRawTokensFromImages(files, onProgress) {
+// ── PDF without a text layer → page images ───────────────────
+// "Microsoft Print to PDF" (and screenshots saved as PDF) produce pages made
+// of drawn shapes/pictures with no text for PDF.js to read. Render each page
+// to a canvas instead, then let the OCR pipeline below read it exactly like a
+// screenshot. Page size is chosen so the canvas is ~OCR_TARGET_WIDTH wide.
+const MAX_OCR_PDF_PAGES = 12
+
+async function renderPdfPagesToCanvases(file) {
+  await loadPdfJs()
+  const buf = await file.arrayBuffer()
+  const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise
+  const canvases = []
+  const pageCount = Math.min(pdf.numPages, MAX_OCR_PDF_PAGES)
+
+  for (let p = 1; p <= pageCount; p++) {
+    const page = await pdf.getPage(p)
+    const base = page.getViewport({ scale: 1 })
+    const scale = Math.min(OCR_TARGET_WIDTH / base.width, OCR_MAX_HEIGHT / base.height)
+    const viewport = page.getViewport({ scale })
+
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(viewport.width))
+    canvas.height = Math.max(1, Math.round(viewport.height))
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    // PDF pages are transparent by default; OCR needs black text on white.
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    await page.render({ canvasContext: ctx, viewport }).promise
+    canvases.push(canvas)
+  }
+  return canvases
+}
+
+// `sources` is an array of image Files and/or rendered <canvas> pages.
+async function extractRawTokensFromImages(sources, onProgress) {
+  const files = sources
   await loadTesseract()
   onProgress?.('🔤 Loading text reader (first time can take a few seconds)…')
   let current = ''
@@ -267,7 +305,8 @@ async function extractRawTokensFromImages(files, onProgress) {
     // PSM 6 = "single uniform block of text" — best for a ruled table.
     await worker.setParameters({ tessedit_pageseg_mode: '6' })
     for (let i = 0; i < files.length; i++) {
-      current = `🔍 Reading image ${i + 1} of ${files.length}…`
+      const isCanvas = typeof HTMLCanvasElement !== 'undefined' && files[i] instanceof HTMLCanvasElement
+      current = `🔍 Reading ${isCanvas ? 'page' : 'image'} ${i + 1} of ${files.length}…`
       onProgress?.(current)
       const canvas = await prepareImageForOcr(files[i])
       const { data } = await worker.recognize(canvas)
@@ -310,17 +349,25 @@ export async function scanResultPdf(fileOrFiles, semFilter = -1, onProgress) {
   const rawPages = await extractRawPositionalTokens(file)
 
   // A PDF made with a "print to image" driver (e.g. Windows "Microsoft Print
-  // to PDF", or a screenshot/photo saved as PDF) contains only a picture of
-  // the page — there is no text layer at all, so there is nothing to parse.
-  // Say exactly that and how to fix it, instead of the generic error below.
+  // to PDF", or a screenshot/photo saved as PDF) has no text layer at all —
+  // the page is drawn shapes/pictures, so there is nothing for PDF.js to
+  // extract. Instead of giving up, render the pages to images and read them
+  // with OCR, the same way a screenshot upload is handled.
   const totalTokens = rawPages.reduce((n, p) => n + p.items.length, 0)
   if (totalTokens < 20) {
-    throw new Error(
-      "This PDF is just a picture of the page — it has no readable text, so marks can't be extracted. " +
-      'This usually happens when you save with "Microsoft Print to PDF". On the AKTU portal click ' +
-      '"Print One View", then in the print window set Destination to "Save as PDF" ' +
-      '(the Chrome/Edge built-in option, NOT "Microsoft Print to PDF") and upload that file.'
-    )
+    onProgress?.('📄 This PDF has no text layer — reading it as an image…')
+    let canvases
+    try {
+      canvases = await renderPdfPagesToCanvases(file)
+    } catch {
+      throw new Error(
+        "This PDF is just a picture of the page and couldn't be opened for reading. " +
+        'On the AKTU portal click "Print One View", then in the print window set Destination to ' +
+        '"Save as PDF" (the Chrome/Edge built-in option, NOT "Microsoft Print to PDF") and upload that file, ' +
+        'or upload a screenshot of the result table instead.'
+      )
+    }
+    return scanResultImages(canvases, semFilter, onProgress, true)
   }
 
   // Structured-clone-safe snapshot of SEMESTERS: the worker has its own
@@ -370,7 +417,9 @@ export async function scanResultPdf(fileOrFiles, semFilter = -1, onProgress) {
   return extracted
 }
 
-async function scanResultImages(files, semFilter, onProgress) {
+// `files` is image Files and/or rendered PDF-page canvases. `fromPdf` only
+// changes the wording of the failure message.
+async function scanResultImages(files, semFilter, onProgress, fromPdf = false) {
   const rawPages = await extractRawTokensFromImages(files, onProgress)
   onProgress?.('🔍 Scanning result table for marks…')
 
@@ -384,8 +433,12 @@ async function scanResultImages(files, semFilter, onProgress) {
 
   if (kept.length === 0) {
     throw new Error(
-      "Couldn't read marks from the image. Use a clear, straight, full-width screenshot of the " +
-      '"Print One View" result table (no glare, no tilt, whole table visible), or upload the PDF instead.' +
+      (fromPdf
+        ? "This PDF is only a picture of the page, and the marks couldn't be read from it. " +
+          'Save the result with "Save as PDF" (Chrome/Edge built-in, NOT "Microsoft Print to PDF") from the ' +
+          '"Print One View" page, or upload a clear full-width screenshot of the result table.'
+        : "Couldn't read marks from the image. Use a clear, straight, full-width screenshot of the " +
+          '"Print One View" result table (no glare, no tilt, whole table visible), or upload the PDF instead.') +
       (dropped.length ? ` (${dropped.length} row(s) were found but too unclear to trust.)` : '') +
       buildScanDebug(rawPages, semesters)
     )
