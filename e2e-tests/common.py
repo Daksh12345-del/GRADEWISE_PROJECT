@@ -346,72 +346,103 @@ def assert_no_unexpected_console_errors(test_case, driver, extra_allowed=()):
     test_case.assertEqual(unexpected, [], f"Unexpected console errors: {unexpected}")
 
 
-def sign_up(driver):
-    """Runs the real Clerk sign-up flow end to end. Leaves the browser on
-    /dashboard when done.
+def _page_error_text(driver):
+    """Best-effort grab of whatever error/banner text is on screen."""
+    try:
+        return driver.execute_script(
+            "const q=s=>[...document.querySelectorAll(s)].map(e=>e.innerText.trim()).filter(Boolean);"
+            "return q('.field-err, [role=alert], .banner, .login-banner, .auth-banner').join(' | ');"
+        ) or ""
+    except Exception:  # noqa: BLE001
+        return ""
 
-    Login is a single-step, passwordless form — fill the six visible
-    fields (name/email/university/course/college/branch) and click
-    Continue to trigger Clerk sign-up directly, swapping step-1's own
-    content over to the verification-code input in place (no separate
-    "step-2" panel). Once that code is confirmed, ProtectedRoute sends
-    the browser straight to /dashboard — there's no additional
-    "complete your profile" step (isProfileComplete() in useAuthUser.js
-    only requires the fields this form actually collects).
-    """
+
+def _sign_up_once(driver):
+    """One attempt at the Clerk sign-up flow. Raises RuntimeError with a
+    clear reason (and saves a screenshot) if it doesn't end on /dashboard."""
     testing_token = get_clerk_testing_token()
     driver.get(f"{BASE_URL}/?__clerk_testing_token={testing_token}")
-    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "login-course")))
+    WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.ID, "login-course")))
 
     driver.find_element(By.ID, "login-name").send_keys(TEST_NAME)
     driver.find_element(By.ID, "login-email").send_keys(TEST_EMAIL)
     Select(driver.find_element(By.ID, "login-university")).select_by_value("AKTU")
     Select(driver.find_element(By.ID, "login-course")).select_by_value("B.Tech")
 
-    # College/branch options load at runtime from the CMS — wait for them
-    # to populate before selecting, same as test_login.py.
     college_select = Select(driver.find_element(By.ID, "login-college"))
-    WebDriverWait(driver, 10).until(lambda d: len(college_select.options) > 1)
+    WebDriverWait(driver, 20).until(lambda d: len(college_select.options) > 1)
     college_select.select_by_index(1)
 
     branch_select = Select(driver.find_element(By.ID, "login-branch"))
-    WebDriverWait(driver, 10).until(lambda d: len(branch_select.options) > 1)
+    WebDriverWait(driver, 20).until(lambda d: len(branch_select.options) > 1)
     branch_select.select_by_index(1)
 
     send_time = time.time()
     driver.find_element(By.XPATH, '//button[contains(text(),"Continue")]').click()
 
+    # Wait for EITHER the code box OR an already-signed-in /dashboard.
+    # (Old code waited 8s, silently swallowed the timeout, assumed
+    # "no verification needed", then died 30s later with an empty
+    # TimeoutException. 8s is too short when Clerk is slow/rate-limited.)
+    def _next_state(d):
+        if "/dashboard" in d.current_url:
+            return "dashboard"
+        if d.find_elements(By.ID, "login-verification") and d.find_element(By.ID, "login-verification").is_displayed():
+            return "code"
+        if "auth error" in _page_error_text(d).lower() or "too many" in _page_error_text(d).lower():
+            return "error"
+        return False
+
     try:
-        WebDriverWait(driver, 8).until(EC.visibility_of_element_located((By.ID, "login-verification")))
+        state = WebDriverWait(driver, 40, poll_frequency=0.5).until(_next_state)
     except Exception:
-        pass  # no verification step required by this Clerk instance — already signed in
-    else:
-        # A verification step DID appear. Priority: explicit manual
-        # override > "+clerk_test" fixed code > real code fetched from the
-        # actual test inbox over IMAP (the production path).
+        state = "timeout"
+
+    if state == "code":
         code = TEST_VERIFICATION_CODE or fetch_verification_code(TEST_EMAIL, send_time)
         driver.find_element(By.ID, "login-verification").send_keys(code)
         driver.find_element(By.XPATH, '//button[contains(text(),"Confirm & Launch")]').click()
+    elif state in ("error", "timeout"):
+        driver.save_screenshot(str(SCREENSHOT_DIR / f"signup_no_code_step_{int(time.time())}.png"))
+        raise RuntimeError(
+            f"Sign-up never reached the verification step (state={state}). "
+            f"Page said: {_page_error_text(driver)!r}. URL: {driver.current_url}"
+        )
 
     try:
         WebDriverWait(driver, 30).until(EC.url_contains("/dashboard"))
     except Exception:
-        # CI is occasionally slow to complete the post-verification redirect.
-        # If we're still on the verification UI, re-submit once and wait a
-        # bit longer before treating it as a hard failure.
-        verification_boxes = driver.find_elements(By.ID, "login-verification")
-        if verification_boxes and verification_boxes[0].is_displayed():
-            confirm_buttons = driver.find_elements(By.XPATH, '//button[contains(text(),"Confirm & Launch")]')
-            if confirm_buttons:
-                confirm_buttons[0].click()
-                WebDriverWait(driver, 20).until(EC.url_contains("/dashboard"))
-                return
-        # Capture what's actually on screen when this fails, instead of just
-        # a bare TimeoutException with no clue what page we were stuck on.
-        driver.save_screenshot(str(SCREENSHOT_DIR / "signup_failure_final_state.png"))
+        driver.save_screenshot(str(SCREENSHOT_DIR / f"signup_failure_final_state_{int(time.time())}.png"))
         with open(SCREENSHOT_DIR / "signup_failure_page_source.html", "w") as f:
             f.write(driver.page_source)
-        raise
+        raise RuntimeError(
+            f"Entered code but never reached /dashboard. Page said: "
+            f"{_page_error_text(driver)!r}. URL: {driver.current_url}"
+        )
+
+
+def sign_up(driver, attempts=3):
+    """Runs the real Clerk sign-up flow, retrying on transient failures
+    (Clerk slow / rate-limited after several back-to-back sign-ups).
+    Each retry uses a brand new email address, since the previous one may
+    be half-registered. Leaves the browser on /dashboard when done."""
+    global TEST_EMAIL
+    last = None
+    for i in range(1, attempts + 1):
+        try:
+            _sign_up_once(driver)
+            return
+        except Exception as e:  # noqa: BLE001
+            last = e
+            print(f"[sign_up] attempt {i}/{attempts} failed: {e}", flush=True)
+            if i == attempts:
+                break
+            # fresh address for the retry, then back off before trying again
+            local, domain = _raw_email.split("@", 1)
+            TEST_EMAIL = f"{local}+{_RUN_SUFFIX}r{i}{random.randint(100, 999)}@{domain}"
+            driver.delete_all_cookies()
+            time.sleep(10 * i)
+    raise last
 
 
 class AuthenticatedPageTest(unittest.TestCase):
