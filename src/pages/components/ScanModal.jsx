@@ -13,21 +13,23 @@ export default function ScanModal({ open, onClose }) {
   const { user } = useAuthUser()
   const setUserGroup = useSetUserGroup()
   const fileInputRef = useRef(null)
-  const [file, setFile] = useState(null)
+  const [files, setFiles] = useState([])
   const [semFilter, setSemFilter] = useState(-1)
   const [status, setStatus] = useState(null) // { type: 'loading'|'success'|'error', msg }
   const [results, setResults] = useState(null)
   const [detectedGroup, setDetectedGroup] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [ocrNotice, setOcrNotice] = useState(null) // { dropped: [{subjectCode, reason}] } when read from photos
   const [dragOver, setDragOver] = useState(false)
 
   if (!open) return null
 
   function reset() {
-    setFile(null)
+    setFiles([])
     setStatus(null)
     setResults(null)
     setDetectedGroup(null)
+    setOcrNotice(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -36,22 +38,35 @@ export default function ScanModal({ open, onClose }) {
     onClose()
   }
 
-  function handleFile(f) {
-    if (!f) return
-    setFile(f)
+  // One PDF, or one-or-more images (screenshots/photos) of the result sheet.
+  function handleFiles(list) {
+    const arr = Array.from(list || []).filter(Boolean)
+    if (arr.length === 0) return
+    const isImg = (f) => /^image\//.test(f.type || '') || /\.(png|jpe?g|webp|bmp)$/i.test(f.name || '')
+    const images = arr.filter(isImg)
+    // A PDF is always scanned on its own; images can be combined (a result
+    // sheet is often 2-3 screenshots tall).
+    setFiles(images.length === arr.length ? images : [arr.find((f) => !isImg(f))])
     setStatus(null)
     setResults(null)
+    setOcrNotice(null)
   }
 
   async function runScan() {
-    if (!file) {
+    if (files.length === 0) {
       setStatus({ type: 'error', msg: '⚠️ Please upload a result sheet first.' })
       return
     }
     setBusy(true)
-    setStatus({ type: 'loading', msg: '📄 Reading PDF layout…' })
+    setOcrNotice(null)
+    const fromImages = files.some((f) => /^image\//.test(f.type || '') || /\.(png|jpe?g|webp|bmp)$/i.test(f.name || ''))
+    setStatus({ type: 'loading', msg: fromImages ? '🖼️ Preparing image…' : '📄 Reading PDF layout…' })
     try {
-      const extracted = await scanResultPdf(file, semFilter)
+      const extracted = await scanResultPdf(
+        fromImages ? files : files[0],
+        semFilter,
+        (msg) => setStatus({ type: 'loading', msg })
+      )
       setStatus({ type: 'loading', msg: '🔍 Scanning result table for marks…' })
       const semsFound = [...new Set(extracted.map((r) => r.si + 1))]
       const semLabel = semsFound.length > 1 ? `Semesters ${semsFound.join(', ')}` : `Semester ${semsFound[0]}`
@@ -69,6 +84,7 @@ export default function ScanModal({ open, onClose }) {
         msg += ' ⚠️ Codes from both batch groups appeared — skipping group update, please double check this PDF.'
       }
       msg += ' Review below and click "Fill All Marks".'
+      if (extracted.viaOcr) setOcrNotice({ dropped: extracted.dropped || [] })
       setStatus({ type: 'success', msg })
     } catch (err) {
       setStatus({ type: 'error', msg: '❌ ' + (err.message || 'Something went wrong. Please try again.') })
@@ -82,8 +98,11 @@ export default function ScanModal({ open, onClose }) {
     // semFilter === -1 means "All Semesters" was scanned — treat the PDF as
     // the complete record and clear any semester it has no rows for, instead
     // of leaving old/stale data from before sitting in the account.
+    // Exception: a photo/screenshot may show only part of the sheet (e.g. the
+    // first of three pages), so its absence of a semester proves nothing —
+    // never clear other semesters' data based on an image scan.
     const { nextMarksData, nextBackData, nextElectiveChoices } = applyScannedResults(
-      results, grades.marksData, grades.backData, grades.electiveChoices, semFilter === -1
+      results, grades.marksData, grades.backData, grades.electiveChoices, semFilter === -1 && !results.viaOcr
     )
     grades.bulkApply(nextMarksData, nextBackData, nextElectiveChoices)
 
@@ -112,7 +131,7 @@ export default function ScanModal({ open, onClose }) {
             >✕</button>
           </div>
           <div className="scan-sub" style={{ marginBottom: 0 }}>
-            Upload your AKTU One View result PDF — marks are extracted and filled automatically
+            Upload your AKTU One View result PDF (or screenshots of it) — marks are extracted and filled automatically
           </div>
         </div>
 
@@ -125,27 +144,31 @@ export default function ScanModal({ open, onClose }) {
             onDrop={(e) => {
               e.preventDefault()
               setDragOver(false)
-              handleFile(e.dataTransfer.files[0])
+              handleFiles(e.dataTransfer.files)
             }}
           >
             <div className="scan-drop-icon">🖼️</div>
             <div className="scan-drop-text">
               <strong>Click to upload</strong> or drag & drop here<br />
-              PDF from AKTU One View portal recommended
+              PDF from AKTU One View portal recommended<br />
+              Screenshots / photos also work
             </div>
           </div>
           <input
             ref={fileInputRef}
             type="file"
-            accept="application/pdf"
+            accept="application/pdf,image/*"
+            multiple
             style={{ display: 'none' }}
-            onChange={(e) => handleFile(e.target.files[0])}
+            onChange={(e) => handleFiles(e.target.files)}
           />
 
-          {file && (
+          {files.length > 0 && (
             <div className="scan-preview-wrap show" style={{ display: 'flex' }}>
-              <span style={{ fontSize: '1.2rem' }}>📄</span>
-              <span className="scan-preview-name">{file.name}</span>
+              <span style={{ fontSize: '1.2rem' }}>{/^image\//.test(files[0].type || '') ? '🖼️' : '📄'}</span>
+              <span className="scan-preview-name">
+                {files.length === 1 ? files[0].name : `${files.length} images selected`}
+              </span>
               <span
                 className="scan-preview-remove"
                 onClick={reset}
@@ -172,6 +195,17 @@ export default function ScanModal({ open, onClose }) {
             <div className={`scan-status ${status.type}`}>{status.msg}</div>
           )}
 
+          {ocrNotice && (
+            <div className="scan-status error" style={{ marginTop: '0.6rem' }}>
+              📷 Read from an image, so a digit can occasionally be misread. Please compare each mark below with your result sheet before filling.
+              {ocrNotice.dropped.length > 0 && (
+                <> ⚠️ Couldn't read {ocrNotice.dropped.length} subject(s) clearly
+                  ({ocrNotice.dropped.slice(0, 8).map((d) => d.subjectCode).join(', ')}
+                  {ocrNotice.dropped.length > 8 ? ', …' : ''}) — they were skipped, please enter them manually.</>
+              )}
+            </div>
+          )}
+
           {results && results.length > 0 && (
             <div id="scanResultsArea" style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {results.map((r) => (
@@ -189,6 +223,9 @@ export default function ScanModal({ open, onClose }) {
                     </div>
                   </div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--cyan)', flexShrink: 0 }}>
+                    {results.viaOcr && r.internal !== null
+                      ? `${r.internal}${r.external !== null ? ` + ${r.external}` : ''} = `
+                      : ''}
                     {r.marks}{r.backPaper !== null ? ` (back: ${r.backPaper}*)` : ''}
                   </div>
                 </div>
