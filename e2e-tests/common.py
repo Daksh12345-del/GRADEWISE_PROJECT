@@ -341,6 +341,9 @@ def assert_no_unexpected_console_errors(test_case, driver, extra_allowed=()):
         # internal state check, not a real error (confirmed harmless: the
         # page loads and works fine despite it appearing every run).
         "client/sign_ins",
+        # Clerk rate-limits the "send email code" call on sign-up; the
+        # SDK handles it and the code still arrives. Not an app bug.
+        "prepare_verification",
     ) + tuple(extra_allowed)
     unexpected = [l for l in severe if not any(a in l["message"].lower() for a in allowed)]
     test_case.assertEqual(unexpected, [], f"Unexpected console errors: {unexpected}")
@@ -421,7 +424,7 @@ def _sign_up_once(driver):
         )
 
 
-def sign_up(driver, attempts=3):
+def sign_up(driver, attempts=1):
     """Runs the real Clerk sign-up flow, retrying on transient failures
     (Clerk slow / rate-limited after several back-to-back sign-ups).
     Each retry uses a brand new email address, since the previous one may
@@ -445,6 +448,29 @@ def sign_up(driver, attempts=3):
     raise last
 
 
+_SHARED = {"driver": None}
+
+
+def get_shared_driver():
+    """Signs up ONCE per Python process and reuses that browser/session for
+    every authenticated test class. Run all test files in ONE
+    `python3 -m unittest a b c ...` command so they share it. This turns
+    7 sign-ups (7 Clerk prepare_verification calls -> HTTP 429) into 1."""
+    if _SHARED["driver"] is None:
+        d = make_driver()
+        try:
+            sign_up(d)
+        except Exception:
+            d.quit()
+            raise
+        _SHARED["driver"] = d
+    return _SHARED["driver"]
+
+
+import atexit  # noqa: E402
+atexit.register(lambda: _SHARED["driver"] and _SHARED["driver"].quit())
+
+
 class AuthenticatedPageTest(unittest.TestCase):
     """Base class for any test file that needs a signed-in session.
     Subclass and set PATH + CHECK_SELECTOR; you get three tests for free:
@@ -465,12 +491,11 @@ class AuthenticatedPageTest(unittest.TestCase):
         # cleanly here instead of crashing on `BASE_URL + None`.
         if cls.PATH is None:
             raise unittest.SkipTest("AuthenticatedPageTest is an abstract base class, not a real test")
-        cls.driver = make_driver()
-        sign_up(cls.driver)
+        cls.driver = get_shared_driver()
 
     @classmethod
     def tearDownClass(cls):
-        cls.driver.quit()
+        pass  # shared driver is closed once at process exit (atexit above)
 
     def _goto_page(self):
         self.driver.get(BASE_URL + self.PATH)
