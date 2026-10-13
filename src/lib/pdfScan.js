@@ -16,7 +16,7 @@
 
 import { SEMESTERS } from './gradesData'
 import { CODE_TO_GROUP } from './batchGroups'
-import { parseMarksFromPages, detectBatchGroupCore } from './pdfScanCore'
+import { parseMarksFromPages, detectBatchGroupCore, buildCodeIndex } from './pdfScanCore'
 
 let pdfJsReady = false
 function loadPdfJs() {
@@ -155,6 +155,25 @@ export function detectBatchGroup(scanned) {
   return detectBatchGroupCore(scanned, CODE_TO_GROUP)
 }
 
+// Tells us WHY a scan found nothing (shown at the end of the error message).
+//   tokens=0                  -> PDF is a scanned image, no text layer
+//   curriculumCodes=0         -> live curriculum (Supabase) not loaded yet
+//   codesInPdf=0, tokens>0    -> layout changed (code+name merged in 1 token)
+//   matched=0, unmatched=...  -> PDF subject codes aren't in this account's
+//                                university/course/branch/scheme curriculum
+function buildScanDebug(rawPages, semesters) {
+  const CODE_RE = /^([A-Z]{2,5})-?(\d{3,4}[A-Z]?)$/
+  const idx = buildCodeIndex(semesters)
+  const tokens = rawPages.flatMap((p) => p.items.map((it) => it.text))
+  const found = [...new Set(
+    tokens.map((t) => t.toUpperCase().replace(/-/g, '')).filter((t) => CODE_RE.test(t))
+  )]
+  const unmatched = found.filter((c) => !idx.has(c))
+  return ` [debug: pages=${rawPages.length} tokens=${tokens.length} curriculumCodes=${idx.size}` +
+    ` codesInPdf=${found.length} matched=${found.length - unmatched.length}` +
+    ` unmatched=${unmatched.slice(0, 12).join(',')}]`
+}
+
 // ── Public API ────────────────────────────────────────────────
 export async function scanResultPdf(file, semFilter = -1) {
   if (!file) throw new Error('Please choose a result-sheet PDF first.')
@@ -163,6 +182,20 @@ export async function scanResultPdf(file, semFilter = -1) {
   }
 
   const rawPages = await extractRawPositionalTokens(file)
+
+  // A PDF made with a "print to image" driver (e.g. Windows "Microsoft Print
+  // to PDF", or a screenshot/photo saved as PDF) contains only a picture of
+  // the page — there is no text layer at all, so there is nothing to parse.
+  // Say exactly that and how to fix it, instead of the generic error below.
+  const totalTokens = rawPages.reduce((n, p) => n + p.items.length, 0)
+  if (totalTokens < 20) {
+    throw new Error(
+      "This PDF is just a picture of the page — it has no readable text, so marks can't be extracted. " +
+      'This usually happens when you save with "Microsoft Print to PDF". On the AKTU portal click ' +
+      '"Print One View", then in the print window set Destination to "Save as PDF" ' +
+      '(the Chrome/Edge built-in option, NOT "Microsoft Print to PDF") and upload that file.'
+    )
+  }
 
   // Structured-clone-safe snapshot of SEMESTERS: the worker has its own
   // module graph and can't see the live, Supabase-populated array that
@@ -204,7 +237,8 @@ export async function scanResultPdf(file, semFilter = -1) {
     throw new Error(
       'No subject marks found in this PDF. Make sure you uploaded the result sheet ' +
         '(not fee receipt / admit card) from AKTU One View.' +
-        (semFilter !== -1 ? ' Also try switching the semester filter to "All Semesters".' : '')
+        (semFilter !== -1 ? ' Also try switching the semester filter to "All Semesters".' : '') +
+        buildScanDebug(rawPages, semesters)
     )
   }
   return extracted
