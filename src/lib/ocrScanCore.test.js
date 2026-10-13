@@ -17,6 +17,11 @@ describe('fixOcrToken', () => {
     expect(fixOcrToken('37%')).toBe('37*')
     expect(fixOcrToken('2O')).toBe('20')
   })
+  it('strips stray underscore/dot scraps from the ends of codes and marks', () => {
+    expect(fixOcrToken('BAS301_')).toBe('BAS301')
+    expect(fixOcrToken('_47')).toBe('47')
+    expect(fixOcrToken('46.')).toBe('46')
+  })
   it('leaves ordinary words and real 3-digit marks alone', () => {
     for (const w of ['Engineering', 'Theory', 'Practical', '--', '100', 'A+']) expect(fixOcrToken(w)).toBe(w)
   })
