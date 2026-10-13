@@ -14,9 +14,10 @@
 // (scanResultPdf / applyScannedResults / detectBatchGroup) is unchanged.
 // ============================================================
 
-import { SEMESTERS } from './gradesData'
+import { SEMESTERS, GRADE_RULES } from './gradesData'
 import { CODE_TO_GROUP } from './batchGroups'
 import { parseMarksFromPages, detectBatchGroupCore, buildCodeIndex } from './pdfScanCore'
+import { ocrWordsToRawPage, removeTableLines, flattenBackground, filterSuspiciousOcrRows } from './ocrScanCore'
 
 let pdfJsReady = false
 function loadPdfJs() {
@@ -174,11 +175,136 @@ function buildScanDebug(rawPages, semesters) {
     ` unmatched=${unmatched.slice(0, 12).join(',')}]`
 }
 
+// ── Photo / screenshot support (OCR) ─────────────────────────
+// For images instead of a PDF: clean the picture (even out lighting, remove
+// the table's ruled lines), run Tesseract OCR in the browser, then feed the
+// recognised words — with their positions — through the SAME column parser
+// the PDF path uses. See ocrScanCore.js for the pure helpers.
+const TESSERACT_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js'
+let tesseractLoading = null
+function loadTesseract() {
+  if (window.Tesseract) return Promise.resolve()
+  if (tesseractLoading) return tesseractLoading
+  tesseractLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script')
+    s.src = TESSERACT_URL
+    s.onload = () => resolve()
+    s.onerror = () => {
+      tesseractLoading = null
+      reject(new Error('Failed to load the photo-reading library. Check your network connection.'))
+    }
+    document.head.appendChild(s)
+  })
+  return tesseractLoading
+}
+
+const OCR_TARGET_WIDTH = 2000
+const OCR_MAX_HEIGHT = 6000 // keeps the canvas under mobile browsers' size limits
+
+async function decodeImage(file) {
+  if (typeof createImageBitmap === 'function') {
+    try { return await createImageBitmap(file) } catch { /* fall through to <img> */ }
+  }
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img) }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error(`Couldn't open "${file.name}" as an image. Try a PNG or JPG screenshot.`))
+    }
+    img.src = url
+  })
+}
+
+// Returns a canvas ready for OCR: ~2000px wide, grayscale, evenly lit, with
+// the table grid removed.
+async function prepareImageForOcr(file) {
+  const bmp = await decodeImage(file)
+  const srcW = bmp.width
+  const srcH = bmp.height
+  const scale = Math.min(OCR_TARGET_WIDTH / srcW, OCR_MAX_HEIGHT / srcH)
+  const w = Math.max(1, Math.round(srcW * scale))
+  const h = Math.max(1, Math.round(srcH * scale))
+
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, w, h)
+  ctx.drawImage(bmp, 0, 0, w, h)
+  if (bmp.close) bmp.close()
+
+  const img = ctx.getImageData(0, 0, w, h)
+  const gray = new Uint8ClampedArray(w * h)
+  for (let i = 0, p = 0; i < gray.length; i++, p += 4) {
+    gray[i] = (img.data[p] * 299 + img.data[p + 1] * 587 + img.data[p + 2] * 114) / 1000
+  }
+  flattenBackground(gray, w, h)
+  removeTableLines(gray, w, h)
+  for (let i = 0, p = 0; i < gray.length; i++, p += 4) {
+    img.data[p] = img.data[p + 1] = img.data[p + 2] = gray[i]
+    img.data[p + 3] = 255
+  }
+  ctx.putImageData(img, 0, 0)
+  return canvas
+}
+
+async function extractRawTokensFromImages(files, onProgress) {
+  await loadTesseract()
+  onProgress?.('🔤 Loading text reader (first time can take a few seconds)…')
+  let current = ''
+  const worker = await window.Tesseract.createWorker('eng', 1, {
+    logger: (m) => {
+      if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+        onProgress?.(`${current} ${Math.round(m.progress * 100)}%`)
+      }
+    },
+  })
+  const pages = []
+  try {
+    // PSM 6 = "single uniform block of text" — best for a ruled table.
+    await worker.setParameters({ tessedit_pageseg_mode: '6' })
+    for (let i = 0; i < files.length; i++) {
+      current = `🔍 Reading image ${i + 1} of ${files.length}…`
+      onProgress?.(current)
+      const canvas = await prepareImageForOcr(files[i])
+      const { data } = await worker.recognize(canvas)
+      pages.push(ocrWordsToRawPage(data.words || [], canvas.width, i + 1))
+    }
+  } finally {
+    try { await worker.terminate() } catch { /* ignore */ }
+  }
+  return pages
+}
+
+function isImageFile(f) {
+  return !!f && (/^image\//.test(f.type || '') || /\.(png|jpe?g|webp|bmp)$/i.test(f.name || ''))
+}
+
 // ── Public API ────────────────────────────────────────────────
-export async function scanResultPdf(file, semFilter = -1) {
-  if (!file) throw new Error('Please choose a result-sheet PDF first.')
+// Accepts ONE result-sheet PDF, or one-or-more screenshots/photos of it.
+// `onProgress(msg)` is optional (used to show OCR progress in the modal).
+// For images the returned array also carries `viaOcr = true` and
+// `dropped = [{ subjectCode, si, reason }]` (rows that were too uncertain to
+// fill in automatically).
+export async function scanResultPdf(fileOrFiles, semFilter = -1, onProgress) {
+  const files = (Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]).filter(Boolean)
+  if (files.length === 0) throw new Error('Please choose a result-sheet PDF or screenshot first.')
+
+  const imageCount = files.filter(isImageFile).length
+  if (imageCount > 0) {
+    if (imageCount !== files.length) {
+      throw new Error('Please upload either one PDF, or only images — not a mix of both.')
+    }
+    return scanResultImages(files, semFilter, onProgress)
+  }
+
+  if (files.length > 1) throw new Error('Please upload a single PDF (or several images of the result sheet).')
+  const file = files[0]
   if (file.type !== 'application/pdf') {
-    throw new Error('Please upload the PDF from AKTU One View portal (erp.aktu.ac.in).')
+    throw new Error('Please upload the PDF from AKTU One View portal (erp.aktu.ac.in), or a screenshot of it.')
   }
 
   const rawPages = await extractRawPositionalTokens(file)
@@ -242,6 +368,31 @@ export async function scanResultPdf(file, semFilter = -1) {
     )
   }
   return extracted
+}
+
+async function scanResultImages(files, semFilter, onProgress) {
+  const rawPages = await extractRawTokensFromImages(files, onProgress)
+  onProgress?.('🔍 Scanning result table for marks…')
+
+  const semesters = JSON.parse(JSON.stringify(SEMESTERS))
+  const parsed = await parseInWorkerOrFallback(rawPages, semesters, semFilter)
+
+  const marks = Object.values(GRADE_RULES?.marks || {})
+  const maxInternal = Math.max(0, ...marks.map((m) => m?.internal || 0)) || Infinity
+  const maxExternal = Math.max(0, ...marks.map((m) => m?.external || 0)) || Infinity
+  const { kept, dropped } = filterSuspiciousOcrRows(parsed, semesters, maxInternal, maxExternal)
+
+  if (kept.length === 0) {
+    throw new Error(
+      "Couldn't read marks from the image. Use a clear, straight, full-width screenshot of the " +
+      '"Print One View" result table (no glare, no tilt, whole table visible), or upload the PDF instead.' +
+      (dropped.length ? ` (${dropped.length} row(s) were found but too unclear to trust.)` : '') +
+      buildScanDebug(rawPages, semesters)
+    )
+  }
+  kept.viaOcr = true
+  kept.dropped = dropped
+  return kept
 }
 
 // Applies scanned results into the marksData/backData/electiveChoices shape
