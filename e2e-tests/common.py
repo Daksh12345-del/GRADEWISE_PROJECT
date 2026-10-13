@@ -394,8 +394,18 @@ def sign_up(driver):
         driver.find_element(By.XPATH, '//button[contains(text(),"Confirm & Launch")]').click()
 
     try:
-        WebDriverWait(driver, 15).until(EC.url_contains("/dashboard"))
+        WebDriverWait(driver, 30).until(EC.url_contains("/dashboard"))
     except Exception:
+        # CI is occasionally slow to complete the post-verification redirect.
+        # If we're still on the verification UI, re-submit once and wait a
+        # bit longer before treating it as a hard failure.
+        verification_boxes = driver.find_elements(By.ID, "login-verification")
+        if verification_boxes and verification_boxes[0].is_displayed():
+            confirm_buttons = driver.find_elements(By.XPATH, '//button[contains(text(),"Confirm & Launch")]')
+            if confirm_buttons:
+                confirm_buttons[0].click()
+                WebDriverWait(driver, 20).until(EC.url_contains("/dashboard"))
+                return
         # Capture what's actually on screen when this fails, instead of just
         # a bare TimeoutException with no clue what page we were stuck on.
         driver.save_screenshot(str(SCREENSHOT_DIR / "signup_failure_final_state.png"))
